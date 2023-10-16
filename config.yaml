@@ -1,0 +1,35 @@
+Logging: # logging 配置
+  disable_existing_loggers: false
+  formatters:
+    verbose:
+      format: "[%(asctime)s-%(levelname)s-%(name)s] %(message)s"
+      datefmt: "%H:%M:%S" # %Y-%m-%d
+  handlers:
+    console:
+      class: logging.StreamHandler
+      formatter: verbose
+      level: DEBUG # 命令行的记录器设置阈值
+
+    file_handler:
+      class: logging.FileHandler
+      formatter: verbose
+      level: DEBUG
+      filename: ./app.log
+
+    # dingtalk:
+    #   class: dingtalk_log_handler.DingTalkHandler
+    #   formatter: verbose
+    #   level: WARNING  # 钉钉的 记录器设置阈值
+    #   secret: ""
+    #   webhook: https://oapi.dingtalk.com/robot/send?access_token=
+    #   timeout: 2  # http request timeout, default 1 second
+
+  loggers:
+    "":
+      handlers:
+        - console
+        # - file_handler
+        # - dingtalk
+      level: INFO
+      # propagate: false
+  version: 1

@@ -1,5 +1,7 @@
 import pandas as pd
 
+import config
+
 
 def read_course_registration_excel(
     excel_path: str, student_id_file_path: str

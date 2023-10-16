@@ -28,6 +28,15 @@ class TestNicknameCrawler(unittest.TestCase):
         )
         self.assertEqual(nick_name, None)
 
+    def test_nowcoder_user_profile(self):
+        """测试非 contest profile 的 nowcoder 用户主页"""
+
+        nowcoder_user_profile_url = "https://www.nowcoder.com/users/804688108"
+        user_profile = nowcoder_nickname_crawler.get_nowcoder_nickname(
+            nowcoder_user_profile_url
+        )
+        self.assertEqual(user_profile, "23数科闻学兵")
+
 
 if __name__ == "__main__":
     unittest.main()
