@@ -4,7 +4,7 @@ from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
-class RankingBase(DeclarativeBase):
+class RankingBase:
     """排名信息的基类(各场比赛混在一起)"""
 
     id: Mapped[int] = mapped_column(primary_key=True)

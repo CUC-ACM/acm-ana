@@ -1,14 +1,17 @@
 import datetime
-from typing import List, Optional
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 from contest import ContestBase
-from ranking.vjudge_ranking import VjudgeRanking
+from sql_base import SQLBase
+
+if TYPE_CHECKING:
+    from ranking.vjudge_ranking import VjudgeRanking
 
 
-class VjudgeContest(ContestBase):
+class VjudgeContest(SQLBase, ContestBase):
     """存储 vjudge 所有比赛元信息 的表"""
 
     __tablename__ = "vjudge_contest"
