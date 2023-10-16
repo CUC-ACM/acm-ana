@@ -13,3 +13,6 @@ class ContestBase(DeclarativeBase):
     start_time: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=False))
     end_time: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=False))
     url: Mapped[Optional[str]] = mapped_column(String())
+    div: Mapped[Optional[str]] = mapped_column(
+        String()
+    )  # 比赛组别："div1", "div2", "div1 & div2"

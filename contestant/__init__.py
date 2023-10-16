@@ -12,3 +12,4 @@ class ContestantBase(DeclarativeBase):
     student_id: Mapped[Optional[str]] = mapped_column(String(), unique=True)
     nickname: Mapped[Optional[str]] = mapped_column(String())
     username: Mapped[str] = mapped_column(String())
+    is_in_coures: Mapped[bool] = mapped_column()  # 是否在选课名单中

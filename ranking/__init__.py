@@ -10,3 +10,6 @@ class RankingBase(DeclarativeBase):
     id: Mapped[int] = mapped_column(primary_key=True)
     rank: Mapped[int] = mapped_column(Integer())
     score: Mapped[int] = mapped_column(Integer())
+    solved_cnt: Mapped[int] = mapped_column(Integer())
+    upsolved_cnt: Mapped[int] = mapped_column(Integer())  # 补题数
+    # penalty: Mapped[int] = mapped_column(Integer())  # 罚时
