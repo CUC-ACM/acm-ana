@@ -3,7 +3,7 @@ import logging.config
 import yaml
 from sqlalchemy import create_engine
 
-engine = create_engine("sqlite:///data/sqlite_data.db", echo=True)
+engine = create_engine("sqlite:///data/sqlite_data.db", echo=False)
 
 with open("config.yaml", "r") as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
