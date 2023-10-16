@@ -47,3 +47,5 @@ if __name__ == "__main__":
     for student in students:
         print(student)
     print(f"总人数：{len(students)}")
+    # df = pd.DataFrame(students, columns=["学号", "姓名", "年级", "专业"])
+    # df.to_csv("./data/attendance.csv", index=True)
