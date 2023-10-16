@@ -1,3 +1,7 @@
+input:
+  attendance_path: "./data/attendance.csv" # 选课人员名单 csv 文件路径
+  questionnaire_path: "./data/questionnaire.csv" # 问卷 csv 文件路径
+
 Logging: # logging 配置
   disable_existing_loggers: false
   formatters:
