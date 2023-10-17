@@ -2,7 +2,7 @@ import datetime
 
 import fake_useragent
 import requests
-from sqlalchemy.orm import Session
+from config import sqlsession
 
 import config
 from contest.vjudge_contest import VjudgeContest
@@ -11,19 +11,47 @@ from ranking.vjudge_ranking import VjudgeRanking
 
 
 class VjudgeRankCrawler:
+    class Submission:
+        def __init__(self, l: list) -> None:
+            self.contestant_id: int = int(l[0])
+            self.promble_id = int(l[1])
+            self.accepted: bool = bool(l[2])
+            self.time: datetime.timedelta = datetime.timedelta(seconds=int(l[3]))
+
+        def __repr__(self) -> str:
+            return f"contestant_id: {self.contestant_id}, promble_id: {self.promble_id}, accepted: {self.accepted}, time: {self.time}"
+
     def __init__(self, d: dict) -> None:
+        self.id = d["id"]
+        self.title = d["title"]
+        self.isReplay = d["isReplay"]
+        self.length = int(d["length"])
         self.begin: datetime.datetime = datetime.datetime.utcfromtimestamp(
             int(d["begin"] / 1000)
         )
-        self.id = d["id"]
-        self.isReplay = d["isReplay"]
-        self.length = int(d["length"])
         self.end: datetime.datetime = datetime.datetime.utcfromtimestamp(
             int((d["begin"] + d["length"]) / 1000)
         )
-        self.participants = d["participants"]
-        self.submissions = d["submissions"]
-        self.title = d["title"]
+        self.participants: dict[int, VjudgeContestant | None] = {}
+
+        for contestant_id, val in d["participants"].items():
+            username = val[0]
+            nickname = val[1]
+            stmt = sqlsession.query(VjudgeContestant).where(
+                VjudgeContestant.username == username
+            )
+
+            self.participants[contest_id] = sqlsession.execute(
+                stmt
+            ).scalar_one_or_none()  # type: ignore
+
+        self.submissions = []
+
+        for submission in d["submissions"]:
+            self.submissions.append(VjudgeRankCrawler.Submission(submission))
+
+    def __repr__(self) -> str:
+        return f"id: {self.id}, title: {self.title}, begin: {self.begin}, end: {self.end}, participants: {self.participants}, submissions: {self.submissions}"
 
     @classmethod
     def get_rank_from_http_api(cls, contest_id: int) -> "VjudgeRankCrawler":
@@ -38,17 +66,17 @@ class VjudgeRankCrawler:
 
     def commit_to_vjudge_contest_db(self, div: str | None = None):
         """将当前的比赛信息提交到数据库 vjudge_contest 中"""
-        with Session(config.engine, autoflush=False) as sqlsession:
-            vjudge_contest = VjudgeContest(
-                id=self.id,
-                title=self.title,
-                start_time=self.begin,
-                end_time=self.end,
-                url=f"https://vjudge.net/contest/{self.id}",
-                div=div,
-            )
-            sqlsession.add(vjudge_contest)
-            sqlsession.commit()
+
+        vjudge_contest = VjudgeContest(
+            id=self.id,
+            title=self.title,
+            start_time=self.begin,
+            end_time=self.end,
+            url=f"https://vjudge.net/contest/{self.id}",
+            div=div,
+        )
+        sqlsession.add(vjudge_contest)
+        sqlsession.commit()
 
 
 if __name__ == "__main__":
@@ -65,5 +93,7 @@ if __name__ == "__main__":
         with open(cache_path, "w") as f:
             json.dump(response.json(), f)
         vj_rank_crawler = VjudgeRankCrawler(response.json())
-
-    vj_rank_crawler.commit_to_vjudge_contest_db(div="div1")
+    # print(vj_rank_crawler)
+    for submission in vj_rank_crawler.submissions:
+        print(submission)
+    # vj_rank_crawler.commit_to_vjudge_contest_db(div="div1")
