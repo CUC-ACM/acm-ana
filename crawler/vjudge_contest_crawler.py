@@ -17,13 +17,13 @@ class VjudgeContestCrawler:
             self, l: list, participants_dict: dict[int, VjudgeContestant]
         ) -> None:
             self.contestant_id: int = int(l[0])
-            self.promble_id = int(l[1])
+            self.problem_id = int(l[1])
             self.accepted: bool = bool(l[2])
             self.time: datetime.timedelta = datetime.timedelta(seconds=int(l[3]))
             self.contestant: VjudgeContestant = participants_dict[self.contestant_id]
 
         def __repr__(self) -> str:
-            return f"contestant_id: {self.contestant_id}, contestant: {self.contestant} promble_id: {self.promble_id}, accepted: {self.accepted}, time: {self.time}"
+            return f"contestant_id: {self.contestant_id}, contestant: {self.contestant} promble_id: {self.problem_id}, accepted: {self.accepted}, time: {self.time}"
 
     def __init__(self, d: dict) -> None:
         self.id: int = int(d["id"])
