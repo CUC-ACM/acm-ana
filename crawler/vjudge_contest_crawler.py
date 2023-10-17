@@ -51,6 +51,7 @@ class VjudgeContestCrawler:
                 )
 
         self.submissions = [VjudgeContestCrawler.Submission(submission, self.participants) for submission in d["submissions"]]  # type: ignore
+        self.submissions.sort(key=lambda x: x.time)
 
     def __repr__(self) -> str:
         return f"id: {self.id}, title: {self.title}, begin: {self.begin}, end: {self.end}, participants: {self.participants}, submissions: {self.submissions}"
