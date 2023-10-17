@@ -38,15 +38,15 @@ async def read_nowcoder_questionnaire():
                 stmt = select(NowcoderContestant).where(
                     NowcoderContestant.student_id == student_id
                 )
-                crt_nowcoder_contestant = sqlsession.execute(stmt).scalar_one_or_none()
+                cached_nowcoder_contestant = sqlsession.execute(stmt).scalar_one_or_none()
 
                 if (
-                    crt_nowcoder_contestant
+                    cached_nowcoder_contestant
                     and config.config["input"]["using_nickname_cache"]
-                    and crt_nowcoder_contestant.nickname
+                    and cached_nowcoder_contestant.nickname
                 ):  # using cache
                     logger.debug(
-                        f"牛客网昵称已缓存: {row['姓名（必填）']}, nickname: {crt_nowcoder_contestant.nickname}"
+                        f"牛客网昵称已缓存: {row['姓名（必填）']}, nickname: {cached_nowcoder_contestant.nickname}"
                     )
                     continue
 
@@ -75,11 +75,11 @@ async def read_nowcoder_questionnaire():
                     grade=row["年级（必填）"][:-1],
                     div="div2",
                 )
-                if crt_nowcoder_contestant:
-                    sqlsession.delete(crt_nowcoder_contestant)
-                    sqlsession.commit()
-
-                sqlsession.add(nowcoder_contestant)
+                if cached_nowcoder_contestant:  # update
+                    cached_nowcoder_contestant.nickname = nickname
+                    sqlsession.add(cached_nowcoder_contestant)
+                else:
+                    sqlsession.add(nowcoder_contestant)
         sqlsession.commit()
 
 
@@ -129,10 +129,10 @@ async def read_vjudge_questionnaire():
                     div="div1",
                 )
                 if cached_vjudge_contestant:
-                    sqlsession.delete(cached_vjudge_contestant)
-                    sqlsession.commit()
-
-                sqlsession.add(vjudge_contestant)
+                    cached_vjudge_contestant.nickname = nickname
+                    sqlsession.add(cached_vjudge_contestant)
+                else:
+                    sqlsession.add(vjudge_contestant)
         sqlsession.commit()
 
 

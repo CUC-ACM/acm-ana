@@ -33,7 +33,7 @@ async def main():
         assert nick_name == "22物联网黄屹"
 
         nick_name = await get_vjudge_nickname(
-            "https://ac.nowcoder.com/acm/contest/profile/767116230", session
+            "https://vjudge.net/user/CUC_2023", session
         )
         print(nick_name)
         assert nick_name == None
