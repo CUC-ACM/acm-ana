@@ -77,7 +77,7 @@ async def read_nowcoder_questionnaire():
                 sqlsession.add(cached_nowcoder_contestant)
             else:
                 sqlsession.add(nowcoder_contestant)
-    sqlsession.commit()
+            sqlsession.commit()
 
 
 async def read_vjudge_questionnaire():
@@ -129,7 +129,7 @@ async def read_vjudge_questionnaire():
                 sqlsession.add(cached_vjudge_contestant)
             else:
                 sqlsession.add(vjudge_contestant)
-    sqlsession.commit()
+            sqlsession.commit()
 
 
 async def main():

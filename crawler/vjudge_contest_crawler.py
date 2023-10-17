@@ -2,9 +2,10 @@ import datetime
 
 import fake_useragent
 import requests
-from config import sqlsession
+from sqlalchemy import select
 
 import config
+from config import sqlsession
 from contest.vjudge_contest import VjudgeContest
 from contestant.vjudge_contestant import VjudgeContestant
 from ranking.vjudge_ranking import VjudgeRanking
@@ -12,14 +13,17 @@ from ranking.vjudge_ranking import VjudgeRanking
 
 class VjudgeRankCrawler:
     class Submission:
-        def __init__(self, l: list) -> None:
+        def __init__(
+            self, l: list, participants_dict: dict[int, VjudgeContestant]
+        ) -> None:
             self.contestant_id: int = int(l[0])
             self.promble_id = int(l[1])
             self.accepted: bool = bool(l[2])
             self.time: datetime.timedelta = datetime.timedelta(seconds=int(l[3]))
+            self.contestant: VjudgeContestant = participants_dict[self.contestant_id]
 
         def __repr__(self) -> str:
-            return f"contestant_id: {self.contestant_id}, promble_id: {self.promble_id}, accepted: {self.accepted}, time: {self.time}"
+            return f"contestant_id: {self.contestant_id}, contestant: {self.contestant} promble_id: {self.promble_id}, accepted: {self.accepted}, time: {self.time}"
 
     def __init__(self, d: dict) -> None:
         self.id = d["id"]
@@ -35,20 +39,20 @@ class VjudgeRankCrawler:
         self.participants: dict[int, VjudgeContestant | None] = {}
 
         for contestant_id, val in d["participants"].items():
+            contestant_id = int(contestant_id)
             username = val[0]
             nickname = val[1]
-            stmt = sqlsession.query(VjudgeContestant).where(
-                VjudgeContestant.username == username
-            )
+            stmt = select(VjudgeContestant).where(VjudgeContestant.username == username)
 
-            self.participants[contest_id] = sqlsession.execute(
+            self.participants[contestant_id] = sqlsession.execute(
                 stmt
             ).scalar_one_or_none()  # type: ignore
+            if self.participants[contestant_id] is None:
+                self.participants[contestant_id] = VjudgeContestant(
+                    username=username, nickname=nickname
+                )
 
-        self.submissions = []
-
-        for submission in d["submissions"]:
-            self.submissions.append(VjudgeRankCrawler.Submission(submission))
+        self.submissions = [VjudgeRankCrawler.Submission(submission, self.participants) for submission in d["submissions"]]  # type: ignore
 
     def __repr__(self) -> str:
         return f"id: {self.id}, title: {self.title}, begin: {self.begin}, end: {self.end}, participants: {self.participants}, submissions: {self.submissions}"
