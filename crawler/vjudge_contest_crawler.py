@@ -11,7 +11,7 @@ from contestant.vjudge_contestant import VjudgeContestant
 from ranking.vjudge_ranking import VjudgeRanking
 
 
-class VjudgeRankCrawler:
+class VjudgeContestCrawler:
     class Submission:
         def __init__(
             self, l: list, participants_dict: dict[int, VjudgeContestant]
@@ -26,16 +26,14 @@ class VjudgeRankCrawler:
             return f"contestant_id: {self.contestant_id}, contestant: {self.contestant} promble_id: {self.promble_id}, accepted: {self.accepted}, time: {self.time}"
 
     def __init__(self, d: dict) -> None:
-        self.id = d["id"]
-        self.title = d["title"]
-        self.isReplay = d["isReplay"]
-        self.length = int(d["length"])
+        self.id: int = int(d["id"])
+        self.title: str = d["title"]
+        self.isReplay: bool = d["isReplay"]
+        self.length = datetime.timedelta(seconds=int(d["length"]) / 1000)
         self.begin: datetime.datetime = datetime.datetime.utcfromtimestamp(
             int(d["begin"] / 1000)
         )
-        self.end: datetime.datetime = datetime.datetime.utcfromtimestamp(
-            int((d["begin"] + d["length"]) / 1000)
-        )
+        self.end: datetime.datetime = self.begin + self.length
         self.participants: dict[int, VjudgeContestant | None] = {}
 
         for contestant_id, val in d["participants"].items():
@@ -52,13 +50,13 @@ class VjudgeRankCrawler:
                     username=username, nickname=nickname
                 )
 
-        self.submissions = [VjudgeRankCrawler.Submission(submission, self.participants) for submission in d["submissions"]]  # type: ignore
+        self.submissions = [VjudgeContestCrawler.Submission(submission, self.participants) for submission in d["submissions"]]  # type: ignore
 
     def __repr__(self) -> str:
         return f"id: {self.id}, title: {self.title}, begin: {self.begin}, end: {self.end}, participants: {self.participants}, submissions: {self.submissions}"
 
     @classmethod
-    def get_rank_from_http_api(cls, contest_id: int) -> "VjudgeRankCrawler":
+    def get_rank_from_http_api(cls, contest_id: int) -> "VjudgeContestCrawler":
         headers = {
             "User-Agent": fake_useragent.UserAgent().random,
         }
@@ -91,13 +89,13 @@ if __name__ == "__main__":
     contest_id = 587010
     if os.path.exists(cache_path):
         with open(cache_path) as f:
-            vj_rank_crawler = VjudgeRankCrawler(json.load(f))
+            vj_contest_crawler = VjudgeContestCrawler(json.load(f))
     else:
         response = requests.get(f"https://vjudge.net/contest/rank/single/{contest_id}")
         with open(cache_path, "w") as f:
             json.dump(response.json(), f)
-        vj_rank_crawler = VjudgeRankCrawler(response.json())
-    # print(vj_rank_crawler)
-    for submission in vj_rank_crawler.submissions:
+        vj_contest_crawler = VjudgeContestCrawler(response.json())
+    # print(vj_contest_crawler)
+    for submission in vj_contest_crawler.submissions:
         print(submission)
-    # vj_rank_crawler.commit_to_vjudge_contest_db(div="div1")
+    # vj_contest_crawler.commit_to_vjudge_contest_db(div="div1")
