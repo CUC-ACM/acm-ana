@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Float
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -9,7 +9,7 @@ class RankingBase:
 
     id: Mapped[int] = mapped_column(primary_key=True)
     rank: Mapped[int] = mapped_column(Integer())
-    score: Mapped[int] = mapped_column(Integer())
+    score: Mapped[float] = mapped_column(Float())
     solved_cnt: Mapped[int] = mapped_column(Integer())
     upsolved_cnt: Mapped[int] = mapped_column(Integer())  # 补题数
     penalty: Mapped[int] = mapped_column(Integer())  # 罚时
