@@ -3,6 +3,7 @@ import re
 from urllib import parse
 
 import aiohttp
+import fake_useragent
 import requests
 
 import config
@@ -13,8 +14,10 @@ async def get_nowcoder_nickname(url: str, session: aiohttp.ClientSession) -> str
     if domain == "www.nowcoder.com":
         nowcoder_id = url.split("/")[-1]
         url = f"https://ac.nowcoder.com/acm/contest/profile/{nowcoder_id}"
-
-    async with session.get(url) as response:
+    headers = {
+        "User-Agent": fake_useragent.UserAgent().random,
+    }
+    async with session.get(url, headers=headers) as response:
         re_nickname = re.compile(r'data-title="(.*)"', re.M | re.I)
 
         matchObj = re_nickname.search(await response.text())

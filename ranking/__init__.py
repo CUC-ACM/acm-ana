@@ -12,4 +12,4 @@ class RankingBase:
     score: Mapped[int] = mapped_column(Integer())
     solved_cnt: Mapped[int] = mapped_column(Integer())
     upsolved_cnt: Mapped[int] = mapped_column(Integer())  # 补题数
-    # penalty: Mapped[int] = mapped_column(Integer())  # 罚时
+    penalty: Mapped[int] = mapped_column(Integer())  # 罚时

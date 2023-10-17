@@ -1,12 +1,16 @@
 import asyncio
 
 import aiohttp
+import fake_useragent
 import requests
 from lxml import etree
 
 
 async def get_vjudge_nickname(url: str, session: aiohttp.ClientSession) -> str | None:
-    async with session.get(url) as response:
+    headers = {
+        "User-Agent": fake_useragent.UserAgent().random,
+    }
+    async with session.get(url, headers=headers) as response:
         xpath = "/html/body/div[1]/div[2]/div[2]/span"
         try:
             nick_name: str = (
