@@ -38,13 +38,11 @@ class VjudgeRankingItem:
         self,
         contestant_id: int,
         contestant: VjudgeContestant,
-        contest_id: int,
-        contest_length: datetime.timedelta,
+        contest: VjudgeContestCrawler,
     ) -> None:
         self.contestant_id: int = contestant_id
         self.contestant: VjudgeContestant = contestant
-        self.contest_id: int = contest_id
-        self.contest_length: datetime.timedelta = contest_length
+        self.contest: VjudgeContestCrawler = contest
         self.competition_rank: int | None = None  # 比赛排名。如果没有参加比赛而补了题，为 None
         self.score: float = 0
         self.solved_cnt: int = 0
@@ -54,11 +52,11 @@ class VjudgeRankingItem:
         self.problem_set: ProblemSet = ProblemSet()
 
     def __repr__(self) -> str:
-        return f"contestant_id: {self.contestant_id}, contestant: {self.contestant}, contest_id: {self.contest_id}, competition_rank: {self.competition_rank}, score: {self.score}, solved_cnt: {self.solved_cnt}, upsolved_cnt: {self.upsolved_cnt}, penalty: {self.total_penalty}, first_submit_time: {self.first_submit_time}"
+        return f"contestant_id: {self.contestant_id}, contestant: {self.contestant}, contest_id: {self.contest.id}, competition_rank: {self.competition_rank}, score: {self.score}, solved_cnt: {self.solved_cnt}, upsolved_cnt: {self.upsolved_cnt}, penalty: {self.total_penalty}, first_submit_time: {self.first_submit_time}"
 
     def __lt__(self, other: "VjudgeRankingItem") -> bool:
         if (
-            self.solved_cnt == 0 and self.first_submit_time > self.contest_length  # type: ignore
+            self.solved_cnt == 0 and self.first_submit_time > self.contest.length  # type: ignore
         ):  # 只参加了补题
             if self.upsolved_cnt != other.upsolved_cnt:  # 如果补题数不同
                 return self.upsolved_cnt > other.upsolved_cnt  # 补题数多的排名靠前
@@ -78,7 +76,7 @@ class VjudgeRankingItem:
             VjudgeRanking(
                 contestant_id=self.contestant_id,
                 contestant=self.contestant,
-                contest_id=self.contest_id,
+                contest_id=self.contest.id,
                 competition_rank=self.competition_rank,
                 score=self.score,
                 solved_cnt=self.solved_cnt,
@@ -93,7 +91,7 @@ class VjudgeRankingItem:
         :param contestant_num: `在比赛期间参加比赛` 的人数"""
         # 1. 比赛期间得分
         if (
-            self.first_submit_time <= self.contest_length  # type: ignore
+            self.first_submit_time <= self.contest.length  # type: ignore
             and self.competition_rank is not None
         ):  # 参加了比赛——>比赛期间得分
             percentage = self.competition_rank / contestant_num
@@ -118,7 +116,7 @@ class VjudgeRankingItem:
 
         if self.first_submit_time is None:  # 第一次提交
             self.first_submit_time = submission.time
-        if submission.time < self.contest_length:  # 在比赛时间内提交
+        if submission.time < self.contest.length:  # 在比赛时间内提交
             if not self.problem_set[submission.problem_id].accepted:  # 如果之前还没有通过这道题
                 if submission.accepted:
                     self.solved_cnt += 1
@@ -188,8 +186,7 @@ class VjudgeRankingItem:
                 crt_item = VjudgeRankingItem(
                     contestant_id=submission.contestant_id,
                     contestant=submission.contestant,
-                    contest_id=contest_id,
-                    contest_length=vjudge_contest_crawler.length,
+                    contest=vjudge_contest_crawler,
                 )
                 vjudge_ranking_items_dict[submission.contestant_id] = crt_item
 

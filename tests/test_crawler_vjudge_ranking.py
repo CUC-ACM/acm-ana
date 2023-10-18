@@ -85,7 +85,7 @@ class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
         crt_id = 834306
         self.assertGreater(
             item_dict[crt_id].first_submit_time,
-            item_dict[crt_id].contest_length,  # type: ignore
+            item_dict[crt_id].contest.length,  # type: ignore
             "没有参加比赛",
         )
         self.assertEqual(item_dict[crt_id].solved_cnt, 0)
@@ -97,7 +97,7 @@ class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
         crt_id = 835024
         self.assertLessEqual(
             item_dict[crt_id].first_submit_time,
-            item_dict[crt_id].contest_length,  # type: ignore
+            item_dict[crt_id].contest.length,  # type: ignore
             "参加了比赛",
         )
         self.assertEqual(item_dict[crt_id].solved_cnt, 0, "没有过题")
@@ -109,7 +109,7 @@ class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
         crt_id = 834865
         self.assertLessEqual(
             item_dict[crt_id].first_submit_time,
-            item_dict[crt_id].contest_length,  # type: ignore
+            item_dict[crt_id].contest.length,  # type: ignore
             "参加了比赛",
         )
         self.assertEqual(item_dict[crt_id].solved_cnt, 3, "过了 3 题")
