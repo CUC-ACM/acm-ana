@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional
 
-from sqlalchemy import DateTime, String
+from sqlalchemy import DateTime, Select, String, select
 from sqlalchemy.orm import Mapped, mapped_column
 
 from scoreanalysis.models import sqlsession
@@ -21,3 +21,16 @@ class ContestBase:
     def commit_to_db(self):
         sqlsession.add(self)
         sqlsession.commit()
+
+    @classmethod
+    def _get_query_stmt(
+        cls, id: int | None = None, title: str | None = None, div: str | None = None
+    ) -> Select:
+        stmt = select(cls)
+        if id is not None:
+            stmt = stmt.where(cls.id == id)
+        if title is not None:
+            stmt = stmt.where(cls.title == title)
+        if div is not None:
+            stmt = stmt.where(cls.div == div)
+        return stmt

@@ -1,4 +1,4 @@
-from sqlalchemy import Float, Integer
+from sqlalchemy import Float, Integer, Select, select
 from sqlalchemy.orm import Mapped, mapped_column
 
 from scoreanalysis.models import sqlsession
@@ -17,3 +17,10 @@ class RankingBase:
     def commit_to_db(self):
         sqlsession.add(self)
         sqlsession.commit()
+
+    @classmethod
+    def _get_query_stmt(cls, id: int | None = None) -> Select:
+        stmt = select(cls)
+        if id is not None:
+            stmt = stmt.where(cls.id == id)
+        return stmt
