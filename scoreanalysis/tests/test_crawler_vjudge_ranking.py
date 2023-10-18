@@ -5,7 +5,7 @@ from unittest import IsolatedAsyncioTestCase
 
 import aiohttp
 
-import config
+import scoreanalysis.config as config
 from contestant.vjudge_contestant import VjudgeContestant
 from crawler.vjudge_contest_crawler import VjudgeContestCrawler
 from crawler.vjudge_ranking import VjudgeRankingItem

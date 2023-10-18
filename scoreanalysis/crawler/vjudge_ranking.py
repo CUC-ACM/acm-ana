@@ -7,7 +7,7 @@ import aiofiles
 import aiohttp
 import fake_useragent
 
-import config
+import scoreanalysis.config as config
 from contestant.vjudge_contestant import VjudgeContestant
 from crawler.vjudge_contest_crawler import VjudgeContestCrawler
 from ranking.vjudge_ranking import VjudgeRanking

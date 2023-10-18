@@ -4,8 +4,6 @@ from typing import List, Optional
 from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
-from sql_base import SQLBase
-
 
 class ContestBase:
     """比赛元信息的基类"""

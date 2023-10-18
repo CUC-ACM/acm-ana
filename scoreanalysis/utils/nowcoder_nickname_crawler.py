@@ -6,7 +6,7 @@ import aiohttp
 import fake_useragent
 import requests
 
-import config
+import scoreanalysis.config as config
 
 
 async def get_nowcoder_nickname(url: str, session: aiohttp.ClientSession) -> str | None:

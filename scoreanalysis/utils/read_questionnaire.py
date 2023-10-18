@@ -6,8 +6,8 @@ import pandas as pd
 from fake_useragent import UserAgent
 from sqlalchemy import select
 
-import config
-from config import sqlsession
+import scoreanalysis.config as config
+from scoreanalysis.config import sqlsession
 from contest import ContestBase
 from contest.nowcoder_contest import NowcoderContest
 from contest.vjudge_contest import VjudgeContest
@@ -17,7 +17,7 @@ from contestant.vjudge_contestant import VjudgeContestant
 from ranking import RankingBase
 from ranking.nowcoder_ranking import NowcoderRanking
 from ranking.vjudge_ranking import VjudgeRanking
-from sql_base import SQLBase
+from scoreanalysis.models.sql_base import SQLBase
 from utils.nowcoder_nickname_crawler import get_nowcoder_nickname
 from utils.vjudge_nickname_crawler import get_vjudge_nickname
 

@@ -4,7 +4,7 @@ from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 from contestant import ContestantBase
-from sql_base import SQLBase
+from scoreanalysis.models.sql_base import SQLBase
 
 if TYPE_CHECKING:
     from ranking.vjudge_ranking import VjudgeRanking

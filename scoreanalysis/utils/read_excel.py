@@ -1,6 +1,6 @@
 import pandas as pd
 
-import config
+import scoreanalysis.config as config
 
 
 def read_course_registration_excel(

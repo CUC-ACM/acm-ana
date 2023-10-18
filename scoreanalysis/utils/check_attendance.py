@@ -3,8 +3,8 @@ import logging
 import pandas as pd
 from sqlalchemy import select
 
-import config
-from config import sqlsession
+import scoreanalysis.config as config
+from scoreanalysis.config import sqlsession
 from contestant.nowcoder_contestant import NowcoderContestant
 
 logger = logging.getLogger(__name__)
