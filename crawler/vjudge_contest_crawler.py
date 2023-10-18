@@ -14,13 +14,30 @@ from ranking.vjudge_ranking import VjudgeRanking
 class VjudgeContestCrawler:
     class Submission:
         def __init__(
-            self, l: list, participants_dict: dict[int, VjudgeContestant]
+            self,
+            contestant_id: int,
+            problem_id: int,
+            accepted: bool,
+            time: datetime.timedelta,
+            contestant: VjudgeContestant,
         ) -> None:
-            self.contestant_id: int = int(l[0])
-            self.problem_id = int(l[1])
-            self.accepted: bool = bool(l[2])
-            self.time: datetime.timedelta = datetime.timedelta(seconds=int(l[3]))
-            self.contestant: VjudgeContestant = participants_dict[self.contestant_id]
+            self.contestant_id: int = contestant_id  # 注意，这里是 vjudge 自己的 contestant_id
+            self.problem_id = problem_id
+            self.accepted: bool = accepted
+            self.time: datetime.timedelta = time
+            self.contestant: VjudgeContestant = contestant
+
+        @classmethod
+        def from_api_list(
+            cls, l: list, participants_dict: dict[int, VjudgeContestant]
+        ) -> "VjudgeContestCrawler.Submission":
+            return cls(
+                contestant_id=int(l[0]),
+                problem_id=int(l[1]),
+                accepted=bool(l[2]),
+                time=datetime.timedelta(seconds=int(l[3])),
+                contestant=participants_dict[int(l[0])],
+            )
 
         def __repr__(self) -> str:
             return f"contestant_id: {self.contestant_id}, contestant: {self.contestant} promble_id: {self.problem_id}, accepted: {self.accepted}, time: {self.time}"
@@ -50,7 +67,7 @@ class VjudgeContestCrawler:
                     username=username, nickname=nickname
                 )
 
-        self.submissions = [VjudgeContestCrawler.Submission(submission, self.participants) for submission in d["submissions"]]  # type: ignore
+        self.submissions = [VjudgeContestCrawler.Submission.from_api_list(submission, self.participants) for submission in d["submissions"]]  # type: ignore
         self.submissions.sort(key=lambda x: x.time)
 
     def __repr__(self) -> str:

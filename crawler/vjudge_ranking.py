@@ -40,7 +40,7 @@ class VjudgeRankingItem:
         contestant: VjudgeContestant,
         contest: VjudgeContestCrawler,
     ) -> None:
-        self.contestant_id: int = contestant_id
+        self.contestant_id: int = contestant_id  # 注意，这里是 vjudge 自己的 contestant_id
         self.contestant: VjudgeContestant = contestant
         self.contest: VjudgeContestCrawler = contest
         self.competition_rank: int | None = None  # 比赛排名。如果没有参加比赛而补了题，为 None
