@@ -1,11 +1,9 @@
 import logging
 
 import pandas as pd
-from sqlalchemy import select
 
 import scoreanalysis.config as config
-from scoreanalysis.config import sqlsession
-from contestant.nowcoder_contestant import NowcoderContestant
+from scoreanalysis.models.contestant.nowcoder_contestant import NowcoderContestant
 
 logger = logging.getLogger(__name__)
 
@@ -16,10 +14,9 @@ def check_attendance():
     df = pd.read_csv(config.config["input"]["attendance_path"])
     for index, row in df.iterrows():
         student_id = row["学号"]
-        stmt = select(NowcoderContestant).where(
-            NowcoderContestant.student_id == student_id
+        cached_nowcoder_contestant = NowcoderContestant.query_from_student_id(
+            student_id=student_id
         )
-        cached_nowcoder_contestant = sqlsession.execute(stmt).scalar_one_or_none()
 
         if not cached_nowcoder_contestant:
             logging.info(f"已选课未填表: {row['姓名']}")
