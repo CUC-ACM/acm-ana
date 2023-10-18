@@ -2,7 +2,6 @@ import asyncio
 
 import aiohttp
 import fake_useragent
-import requests
 from lxml import etree
 
 
@@ -24,20 +23,20 @@ async def get_vjudge_nickname(url: str, session: aiohttp.ClientSession) -> str |
             return nick_name.strip()
 
 
-async def main():
-    async with aiohttp.ClientSession() as session:
-        nick_name = await get_vjudge_nickname(
-            "https://vjudge.net/user/youngwind", session
-        )
-        print(nick_name)
-        assert nick_name == "22物联网黄屹"
-
-        nick_name = await get_vjudge_nickname(
-            "https://vjudge.net/user/CUC_2023", session
-        )
-        print(nick_name)
-        assert nick_name == None
-
-
 if __name__ == "__main__":
+
+    async def main():
+        async with aiohttp.ClientSession() as session:
+            nick_name = await get_vjudge_nickname(
+                "https://vjudge.net/user/youngwind", session
+            )
+            print(nick_name)
+            assert nick_name == "22物联网黄屹"
+
+            nick_name = await get_vjudge_nickname(
+                "https://vjudge.net/user/CUC_2023", session
+            )
+            print(nick_name)
+            assert nick_name == "侯理想"
+
     asyncio.run(main())
