@@ -21,4 +21,4 @@ class VjudgeContestant(SQLBase, ContestantBase):
     )
 
     def __repr__(self) -> str:
-        return f"VjudgeContestant(real_name={self.real_name}, id={self.id}, username={self.username}, nickname={self.nickname}, student_id={self.student_id})"
+        return f"VjudgeContestant(real_name={self.real_name}, id={self.id}, username={self.username}, nickname={self.nickname}, student_id={self.student_id}, is_in_course={self.is_in_course})"

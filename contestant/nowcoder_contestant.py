@@ -19,3 +19,6 @@ class NowcoderContestant(SQLBase, ContestantBase):
     rankings: Mapped[List["NowcoderRanking"]] = relationship(
         back_populates="contestant", cascade="all, delete-orphan"
     )
+
+    def __repr__(self) -> str:
+        return f"NowcoderContestant(real_name={self.real_name}, id={self.id}, username={self.username}, nickname={self.nickname}, student_id={self.student_id}, is_in_course={self.is_in_course})"
