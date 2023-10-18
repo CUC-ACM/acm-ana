@@ -2,7 +2,7 @@
 upsolve: # 补题
   expiration: 7 # 以 `比赛结束` 开始计算的补题有效期，单位天
 
-# 各个 OJ 的配置
+# 各个 OJ 的配置（将会用于实例化 ContestRetriever）
 
 vjudge: # vjudge config
   - # instance 1

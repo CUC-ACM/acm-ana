@@ -18,11 +18,13 @@ class VjudgeContestRetriever:
             self,
             vcontest_id: int,
             name: str,
+            div: str,
             begin: datetime.datetime,
             end: datetime.datetime,
         ) -> None:
             self.vcontest_id: int = vcontest_id
             self.name: str = name
+            self.div: str = div
             self.begin: datetime.datetime = begin
             self.end: datetime.datetime = end
 
@@ -30,13 +32,20 @@ class VjudgeContestRetriever:
             return f"(vcontest_id: {self.vcontest_id}, name: {self.name}, time({self.begin}, {self.end}))"
 
         def commit_to_db(self):
-            pass
+            VjudgeContest(
+                id=self.vcontest_id,
+                name=self.name,
+                div=self.div,
+                begin=self.begin,
+                end=self.end,
+            ).commit_to_db()
 
     def __init__(
         self,
         title: str,
-        start: int,
-        length: int,
+        div: str,  # div: "", "div1", "div2"
+        start: int = 0,
+        length: int = 20,
         draw: int = 1,
         sortDir: str = "desc",
         sortCol: int = 4,  # 时间
@@ -45,6 +54,7 @@ class VjudgeContestRetriever:
         owner: str = "",
         unix_timestamp: int = int(time.time() * 1000),
     ) -> None:
+        self.div: str = div
         self.draw: int = draw  # 1
         self.start: int = start
         self.length: int = length
@@ -73,6 +83,7 @@ class VjudgeContestRetriever:
         return VjudgeContestRetriever.Contest(
             name=l[1],
             vcontest_id=int(l[0]),
+            div=self.div,
             begin=datetime.datetime.utcfromtimestamp(int(l[3]) / 1000),
             end=datetime.datetime.utcfromtimestamp(int(l[4]) / 1000),
         )
@@ -104,8 +115,7 @@ class VjudgeContestRetriever:
 if __name__ == "__main__":
     vjudge_contest_retriever = VjudgeContestRetriever(
         title=config.config["vjudge"][0]["title_prefix"],
-        start=0,
-        length=20,
+        div=config.config["vjudge"][0]["div"],
     )
 
     vjudge_contest_retriever.get_contests()
