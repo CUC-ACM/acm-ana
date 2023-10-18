@@ -8,9 +8,9 @@ import aiohttp
 import fake_useragent
 
 import scoreanalysis.config as config
-from contestant.vjudge_contestant import VjudgeContestant
 from scoreanalysis.crawler.vjudge.contest_crawler import VjudgeContestCrawler
-from ranking.vjudge_ranking import VjudgeRanking
+from scoreanalysis.models.contestant.vjudge_contestant import VjudgeContestant
+from scoreanalysis.models.ranking.vjudge_ranking import VjudgeRanking
 
 logger = logging.getLogger(__name__)
 
@@ -160,7 +160,7 @@ class VjudgeRankingItem:
             "User-Agent": fake_useragent.UserAgent().random,
         }
         if config.config["debug_cache"]:
-            async with aiofiles.open("tmp/vjudge_rank_587010.json", mode="r") as f:
+            async with aiofiles.open("scoreanalysis/tmp/vjudge_rank_587010.json", mode="r") as f:
                 vjudge_contest_crawler = VjudgeContestCrawler(
                     json.loads(await f.read())
                 )
