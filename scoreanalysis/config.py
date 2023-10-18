@@ -14,3 +14,6 @@ COLORS = (
 )
 
 logging.config.dictConfig(config["Logging"])
+
+if __name__ == "__main__":
+    print(config)
