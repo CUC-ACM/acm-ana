@@ -6,7 +6,6 @@ import logging
 import aiofiles
 import aiohttp
 import fake_useragent
-import requests
 
 import config
 from contestant.vjudge_contestant import VjudgeContestant
@@ -44,20 +43,23 @@ class VjudgeRankingItem:
         self.contestant_id: int = contestant_id
         self.contestant: VjudgeContestant = contestant
         self.contest_id: int = contest_id
-        self.rank: int
+        self.competition_rank: int | None = None  # 比赛排名。如果没有参加比赛而补了题，为 None
         self.score: float = 0
         self.solved_cnt: int = 0
         self.upsolved_cnt: int = 0
         self.total_penalty: datetime.timedelta = datetime.timedelta()
-        self.first_submit_time: datetime.datetime | None = None
+        self.first_submit_time: datetime.timedelta | None = None
         self.problem_set: ProblemSet = ProblemSet()
 
     def __repr__(self) -> str:
-        return f"contestant_id: {self.contestant_id}, contestant: {self.contestant}, contest_id: {self.contest_id}, rank: {self.rank}, score: {self.score}, solved_cnt: {self.solved_cnt}, upsolved_cnt: {self.upsolved_cnt}, penalty: {self.total_penalty}"
+        return f"contestant_id: {self.contestant_id}, contestant: {self.contestant}, contest_id: {self.contest_id}, competition_rank: {self.competition_rank}, score: {self.score}, solved_cnt: {self.solved_cnt}, upsolved_cnt: {self.upsolved_cnt}, penalty: {self.total_penalty}, first_submit_time: {self.first_submit_time}"
 
     def __lt__(self, other: "VjudgeRankingItem") -> bool:
         if self.solved_cnt == other.solved_cnt:
-            return self.total_penalty < other.total_penalty
+            if self.total_penalty != other.total_penalty:
+                return self.total_penalty < other.total_penalty
+            else:
+                return self.contestant_id < other.contestant_id
         else:
             return self.solved_cnt > other.solved_cnt
 
@@ -67,7 +69,7 @@ class VjudgeRankingItem:
                 contestant_id=self.contestant_id,
                 contestant=self.contestant,
                 contest_id=self.contest_id,
-                rank=self.rank,
+                competition_rank=self.competition_rank,
                 score=self.score,
                 solved_cnt=self.solved_cnt,
                 upsolved_cnt=self.upsolved_cnt,
@@ -90,7 +92,8 @@ class VjudgeRankingItem:
                 )
         else:
             async with aiosession.get(
-                f"https://vjudge.net/contest/rank/single/{contest_id}", headers=headers
+                f"https://vjudge.net/contest/competition_rank/single/{contest_id}",
+                headers=headers,
             ) as response:
                 vjudge_contest_crawler = VjudgeContestCrawler(await response.json())
 
@@ -108,11 +111,13 @@ class VjudgeRankingItem:
             crt_item: VjudgeRankingItem = vjudge_ranking_items_dict[
                 submission.contestant_id
             ]
+            if crt_item.first_submit_time is None:  # 第一次提交
+                crt_item.first_submit_time = submission.time
 
             if submission.time < vjudge_contest_crawler.length:  # 在比赛时间内提交
                 if not crt_item.problem_set[
                     submission.problem_id
-                ].accepted:  # 多次提交中第一次 ac
+                ].accepted:  # 如果之前还没有通过这道题
                     if submission.accepted:
                         crt_item.solved_cnt += 1
                         crt_item.total_penalty += (
@@ -120,23 +125,36 @@ class VjudgeRankingItem:
                             + crt_item.problem_set[submission.problem_id].penalty
                         )
                         crt_item.problem_set[submission.problem_id].accepted = True
-                    else:  # 如果这个人没有通过这道题——>罚时+20min
+                    else:  # 如果没有通过这道题——>罚时+20min
                         crt_item.problem_set[
                             submission.problem_id
                         ].penalty += datetime.timedelta(minutes=20)
                 else:  # 对于已经通过的题目，不再进行处理
                     if submission.accepted:
-                        logger.debug(f"提交已经通过的题目，跳过: {submission}")
+                        logger.debug(f"比赛时重复提交已经通过的题目并通过，跳过: {submission}")
 
             else:  # 补题
-                crt_item.upsolved_cnt += 1
+                if submission.accepted:
+                    if crt_item.problem_set[submission.problem_id].accepted:  # 过题后重复提交
+                        logger.debug(f"补题重复提交已经通过的题目并通过，跳过: {submission}")
+                    else:
+                        crt_item.upsolved_cnt += 1
+                        crt_item.problem_set[submission.problem_id].accepted = True
+                else:  # 补题没有通过不计算罚时
+                    pass
+        vjudge_total_ranking_items_list = list(vjudge_ranking_items_dict.values())
+        vjudge_competition_ranking_items_list = list(
+            filter(
+                lambda item: item.first_submit_time is not None
+                and item.first_submit_time <= vjudge_contest_crawler.length,
+                vjudge_total_ranking_items_list,
+            )
+        )
+        vjudge_competition_ranking_items_list.sort()
+        for i, item in enumerate(vjudge_competition_ranking_items_list):
+            item.competition_rank = i + 1
 
-        vjudge_ranking_items_list = list(vjudge_ranking_items_dict.values())
-        vjudge_ranking_items_list.sort()
-        for i, item in enumerate(vjudge_ranking_items_list):
-            item.rank = i + 1
-
-        return vjudge_ranking_items_list
+        return sorted(vjudge_competition_ranking_items_list)
 
 
 if __name__ == "__main__":
@@ -161,5 +179,7 @@ if __name__ == "__main__":
         # 测试 sjkw (黄采薇) 「带有重复提交已经通过的题」
         accurate_penalty = datetime.timedelta(hours=5, minutes=20, seconds=37)
         assert vjudge_ranking_items[2].total_penalty == accurate_penalty
+
+        # 测试补题
 
     asyncio.run(main())
