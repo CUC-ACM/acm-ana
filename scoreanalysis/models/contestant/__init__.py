@@ -1,7 +1,9 @@
-from typing import List, Optional
+from typing import Optional
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy import Integer, String
+from sqlalchemy.orm import Mapped, mapped_column
+
+from scoreanalysis.models import sqlsession
 
 
 class ContestantBase:
@@ -16,3 +18,7 @@ class ContestantBase:
     major: Mapped[Optional[str]] = mapped_column(String())
     grade: Mapped[Optional[str]] = mapped_column(Integer())
     div: Mapped[Optional[str]] = mapped_column(String())  # 组别
+
+    def commit_to_db(self):
+        sqlsession.add(self)
+        sqlsession.commit()

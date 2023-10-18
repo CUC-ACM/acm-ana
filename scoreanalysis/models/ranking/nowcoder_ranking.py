@@ -1,9 +1,9 @@
-from typing import TYPE_CHECKING, List
-
-from sqlalchemy import DateTime, ForeignKey, Integer, String
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from typing import TYPE_CHECKING
 
 from ranking import RankingBase
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from scoreanalysis.models import SQLBase
 
 if TYPE_CHECKING:

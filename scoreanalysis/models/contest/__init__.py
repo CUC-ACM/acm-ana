@@ -1,8 +1,10 @@
 import datetime
-from typing import List, Optional
+from typing import Optional
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy import DateTime, String
+from sqlalchemy.orm import Mapped, mapped_column
+
+from scoreanalysis.models import sqlsession
 
 
 class ContestBase:
@@ -16,3 +18,7 @@ class ContestBase:
     div: Mapped[Optional[str]] = mapped_column(
         String()
     )  # 比赛组别："div1", "div2", "div1 & div2"
+
+    def commit_to_db(self):
+        sqlsession.add(self)
+        sqlsession.commit()

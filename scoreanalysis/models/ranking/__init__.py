@@ -1,7 +1,7 @@
-from typing import List, Optional
+from sqlalchemy import Float, Integer
+from sqlalchemy.orm import Mapped, mapped_column
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Float
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from scoreanalysis.models import sqlsession
 
 
 class RankingBase:
@@ -13,3 +13,7 @@ class RankingBase:
     solved_cnt: Mapped[int] = mapped_column(Integer())
     upsolved_cnt: Mapped[int] = mapped_column(Integer())  # 补题数
     penalty: Mapped[int] = mapped_column(Integer())  # 罚时
+
+    def commit_to_db(self):
+        sqlsession.add(self)
+        sqlsession.commit()
