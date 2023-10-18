@@ -4,7 +4,6 @@ from urllib import parse
 
 import aiohttp
 import fake_useragent
-import requests
 
 import scoreanalysis.config as config
 
@@ -32,16 +31,16 @@ async def get_nowcoder_nickname(url: str, session: aiohttp.ClientSession) -> str
             return None
 
 
-async def main():
-    async with aiohttp.ClientSession() as session:
-        nick_name = await get_nowcoder_nickname(
-            "https://ac.nowcoder.com/acm/contest/profile/767116230", session
-        )
-        assert nick_name == "lim_Nobody"
-        user_url = "https://www.nowcoder.com/users/804688108"  # 非 contest profile
-        nick_name = await get_nowcoder_nickname(user_url, session)
-        print(nick_name)
-
-
 if __name__ == "__main__":
+
+    async def main():
+        async with aiohttp.ClientSession() as session:
+            nick_name = await get_nowcoder_nickname(
+                "https://ac.nowcoder.com/acm/contest/profile/767116230", session
+            )
+            assert nick_name == "lim_Nobody"
+            user_url = "https://www.nowcoder.com/users/804688108"  # 非 contest profile
+            nick_name = await get_nowcoder_nickname(user_url, session)
+            print(nick_name)
+
     asyncio.run(main())
