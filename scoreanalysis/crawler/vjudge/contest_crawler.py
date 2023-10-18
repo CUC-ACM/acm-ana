@@ -18,6 +18,7 @@ class VjudgeContestCrawler:
             accepted: bool,
             time: datetime.timedelta,
             contestant: VjudgeContestant,
+            contest: "VjudgeContestCrawler",
         ) -> None:
             self.vcontestant_id: int = (
                 vcontestant_id  # 注意，这里是 vjudge 自己的 vcontestant_id
@@ -26,10 +27,14 @@ class VjudgeContestCrawler:
             self.accepted: bool = accepted
             self.time: datetime.timedelta = time
             self.contestant: VjudgeContestant = contestant
+            self.contest: VjudgeContestCrawler = contest
 
         @classmethod
         def from_api_list(
-            cls, l: list, participants_dict: dict[int, VjudgeContestant]
+            cls,
+            l: list,
+            participants_dict: dict[int, VjudgeContestant],
+            contest: "VjudgeContestCrawler",
         ) -> "VjudgeContestCrawler.Submission":
             return cls(
                 vcontestant_id=int(l[0]),
@@ -37,6 +42,7 @@ class VjudgeContestCrawler:
                 accepted=bool(l[2]),
                 time=datetime.timedelta(seconds=int(l[3])),
                 contestant=participants_dict[int(l[0])],
+                contest=contest,
             )
 
         def __repr__(self) -> str:
@@ -66,7 +72,7 @@ class VjudgeContestCrawler:
                     username=username, nickname=nickname
                 )
 
-        self.submissions = [VjudgeContestCrawler.Submission.from_api_list(submission, self.participants) for submission in d["submissions"]]  # type: ignore
+        self.submissions = [VjudgeContestCrawler.Submission.from_api_list(submission, self.participants, self) for submission in d["submissions"]]  # type: ignore
         self.submissions.sort(key=lambda x: x.time)
 
     def __repr__(self) -> str:

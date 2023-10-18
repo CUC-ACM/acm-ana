@@ -114,23 +114,26 @@ class VjudgeRankingItem:
 
         if self.first_submit_time is None:  # 第一次提交
             self.first_submit_time = submission.time
+
         if submission.time < self.contest.length:  # 在比赛时间内提交
             if not self.problem_set[submission.problem_id].accepted:  # 如果之前还没有通过这道题
-                if submission.accepted:
+                if submission.accepted:  # 如果通过这道题——>通过题目数+1，总罚时 += 此题的罚时
                     self.solved_cnt += 1
                     self.total_penalty += (
                         submission.time
                         + self.problem_set[submission.problem_id].penalty
                     )
                     self.problem_set[submission.problem_id].accepted = True
-                else:  # 如果没有通过这道题——>罚时+20min
+                else:  # 如果没有通过这道题——>此题的罚时+20min（只有过题后才会纳入罚时计算）
                     self.problem_set[
                         submission.problem_id
                     ].penalty += datetime.timedelta(minutes=20)
             else:  # 对于已经通过的题目，不再进行处理
                 if submission.accepted:
                     logger.debug(f"比赛时重复提交已经通过的题目并通过，跳过: {submission}")
-        else:  # 补题
+        elif submission.time <= submission.contest.length + datetime.timedelta(
+            days=7
+        ):  # 7 天内补题
             if submission.accepted:
                 if self.problem_set[submission.problem_id].accepted:  # 过题后重复提交
                     logger.debug(f"补题重复提交已经通过的题目并通过，跳过: {submission}")
@@ -139,6 +142,8 @@ class VjudgeRankingItem:
                     self.problem_set[submission.problem_id].accepted = True
             else:  # 补题没有通过不计算罚时
                 pass
+        else:
+            logger.debug(f"补题超过 7 天，跳过: {submission}")
 
     @staticmethod
     async def get_vjudge_ranking_items(
