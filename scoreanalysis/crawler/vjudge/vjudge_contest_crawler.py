@@ -5,10 +5,9 @@ import requests
 from sqlalchemy import select
 
 import scoreanalysis.config as config
-from scoreanalysis.config import sqlsession
-from contest.vjudge_contest import VjudgeContest
-from contestant.vjudge_contestant import VjudgeContestant
-from ranking.vjudge_ranking import VjudgeRanking
+from scoreanalysis.models.contest.vjudge_contest import VjudgeContest
+from scoreanalysis.models.contestant.vjudge_contestant import VjudgeContestant
+from scoreanalysis.models.ranking.vjudge_ranking import VjudgeRanking
 
 
 class VjudgeContestCrawler:

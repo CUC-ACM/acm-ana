@@ -18,8 +18,8 @@ from ranking import RankingBase
 from ranking.nowcoder_ranking import NowcoderRanking
 from ranking.vjudge_ranking import VjudgeRanking
 from scoreanalysis.models.sql_base import SQLBase
-from utils.nowcoder_nickname_crawler import get_nowcoder_nickname
-from utils.vjudge_nickname_crawler import get_vjudge_nickname
+from scoreanalysis.crawler.nowcoder.nowcoder_nickname_crawler import get_nowcoder_nickname
+from scoreanalysis.crawler.vjudge.vjudge_nickname_crawler import get_vjudge_nickname
 
 logger = logging.getLogger(__name__)
 

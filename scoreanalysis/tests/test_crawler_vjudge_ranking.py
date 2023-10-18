@@ -6,10 +6,10 @@ from unittest import IsolatedAsyncioTestCase
 import aiohttp
 
 import scoreanalysis.config as config
-from contestant.vjudge_contestant import VjudgeContestant
-from crawler.vjudge_contest_crawler import VjudgeContestCrawler
-from crawler.vjudge_ranking import VjudgeRankingItem
-from ranking.vjudge_ranking import VjudgeRanking
+from scoreanalysis.crawler.vjudge.vjudge_contest_crawler import VjudgeContestCrawler
+from scoreanalysis.crawler.vjudge.vjudge_ranking import VjudgeRankingItem
+from scoreanalysis.models.contestant.vjudge_contestant import VjudgeContestant
+from scoreanalysis.models.ranking.vjudge_ranking import VjudgeRanking
 
 logger = logging.getLogger(__name__)
 
