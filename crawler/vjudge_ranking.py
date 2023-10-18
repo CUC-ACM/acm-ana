@@ -85,14 +85,14 @@ class VjudgeRankingItem:
         headers = {
             "User-Agent": fake_useragent.UserAgent().random,
         }
-        if config.config["debug"]:
+        if config.config["debug_cache"]:
             async with aiofiles.open("tmp/vjudge_rank_587010.json", mode="r") as f:
                 vjudge_contest_crawler = VjudgeContestCrawler(
                     json.loads(await f.read())
                 )
         else:
             async with aiosession.get(
-                f"https://vjudge.net/contest/competition_rank/single/{contest_id}",
+                f"https://vjudge.net/contest/rank/single/{contest_id}",
                 headers=headers,
             ) as response:
                 vjudge_contest_crawler = VjudgeContestCrawler(await response.json())
