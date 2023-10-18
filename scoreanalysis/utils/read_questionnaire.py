@@ -4,41 +4,25 @@ import logging
 import aiohttp
 import pandas as pd
 from fake_useragent import UserAgent
-from sqlalchemy import select
 
 import scoreanalysis.config as config
-from scoreanalysis.config import sqlsession
-from contest import ContestBase
-from contest.nowcoder_contest import NowcoderContest
-from contest.vjudge_contest import VjudgeContest
-from contestant import ContestantBase
-from contestant.nowcoder_contestant import NowcoderContestant
-from contestant.vjudge_contestant import VjudgeContestant
-from ranking import RankingBase
-from ranking.nowcoder_ranking import NowcoderRanking
-from ranking.vjudge_ranking import VjudgeRanking
-from scoreanalysis.models.sql_base import SQLBase
-from scoreanalysis.crawler.nowcoder.nowcoder_nickname_crawler import get_nowcoder_nickname
-from scoreanalysis.crawler.vjudge.vjudge_nickname_crawler import get_vjudge_nickname
+from scoreanalysis.crawler.nowcoder.get_nickname import get_nowcoder_nickname
+from scoreanalysis.crawler.vjudge.get_nickname import get_vjudge_nickname
+from scoreanalysis.models.contestant.nowcoder_contestant import NowcoderContestant
+from scoreanalysis.models.contestant.vjudge_contestant import VjudgeContestant
 
 logger = logging.getLogger(__name__)
 
 ua = UserAgent()
-SQLBase.metadata.create_all(config.engine)
-
-df = pd.read_csv(config.config["input"]["questionnaire_path"])
-# print(df.head())
 
 
-async def read_nowcoder_questionnaire():
+async def read_nowcoder_questionnaire(df: pd.DataFrame):
     async with aiohttp.ClientSession() as aiosession:
         for index, row in df.iterrows():
             student_id = row["学号（必填）"]
-            stmt = select(NowcoderContestant).where(
-                NowcoderContestant.student_id == student_id
+            cached_nowcoder_contestant = NowcoderContestant.query_from_student_id(
+                student_id=student_id
             )
-            cached_nowcoder_contestant = sqlsession.execute(stmt).scalar_one_or_none()
-
             if (
                 cached_nowcoder_contestant
                 and config.config["input"]["using_nickname_cache"]
@@ -72,22 +56,20 @@ async def read_nowcoder_questionnaire():
                 grade=row["年级（必填）"][:-1],
                 div="div2",
             )
-            if cached_nowcoder_contestant:  # update
+            if cached_nowcoder_contestant is not None:  # update
                 cached_nowcoder_contestant.nickname = nickname
-                sqlsession.add(cached_nowcoder_contestant)
+                cached_nowcoder_contestant.commit_to_db()
             else:
-                sqlsession.add(nowcoder_contestant)
-            sqlsession.commit()
+                nowcoder_contestant.commit_to_db()
 
 
-async def read_vjudge_questionnaire():
+async def read_vjudge_questionnaire(df: pd.DataFrame):
     async with aiohttp.ClientSession() as aiosession:
         for index, row in df.iterrows():
             student_id = row["学号（必填）"]
-            stmt = select(VjudgeContestant).where(
-                VjudgeContestant.student_id == student_id
+            cached_vjudge_contestant = VjudgeContestant.query_from_student_id(
+                student_id=student_id
             )
-            cached_vjudge_contestant = sqlsession.execute(stmt).scalar_one_or_none()
 
             if (
                 cached_vjudge_contestant
@@ -126,16 +108,20 @@ async def read_vjudge_questionnaire():
             )
             if cached_vjudge_contestant:
                 cached_vjudge_contestant.nickname = nickname
-                sqlsession.add(cached_vjudge_contestant)
+                cached_vjudge_contestant.commit_to_db
             else:
-                sqlsession.add(vjudge_contestant)
-            sqlsession.commit()
+                vjudge_contestant.commit_to_db()
 
 
-async def main():
-    tasks = [read_nowcoder_questionnaire(), read_vjudge_questionnaire()]
-    await asyncio.gather(*tasks)
+def read_questionnaire():
+    df = pd.read_csv(config.config["input"]["questionnaire_path"])
+
+    async def main():
+        tasks = [read_nowcoder_questionnaire(df), read_vjudge_questionnaire(df)]
+        await asyncio.gather(*tasks)
+
+    asyncio.run(main())
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    read_questionnaire()
