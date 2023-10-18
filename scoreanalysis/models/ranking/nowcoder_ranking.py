@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING
 
-from ranking import RankingBase
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from scoreanalysis.models import SQLBase
+from scoreanalysis.models.ranking import RankingBase
 
 if TYPE_CHECKING:
     from contest.nowcoder_contest import NowcoderContest

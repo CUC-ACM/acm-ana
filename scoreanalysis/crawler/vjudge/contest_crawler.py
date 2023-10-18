@@ -2,7 +2,6 @@ import datetime
 
 import fake_useragent
 import requests
-from sqlalchemy import select
 
 import scoreanalysis.config as config
 from scoreanalysis.models.contest.vjudge_contest import VjudgeContest
@@ -56,11 +55,10 @@ class VjudgeContestCrawler:
             contestant_id = int(contestant_id)
             username = val[0]
             nickname = val[1]
-            stmt = select(VjudgeContestant).where(VjudgeContestant.username == username)
 
-            self.participants[contestant_id] = sqlsession.execute(
-                stmt
-            ).scalar_one_or_none()  # type: ignore
+            self.participants[contestant_id] = VjudgeContestant.query_from_username(
+                username=username
+            )
             if self.participants[contestant_id] is None:
                 self.participants[contestant_id] = VjudgeContestant(
                     username=username, nickname=nickname
@@ -94,15 +92,14 @@ class VjudgeContestCrawler:
             url=f"https://vjudge.net/contest/{self.id}",
             div=div,
         )
-        sqlsession.add(vjudge_contest)
-        sqlsession.commit()
+        vjudge_contest.commit_to_db()
 
 
 if __name__ == "__main__":
     import json
     import os
 
-    cache_path = "tmp/vjudge_rank_587010.json"
+    cache_path = "scoreanalysis/tmp/vjudge_rank_587010.json"
     contest_id = 587010
     if os.path.exists(cache_path):
         with open(cache_path) as f:

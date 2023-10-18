@@ -10,6 +10,8 @@ class SQLBase(DeclarativeBase):
     pass
 
 
+SQLBase.metadata.create_all
+
 #  初始化 orm
 from scoreanalysis.models.contest.nowcoder_contest import NowcoderContest
 from scoreanalysis.models.contest.vjudge_contest import VjudgeContest

@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING, List
 
-from contest import ContestBase
 from sqlalchemy.orm import Mapped, relationship
 
 from scoreanalysis.models import SQLBase
+from scoreanalysis.models.contest import ContestBase
 
 if TYPE_CHECKING:
     from ranking.nowcoder_ranking import NowcoderRanking

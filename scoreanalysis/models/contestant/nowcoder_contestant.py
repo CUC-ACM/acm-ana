@@ -1,9 +1,9 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
-from contestant import ContestantBase
 from sqlalchemy.orm import Mapped, relationship
 
-from scoreanalysis.models import SQLBase
+from scoreanalysis.models import SQLBase, sqlsession
+from scoreanalysis.models.contestant import ContestantBase
 
 if TYPE_CHECKING:
     from ranking.nowcoder_ranking import NowcoderRanking
@@ -21,3 +21,9 @@ class NowcoderContestant(SQLBase, ContestantBase):
 
     def __repr__(self) -> str:
         return f"NowcoderContestant(real_name={self.real_name}, id={self.id}, username={self.username}, nickname={self.nickname}, student_id={self.student_id}, is_in_course={self.is_in_course})"
+
+    @staticmethod
+    def query_from_student_id(student_id: int) -> Optional["NowcoderContestant"]:
+        """根据学号查询"""
+        stmt = sqlsession.query(NowcoderContestant).filter_by(student_id=student_id)
+        return sqlsession.execute(stmt).scalar_one_or_none()

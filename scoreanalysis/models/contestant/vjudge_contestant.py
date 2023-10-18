@@ -1,9 +1,10 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
-from contestant import ContestantBase
+from sqlalchemy import select
 from sqlalchemy.orm import Mapped, relationship
 
-from scoreanalysis.models import SQLBase
+from scoreanalysis.models import SQLBase, sqlsession
+from scoreanalysis.models.contestant import ContestantBase
 
 if TYPE_CHECKING:
     from ranking.vjudge_ranking import VjudgeRanking
@@ -21,3 +22,15 @@ class VjudgeContestant(SQLBase, ContestantBase):
 
     def __repr__(self) -> str:
         return f"VjudgeContestant(real_name={self.real_name}, id={self.id}, username={self.username}, nickname={self.nickname}, student_id={self.student_id}, is_in_course={self.is_in_course})"
+
+    @staticmethod
+    def query_from_username(username: str) -> Optional["VjudgeContestant"]:
+        stmt = select(VjudgeContestant).where(VjudgeContestant.username == username)
+
+        return sqlsession.execute(stmt).scalar_one_or_none()
+
+    @staticmethod
+    def query_from_student_id(student_id: int) -> Optional["VjudgeContestant"]:
+        """根据学号查询"""
+        stmt = sqlsession.query(VjudgeContestant).filter_by(student_id=student_id)
+        return sqlsession.execute(stmt).scalar_one_or_none()
