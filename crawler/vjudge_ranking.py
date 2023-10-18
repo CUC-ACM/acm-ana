@@ -87,6 +87,40 @@ class VjudgeRankingItem:
             )
         )
 
+    def cal_score(self):
+        """计算得分"""
+
+    def submit(self, submission: VjudgeContestCrawler.Submission):
+        """提交题目。注意！需要按照提交时间排序顺序提交！"""
+
+        if self.first_submit_time is None:  # 第一次提交
+            self.first_submit_time = submission.time
+        if submission.time < self.contest_length:  # 在比赛时间内提交
+            if not self.problem_set[submission.problem_id].accepted:  # 如果之前还没有通过这道题
+                if submission.accepted:
+                    self.solved_cnt += 1
+                    self.total_penalty += (
+                        submission.time
+                        + self.problem_set[submission.problem_id].penalty
+                    )
+                    self.problem_set[submission.problem_id].accepted = True
+                else:  # 如果没有通过这道题——>罚时+20min
+                    self.problem_set[
+                        submission.problem_id
+                    ].penalty += datetime.timedelta(minutes=20)
+            else:  # 对于已经通过的题目，不再进行处理
+                if submission.accepted:
+                    logger.debug(f"比赛时重复提交已经通过的题目并通过，跳过: {submission}")
+        else:  # 补题
+            if submission.accepted:
+                if self.problem_set[submission.problem_id].accepted:  # 过题后重复提交
+                    logger.debug(f"补题重复提交已经通过的题目并通过，跳过: {submission}")
+                else:
+                    self.upsolved_cnt += 1
+                    self.problem_set[submission.problem_id].accepted = True
+            else:  # 补题没有通过不计算罚时
+                pass
+
     @staticmethod
     async def get_vjudge_ranking_items(
         contest_id: int,
@@ -116,6 +150,14 @@ class VjudgeRankingItem:
             ) as response:
                 vjudge_contest_crawler = VjudgeContestCrawler(await response.json())
 
+        if only_attendance:  # 只对参加了课程的人进行排名
+            vjudge_contest_crawler.submissions = list(
+                filter(
+                    lambda x: x.contestant.is_in_course,
+                    vjudge_contest_crawler.submissions,
+                )
+            )
+
         for submission in vjudge_contest_crawler.submissions:
             if (
                 submission.contestant_id not in vjudge_ranking_items_dict
@@ -128,40 +170,10 @@ class VjudgeRankingItem:
                 )
                 vjudge_ranking_items_dict[submission.contestant_id] = crt_item
 
-            crt_item: VjudgeRankingItem = vjudge_ranking_items_dict[
-                submission.contestant_id
-            ]
-            if crt_item.first_submit_time is None:  # 第一次提交
-                crt_item.first_submit_time = submission.time
+            vjudge_ranking_items_dict[submission.contestant_id].submit(
+                submission=submission
+            )
 
-            if submission.time < vjudge_contest_crawler.length:  # 在比赛时间内提交
-                if not crt_item.problem_set[
-                    submission.problem_id
-                ].accepted:  # 如果之前还没有通过这道题
-                    if submission.accepted:
-                        crt_item.solved_cnt += 1
-                        crt_item.total_penalty += (
-                            submission.time
-                            + crt_item.problem_set[submission.problem_id].penalty
-                        )
-                        crt_item.problem_set[submission.problem_id].accepted = True
-                    else:  # 如果没有通过这道题——>罚时+20min
-                        crt_item.problem_set[
-                            submission.problem_id
-                        ].penalty += datetime.timedelta(minutes=20)
-                else:  # 对于已经通过的题目，不再进行处理
-                    if submission.accepted:
-                        logger.debug(f"比赛时重复提交已经通过的题目并通过，跳过: {submission}")
-
-            else:  # 补题
-                if submission.accepted:
-                    if crt_item.problem_set[submission.problem_id].accepted:  # 过题后重复提交
-                        logger.debug(f"补题重复提交已经通过的题目并通过，跳过: {submission}")
-                    else:
-                        crt_item.upsolved_cnt += 1
-                        crt_item.problem_set[submission.problem_id].accepted = True
-                else:  # 补题没有通过不计算罚时
-                    pass
         vjudge_total_ranking_items_list = list(vjudge_ranking_items_dict.values())
         vjudge_competition_ranking_items_list = list(
             filter(
@@ -175,6 +187,8 @@ class VjudgeRankingItem:
             item.competition_rank = i + 1
 
         # 计算得分
+        for vjudge_total_ranking_item in vjudge_competition_ranking_items_list:
+            vjudge_total_ranking_item.cal_score()
 
         return sorted(vjudge_total_ranking_items_list), sorted(
             vjudge_competition_ranking_items_list
