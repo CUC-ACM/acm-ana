@@ -86,7 +86,7 @@ if __name__ == "__main__":
     import json
     import os
 
-    cache_path = "tmp/vjudge_rank.json"
+    cache_path = "tmp/vjudge_rank_587010.json"
     contest_id = 587010
     if os.path.exists(cache_path):
         with open(cache_path) as f:
