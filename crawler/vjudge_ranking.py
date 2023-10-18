@@ -87,8 +87,31 @@ class VjudgeRankingItem:
             )
         )
 
-    def cal_score(self):
-        """计算得分"""
+    def cal_score(self, contestant_num: int):
+        """计算得分。注意 contestant_num 是在比赛期间参加比赛的人数！
+
+        :param contestant_num: `在比赛期间参加比赛` 的人数"""
+        # 1. 比赛期间得分
+        if (
+            self.first_submit_time <= self.contest_length  # type: ignore
+            and self.competition_rank is not None
+        ):  # 参加了比赛——>比赛期间得分
+            percentage = self.competition_rank / contestant_num
+            if percentage <= 0.2:
+                self.score += 100
+            elif percentage <= 0.4:
+                self.score += 90
+            elif percentage <= 0.6:
+                self.score += 80
+            elif percentage <= 0.8:
+                self.score += 70
+            else:
+                self.score += 60
+
+        # 2. 比赛后补题分
+        self.score += self.upsolved_cnt * 6
+
+        self.score = min(100, self.score)
 
     def submit(self, submission: VjudgeContestCrawler.Submission):
         """提交题目。注意！需要按照提交时间排序顺序提交！"""
@@ -186,9 +209,11 @@ class VjudgeRankingItem:
         for i, item in enumerate(vjudge_competition_ranking_items_list):
             item.competition_rank = i + 1
 
+        contestant_num: int = len(vjudge_competition_ranking_items_list)
+
         # 计算得分
-        for vjudge_total_ranking_item in vjudge_competition_ranking_items_list:
-            vjudge_total_ranking_item.cal_score()
+        for vjudge_total_ranking_item in vjudge_total_ranking_items_list:
+            vjudge_total_ranking_item.cal_score(contestant_num)
 
         return sorted(vjudge_total_ranking_items_list), sorted(
             vjudge_competition_ranking_items_list
