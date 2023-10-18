@@ -72,18 +72,16 @@ class VjudgeRankingItem:
             return self.solved_cnt > other.solved_cnt  # 通过题目数多的排名靠前
 
     def commit_to_db(self):
-        config.sqlsession.add(
-            VjudgeRanking(
-                contestant_id=self.contestant_id,
-                contestant=self.contestant,
-                contest_id=self.contest.id,
-                competition_rank=self.competition_rank,
-                score=self.score,
-                solved_cnt=self.solved_cnt,
-                upsolved_cnt=self.upsolved_cnt,
-                penalty=self.total_penalty,
-            )
-        )
+        VjudgeRanking(
+            contestant_id=self.contestant_id,
+            contestant=self.contestant,
+            contest_id=self.contest.id,
+            competition_rank=self.competition_rank,
+            score=self.score,
+            solved_cnt=self.solved_cnt,
+            upsolved_cnt=self.upsolved_cnt,
+            penalty=self.total_penalty,
+        ).commit_to_db()
 
     def cal_score(self, contestant_num: int):
         """计算得分。注意 contestant_num 是在比赛期间参加比赛的人数！
@@ -160,7 +158,9 @@ class VjudgeRankingItem:
             "User-Agent": fake_useragent.UserAgent().random,
         }
         if config.config["debug_cache"]:
-            async with aiofiles.open("scoreanalysis/tmp/vjudge_rank_587010.json", mode="r") as f:
+            async with aiofiles.open(
+                "scoreanalysis/tmp/vjudge_rank_587010.json", mode="r"
+            ) as f:
                 vjudge_contest_crawler = VjudgeContestCrawler(
                     json.loads(await f.read())
                 )
