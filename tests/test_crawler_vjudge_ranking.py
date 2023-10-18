@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
     async def test_nowcoder_nickname_crawler(self):
         async with aiohttp.ClientSession() as aiosession:
-            vjudge_ranking_items = await VjudgeRankingItem.get_vjudge_ranking_items(
+            _, vjudge_ranking_items = await VjudgeRankingItem.get_vjudge_ranking_items(
                 contest_id=587010, aiosession=aiosession
             )
         logger.info(f"测试排名前三名")
