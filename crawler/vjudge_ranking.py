@@ -39,10 +39,12 @@ class VjudgeRankingItem:
         contestant_id: int,
         contestant: VjudgeContestant,
         contest_id: int,
+        contest_length: datetime.timedelta,
     ) -> None:
         self.contestant_id: int = contestant_id
         self.contestant: VjudgeContestant = contestant
         self.contest_id: int = contest_id
+        self.contest_length: datetime.timedelta = contest_length
         self.competition_rank: int | None = None  # 比赛排名。如果没有参加比赛而补了题，为 None
         self.score: float = 0
         self.solved_cnt: int = 0
@@ -55,13 +57,21 @@ class VjudgeRankingItem:
         return f"contestant_id: {self.contestant_id}, contestant: {self.contestant}, contest_id: {self.contest_id}, competition_rank: {self.competition_rank}, score: {self.score}, solved_cnt: {self.solved_cnt}, upsolved_cnt: {self.upsolved_cnt}, penalty: {self.total_penalty}, first_submit_time: {self.first_submit_time}"
 
     def __lt__(self, other: "VjudgeRankingItem") -> bool:
-        if self.solved_cnt == other.solved_cnt:
-            if self.total_penalty != other.total_penalty:
-                return self.total_penalty < other.total_penalty
+        if (
+            self.solved_cnt == 0 and self.first_submit_time > self.contest_length  # type: ignore
+        ):  # 只参加了补题
+            if self.upsolved_cnt != other.upsolved_cnt:  # 如果补题数不同
+                return self.upsolved_cnt > other.upsolved_cnt  # 补题数多的排名靠前
             else:
-                return self.contestant_id < other.contestant_id
-        else:
-            return self.solved_cnt > other.solved_cnt
+                return self.contestant_id < other.contestant_id  # 否则按照 ID 排序
+        # 否则下面是参加了比赛的情况
+        elif self.solved_cnt == other.solved_cnt:  # 如果通过题目数相同
+            if self.total_penalty != other.total_penalty:  # 如果罚时不同
+                return self.total_penalty < other.total_penalty  # 罚时少的排名靠前
+            else:  # 如果罚时相同
+                return self.contestant_id < other.contestant_id  # 按照 ID 排序
+        else:  # 如果通过题目数不同
+            return self.solved_cnt > other.solved_cnt  # 通过题目数多的排名靠前
 
     def commit_to_db(self):
         config.sqlsession.add(
@@ -79,9 +89,17 @@ class VjudgeRankingItem:
 
     @staticmethod
     async def get_vjudge_ranking_items(
-        contest_id: int, aiosession: aiohttp.ClientSession
+        contest_id: int,
+        aiosession: aiohttp.ClientSession,
+        only_attendance: bool = False,
     ) -> tuple[list["VjudgeRankingItem"], list["VjudgeRankingItem"]]:
-        """返回 tuple[总榜, 比赛榜]"""
+        """获取编号为 contest_id 的 vjudge_ranking_items
+
+        :param contest_id: 比赛编号
+        :param aiosession: aiohttp.ClientSession
+        :param only_attendance: 是否只将参加了课程的人进行排名
+
+        :return: 返回 tuple[总榜, 比赛榜]"""
         vjudge_ranking_items_dict: dict[int, VjudgeRankingItem] = {}
         headers = {
             "User-Agent": fake_useragent.UserAgent().random,
@@ -106,6 +124,7 @@ class VjudgeRankingItem:
                     contestant_id=submission.contestant_id,
                     contestant=submission.contestant,
                     contest_id=contest_id,
+                    contest_length=vjudge_contest_crawler.length,
                 )
                 vjudge_ranking_items_dict[submission.contestant_id] = crt_item
 
@@ -154,6 +173,8 @@ class VjudgeRankingItem:
         vjudge_competition_ranking_items_list.sort()
         for i, item in enumerate(vjudge_competition_ranking_items_list):
             item.competition_rank = i + 1
+
+        # 计算得分
 
         return sorted(vjudge_total_ranking_items_list), sorted(
             vjudge_competition_ranking_items_list
