@@ -36,11 +36,11 @@ class ProblemSet:
 class VjudgeRankingItem:
     def __init__(
         self,
-        contestant_id: int,
+        vcontestant_id: int,
         contestant: VjudgeContestant,
         contest: VjudgeContestCrawler,
     ) -> None:
-        self.contestant_id: int = contestant_id  # 注意，这里是 vjudge 自己的 contestant_id
+        self.vcontestant_id: int = vcontestant_id  # 注意，这里是 vjudge 自己的 vcontestant_id
         self.contestant: VjudgeContestant = contestant
         self.contest: VjudgeContestCrawler = contest
         self.competition_rank: int | None = None  # 比赛排名。如果没有参加比赛而补了题，为 None
@@ -52,7 +52,7 @@ class VjudgeRankingItem:
         self.problem_set: ProblemSet = ProblemSet()
 
     def __repr__(self) -> str:
-        return f"contestant_id: {self.contestant_id}, contestant: {self.contestant}, contest_id: {self.contest.id}, competition_rank: {self.competition_rank}, score: {self.score}, solved_cnt: {self.solved_cnt}, upsolved_cnt: {self.upsolved_cnt}, penalty: {self.total_penalty}, first_submit_time: {self.first_submit_time}"
+        return f"vcontestant_id: {self.vcontestant_id}, contestant: {self.contestant}, contest_id: {self.contest.id}, competition_rank: {self.competition_rank}, score: {self.score}, solved_cnt: {self.solved_cnt}, upsolved_cnt: {self.upsolved_cnt}, penalty: {self.total_penalty}, first_submit_time: {self.first_submit_time}"
 
     def __lt__(self, other: "VjudgeRankingItem") -> bool:
         if (
@@ -61,19 +61,19 @@ class VjudgeRankingItem:
             if self.upsolved_cnt != other.upsolved_cnt:  # 如果补题数不同
                 return self.upsolved_cnt > other.upsolved_cnt  # 补题数多的排名靠前
             else:
-                return self.contestant_id < other.contestant_id  # 否则按照 ID 排序
+                return self.vcontestant_id < other.vcontestant_id  # 否则按照 ID 排序
         # 否则下面是参加了比赛的情况
         elif self.solved_cnt == other.solved_cnt:  # 如果通过题目数相同
             if self.total_penalty != other.total_penalty:  # 如果罚时不同
                 return self.total_penalty < other.total_penalty  # 罚时少的排名靠前
             else:  # 如果罚时相同
-                return self.contestant_id < other.contestant_id  # 按照 ID 排序
+                return self.vcontestant_id < other.vcontestant_id  # 按照 ID 排序
         else:  # 如果通过题目数不同
             return self.solved_cnt > other.solved_cnt  # 通过题目数多的排名靠前
 
     def commit_to_db(self):
         VjudgeRanking(
-            contestant_id=self.contestant_id,
+            vcontestant_id=self.vcontestant_id,
             contestant=self.contestant,
             contest_id=self.contest.id,
             competition_rank=self.competition_rank,
@@ -181,16 +181,16 @@ class VjudgeRankingItem:
 
         for submission in vjudge_contest_crawler.submissions:
             if (
-                submission.contestant_id not in vjudge_ranking_items_dict
+                submission.vcontestant_id not in vjudge_ranking_items_dict
             ):  # 如果还未创建过这个人的 VjudgeRankingItem
                 crt_item = VjudgeRankingItem(
-                    contestant_id=submission.contestant_id,
+                    vcontestant_id=submission.vcontestant_id,
                     contestant=submission.contestant,
                     contest=vjudge_contest_crawler,
                 )
-                vjudge_ranking_items_dict[submission.contestant_id] = crt_item
+                vjudge_ranking_items_dict[submission.vcontestant_id] = crt_item
 
-            vjudge_ranking_items_dict[submission.contestant_id].submit(
+            vjudge_ranking_items_dict[submission.vcontestant_id].submit(
                 submission=submission
             )
 

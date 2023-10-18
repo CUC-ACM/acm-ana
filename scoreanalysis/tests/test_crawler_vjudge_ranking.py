@@ -75,7 +75,7 @@ class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
             # print(item)
 
         item_dict: dict[int, VjudgeRankingItem] = {
-            item.contestant_id: item for item in vjudge_attendance_total_ranking_items
+            item.vcontestant_id: item for item in vjudge_attendance_total_ranking_items
         }
 
         # 王戈(没有参加比赛，但是补了一道题)

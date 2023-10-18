@@ -13,13 +13,15 @@ class VjudgeContestCrawler:
     class Submission:
         def __init__(
             self,
-            contestant_id: int,
+            vcontestant_id: int,
             problem_id: int,
             accepted: bool,
             time: datetime.timedelta,
             contestant: VjudgeContestant,
         ) -> None:
-            self.contestant_id: int = contestant_id  # 注意，这里是 vjudge 自己的 contestant_id
+            self.vcontestant_id: int = (
+                vcontestant_id  # 注意，这里是 vjudge 自己的 vcontestant_id
+            )
             self.problem_id = problem_id
             self.accepted: bool = accepted
             self.time: datetime.timedelta = time
@@ -30,7 +32,7 @@ class VjudgeContestCrawler:
             cls, l: list, participants_dict: dict[int, VjudgeContestant]
         ) -> "VjudgeContestCrawler.Submission":
             return cls(
-                contestant_id=int(l[0]),
+                vcontestant_id=int(l[0]),
                 problem_id=int(l[1]),
                 accepted=bool(l[2]),
                 time=datetime.timedelta(seconds=int(l[3])),
@@ -38,7 +40,7 @@ class VjudgeContestCrawler:
             )
 
         def __repr__(self) -> str:
-            return f"contestant_id: {self.contestant_id}, contestant: {self.contestant} promble_id: {self.problem_id}, accepted: {self.accepted}, time: {self.time}"
+            return f"vcontestant_id: {self.vcontestant_id}, contestant: {self.contestant} promble_id: {self.problem_id}, accepted: {self.accepted}, time: {self.time}"
 
     def __init__(self, d: dict) -> None:
         self.id: int = int(d["id"])
@@ -51,16 +53,16 @@ class VjudgeContestCrawler:
         self.end: datetime.datetime = self.begin + self.length
         self.participants: dict[int, VjudgeContestant | None] = {}
 
-        for contestant_id, val in d["participants"].items():
-            contestant_id = int(contestant_id)
+        for vcontestant_id, val in d["participants"].items():
+            vcontestant_id = int(vcontestant_id)
             username = val[0]
             nickname = val[1]
 
-            self.participants[contestant_id] = VjudgeContestant.query_from_username(
+            self.participants[vcontestant_id] = VjudgeContestant.query_from_username(
                 username=username
             )
-            if self.participants[contestant_id] is None:
-                self.participants[contestant_id] = VjudgeContestant(
+            if self.participants[vcontestant_id] is None:
+                self.participants[vcontestant_id] = VjudgeContestant(
                     username=username, nickname=nickname
                 )
 
