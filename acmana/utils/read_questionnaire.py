@@ -6,7 +6,7 @@ import pandas as pd
 from fake_useragent import UserAgent
 
 import acmana.config as config
-from acmana.crawler.nowcoder.get_nickname import get_nowcoder_nickname
+from acmana.crawler.nowcoder.user_info import get_nowcoder_nickname
 from acmana.crawler.vjudge.user_info import get_vjudge_nickname
 from acmana.models.contestant.nowcoder_contestant import NowcoderContestant
 from acmana.models.contestant.vjudge_contestant import VjudgeContestant
