@@ -6,10 +6,10 @@ from acmana.models import SQLBase
 from acmana.models.contest import ContestBase
 
 if TYPE_CHECKING:
-    from ranking.nowcoder_ranking import NowcoderRanking
+    from acmana.models.ranking.nowcoder_ranking import NowcoderRanking
 
 
-class NowcoderContest(SQLBase, ContestBase):
+class NowcoderContest(ContestBase, SQLBase):
     """存储牛客 所有比赛元信息 的表"""
 
     __tablename__ = "nowcoder_contest"

@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from ranking.vjudge_ranking import VjudgeRanking
 
 
-class VjudgeContest(SQLBase, ContestBase):
+class VjudgeContest(ContestBase, SQLBase):
     """存储 vjudge 所有比赛元信息 的表"""
 
     __tablename__ = "vjudge_contest"

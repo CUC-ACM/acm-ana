@@ -7,11 +7,11 @@ from acmana.models import SQLBase, sqlsession
 from acmana.models.ranking import RankingBase
 
 if TYPE_CHECKING:
-    from contest.vjudge_contest import VjudgeContest
+    from acmana.models.contest.vjudge_contest import VjudgeContest
     from acmana.models.account.vjudge_account import VjudgeAccount
 
 
-class VjudgeRanking(SQLBase, RankingBase):
+class VjudgeRanking(RankingBase, SQLBase):
     """存储 vjudge 所有比赛排名 的表(各场比赛混在一起)"""
 
     __tablename__ = "vjudge_ranking"
