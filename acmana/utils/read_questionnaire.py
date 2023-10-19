@@ -5,11 +5,11 @@ import aiohttp
 import pandas as pd
 from fake_useragent import UserAgent
 
-import scoreanalysis.config as config
-from scoreanalysis.crawler.nowcoder.get_nickname import get_nowcoder_nickname
-from scoreanalysis.crawler.vjudge.get_nickname import get_vjudge_nickname
-from scoreanalysis.models.contestant.nowcoder_contestant import NowcoderContestant
-from scoreanalysis.models.contestant.vjudge_contestant import VjudgeContestant
+import acmana.config as config
+from acmana.crawler.nowcoder.get_nickname import get_nowcoder_nickname
+from acmana.crawler.vjudge.get_nickname import get_vjudge_nickname
+from acmana.models.contestant.nowcoder_contestant import NowcoderContestant
+from acmana.models.contestant.vjudge_contestant import VjudgeContestant
 
 logger = logging.getLogger(__name__)
 

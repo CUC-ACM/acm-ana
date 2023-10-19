@@ -3,8 +3,8 @@ from unittest import IsolatedAsyncioTestCase
 
 import aiohttp
 
-from scoreanalysis.crawler.nowcoder.get_nickname import get_nowcoder_nickname
-from scoreanalysis.crawler.vjudge.get_nickname import get_vjudge_nickname
+from acmana.crawler.nowcoder.get_nickname import get_nowcoder_nickname
+from acmana.crawler.vjudge.get_nickname import get_vjudge_nickname
 
 
 class TestNicknameCrawler(IsolatedAsyncioTestCase):

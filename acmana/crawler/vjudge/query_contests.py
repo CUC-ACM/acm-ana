@@ -6,8 +6,8 @@ import time
 import fake_useragent
 import requests
 
-from scoreanalysis import config
-from scoreanalysis.models.contest.vjudge_contest import VjudgeContest
+from acmana import config
+from acmana.models.contest.vjudge_contest import VjudgeContest
 
 logger = logging.getLogger(__name__)
 

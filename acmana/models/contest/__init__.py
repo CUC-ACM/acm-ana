@@ -5,7 +5,7 @@ from typing import Optional
 from sqlalchemy import DateTime, Select, String, select
 from sqlalchemy.orm import Mapped, mapped_column
 
-from scoreanalysis.models import sqlsession
+from acmana.models import sqlsession
 
 logger = logging.getLogger(__name__)
 

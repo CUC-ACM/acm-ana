@@ -3,10 +3,10 @@ import datetime
 import fake_useragent
 import requests
 
-import scoreanalysis.config as config
-from scoreanalysis.models.contest.vjudge_contest import VjudgeContest
-from scoreanalysis.models.contestant.vjudge_contestant import VjudgeContestant
-from scoreanalysis.models.ranking.vjudge_ranking import VjudgeRanking
+import acmana.config as config
+from acmana.models.contest.vjudge_contest import VjudgeContest
+from acmana.models.contestant.vjudge_contestant import VjudgeContestant
+from acmana.models.ranking.vjudge_ranking import VjudgeRanking
 
 
 class VjudgeContestCrawler:

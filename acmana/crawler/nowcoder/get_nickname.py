@@ -5,7 +5,7 @@ from urllib import parse
 import aiohttp
 import fake_useragent
 
-import scoreanalysis.config as config
+import acmana.config as config
 
 
 async def get_nowcoder_nickname(url: str, session: aiohttp.ClientSession) -> str | None:

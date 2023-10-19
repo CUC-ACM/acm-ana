@@ -2,8 +2,8 @@ import logging
 
 import pandas as pd
 
-import scoreanalysis.config as config
-from scoreanalysis.models.contestant.nowcoder_contestant import NowcoderContestant
+import acmana.config as config
+from acmana.models.contestant.nowcoder_contestant import NowcoderContestant
 
 logger = logging.getLogger(__name__)
 

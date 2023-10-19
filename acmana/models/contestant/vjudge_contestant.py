@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING, List, Optional
 from sqlalchemy import select
 from sqlalchemy.orm import Mapped, relationship
 
-from scoreanalysis.models import SQLBase, sqlsession
-from scoreanalysis.models.contestant import ContestantBase
+from acmana.models import SQLBase, sqlsession
+from acmana.models.contestant import ContestantBase
 
 if TYPE_CHECKING:
     from ranking.vjudge_ranking import VjudgeRanking

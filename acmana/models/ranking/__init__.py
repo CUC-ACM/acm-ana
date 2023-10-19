@@ -1,7 +1,7 @@
 from sqlalchemy import Float, Integer, Select, select
 from sqlalchemy.orm import Mapped, mapped_column
 
-from scoreanalysis.models import sqlsession
+from acmana.models import sqlsession
 
 
 class RankingBase:

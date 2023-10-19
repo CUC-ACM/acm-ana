@@ -7,10 +7,10 @@ import aiofiles
 import aiohttp
 import fake_useragent
 
-import scoreanalysis.config as config
-from scoreanalysis.crawler.vjudge.contest_crawler import VjudgeContestCrawler
-from scoreanalysis.models.contestant.vjudge_contestant import VjudgeContestant
-from scoreanalysis.models.ranking.vjudge_ranking import VjudgeRanking
+import acmana.config as config
+from acmana.crawler.vjudge.contest_crawler import VjudgeContestCrawler
+from acmana.models.contestant.vjudge_contestant import VjudgeContestant
+from acmana.models.ranking.vjudge_ranking import VjudgeRanking
 
 logger = logging.getLogger(__name__)
 

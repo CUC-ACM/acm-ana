@@ -5,8 +5,8 @@ from unittest import IsolatedAsyncioTestCase
 
 import aiohttp
 
-import scoreanalysis.config as config
-from scoreanalysis.crawler.vjudge.vjudge_ranking import VjudgeRankingItem
+import acmana.config as config
+from acmana.crawler.vjudge.vjudge_ranking import VjudgeRankingItem
 
 logger = logging.getLogger(__name__)
 

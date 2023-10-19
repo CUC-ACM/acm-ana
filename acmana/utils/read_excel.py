@@ -1,6 +1,6 @@
 import pandas as pd
 
-import scoreanalysis.config as config
+import acmana.config as config
 
 
 def read_course_registration_excel(
