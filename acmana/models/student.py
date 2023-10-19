@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -6,7 +6,9 @@ from sqlalchemy.orm import Mapped, mapped_column
 from acmana.models import SQLBase, sqlsession
 
 if TYPE_CHECKING:
-    from acmana.models.account import OJAccountBase
+    from acmana.models.account.nowcoder_account import NowcoderAccount
+    from acmana.models.account.vjudge_account import VjudgeAccount
+
 
 class Student(SQLBase):
     """学生信息表"""
@@ -17,8 +19,11 @@ class Student(SQLBase):
     major: Mapped[Optional[str]] = mapped_column(String())
     grade: Mapped[Optional[str]] = mapped_column(String())  # 考虑到有可能有研究生，所以用 str
     in_course: Mapped[bool] = mapped_column()  # 是否在选课名单中
-    oj_accounts: Mapped[list["OJAccountBase"]] = mapped_column(
-        "OJAccountBase", back_populates="student", cascade="all, delete-orphan"
+    nowcoder_account: Mapped[Optional["NowcoderAccount"]] = mapped_column(
+        back_populates="student"
+    )
+    vjudge_account: Mapped[Optional["VjudgeAccount"]] = mapped_column(
+        back_populates="student"
     )
 
     def __repr__(self) -> str:
