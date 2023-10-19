@@ -6,7 +6,7 @@ import time
 import fake_useragent
 import requests
 
-from acmana import config
+import acmana
 from acmana.models.contest.vjudge_contest import VjudgeContest
 
 logger = logging.getLogger(__name__)
@@ -106,7 +106,7 @@ class VjudgeContestRetriever:
         headers = {
             "User-Agent": fake_useragent.UserAgent().random,
         }
-        if config.config["debug_cache"]:
+        if acmana.config["debug_cache"]:
             logger.info("debug_cache is True, use cache")
             with open("acmana/tmp/vjudge_retrive_contests.json", "r") as f:
                 data: list[list] = json.load(f)["data"]
@@ -128,8 +128,8 @@ class VjudgeContestRetriever:
 
 if __name__ == "__main__":
     vjudge_contest_retriever = VjudgeContestRetriever(
-        title=config.config["vjudge"]["instances"][0]["title_prefix"],
-        div=config.config["vjudge"]["instances"][0]["div"],
+        title=acmana.config["vjudge"]["instances"][0]["title_prefix"],
+        div=acmana.config["vjudge"]["instances"][0]["div"],
     )
 
     vjudge_contest_retriever.get_contests()

@@ -5,7 +5,6 @@ from unittest import IsolatedAsyncioTestCase
 
 import aiohttp
 
-import acmana.config as config
 from acmana.crawler.vjudge.vjudge_ranking import VjudgeRankingItem
 
 logger = logging.getLogger(__name__)

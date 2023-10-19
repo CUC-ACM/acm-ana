@@ -7,7 +7,7 @@ import aiofiles
 import aiohttp
 import fake_useragent
 
-import acmana.config as config
+import acmana
 from acmana.crawler.vjudge.contest_crawler import VjudgeContestCrawler
 from acmana.models.contestant.vjudge_contestant import VjudgeContestant
 from acmana.models.ranking.vjudge_ranking import VjudgeRanking
@@ -161,7 +161,7 @@ class VjudgeRankingItem:
         headers = {
             "User-Agent": fake_useragent.UserAgent().random,
         }
-        if config.config["debug_cache"]:
+        if acmana.config["debug_cache"]:
             async with aiofiles.open(
                 "acmana/tmp/vjudge_rank_587010.json", mode="r"
             ) as f:

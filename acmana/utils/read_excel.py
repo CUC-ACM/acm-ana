@@ -1,6 +1,6 @@
 import pandas as pd
 
-import acmana.config as config
+import acmana
 
 
 def read_course_registration_excel(
@@ -48,4 +48,4 @@ if __name__ == "__main__":
         print(student)
     print(f"总人数：{len(students)}")
     df = pd.DataFrame(students, columns=["学号", "姓名", "年级", "专业"])
-    df.to_csv(config.config["input"]["attendance_path"], index=True)
+    df.to_csv(acmana.config["input"]["attendance_path"], index=True)

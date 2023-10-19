@@ -1,5 +1,8 @@
 import logging.config
 
-from acmana import config
+import yaml
 
-logging.config.dictConfig(config.config["Logging"])
+with open("config.yaml", "r") as f:
+    config = yaml.load(f, Loader=yaml.FullLoader)
+
+logging.config.dictConfig(config["Logging"])

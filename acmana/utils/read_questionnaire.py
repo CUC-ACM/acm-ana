@@ -5,7 +5,7 @@ import aiohttp
 import pandas as pd
 from fake_useragent import UserAgent
 
-import acmana.config as config
+import acmana
 from acmana.crawler.nowcoder.user_info import get_nowcoder_nickname
 from acmana.crawler.vjudge.user_info import get_vjudge_nickname
 from acmana.models.contestant.nowcoder_contestant import NowcoderContestant
@@ -25,7 +25,7 @@ async def read_nowcoder_questionnaire(df: pd.DataFrame):
             )
             if (
                 cached_nowcoder_contestant
-                and config.config["input"]["using_nickname_cache"]
+                and acmana.config["input"]["using_nickname_cache"]
                 and cached_nowcoder_contestant.nickname
             ):  # using cache
                 logger.debug(
@@ -73,7 +73,7 @@ async def read_vjudge_questionnaire(df: pd.DataFrame):
 
             if (
                 cached_vjudge_contestant
-                and config.config["input"]["using_nickname_cache"]
+                and acmana.config["input"]["using_nickname_cache"]
                 and cached_vjudge_contestant.nickname
             ):  # using cache
                 logger.debug(
@@ -114,7 +114,7 @@ async def read_vjudge_questionnaire(df: pd.DataFrame):
 
 
 def read_questionnaire():
-    df = pd.read_csv(config.config["input"]["questionnaire_path"])
+    df = pd.read_csv(acmana.config["input"]["questionnaire_path"])
 
     async def main():
         tasks = [read_nowcoder_questionnaire(df), read_vjudge_questionnaire(df)]
