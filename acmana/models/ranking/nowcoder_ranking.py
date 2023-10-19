@@ -8,7 +8,7 @@ from acmana.models.ranking import RankingBase
 
 if TYPE_CHECKING:
     from contest.nowcoder_contest import NowcoderContest
-    from contestant.nowcoder_contestant import NowcoderAccount
+    from acmana.models.account.nowcoder_account import NowcoderAccount
 
 
 class NowcoderRanking(SQLBase, RankingBase):

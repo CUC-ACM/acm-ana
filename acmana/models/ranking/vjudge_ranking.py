@@ -8,7 +8,7 @@ from acmana.models.ranking import RankingBase
 
 if TYPE_CHECKING:
     from contest.vjudge_contest import VjudgeContest
-    from contestant.vjudge_contestant import VjudgeContestant
+    from acmana.models.account.vjudge_account import VjudgeContestant
 
 
 class VjudgeRanking(SQLBase, RankingBase):

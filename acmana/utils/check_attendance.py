@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 
 import acmana
-from acmana.models.contestant.nowcoder_contestant import NowcoderAccount
+from acmana.models.account.nowcoder_account import NowcoderAccount
 
 logger = logging.getLogger(__name__)
 

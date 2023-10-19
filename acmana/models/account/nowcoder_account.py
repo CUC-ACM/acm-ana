@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, List, Optional
 from sqlalchemy.orm import Mapped, relationship
 
 from acmana.models import SQLBase, sqlsession
-from acmana.models.contestant import OJAccountBase
+from acmana.models.account import OJAccountBase
 
 if TYPE_CHECKING:
     from ranking.nowcoder_ranking import NowcoderRanking

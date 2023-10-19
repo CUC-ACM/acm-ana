@@ -9,7 +9,7 @@ import fake_useragent
 
 import acmana
 from acmana.crawler.vjudge.contest_crawler import VjudgeContestCrawler
-from acmana.models.contestant.vjudge_contestant import VjudgeContestant
+from acmana.models.account.vjudge_account import VjudgeContestant
 from acmana.models.ranking.vjudge_ranking import VjudgeRanking
 
 logger = logging.getLogger(__name__)

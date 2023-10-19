@@ -4,7 +4,7 @@ import fake_useragent
 import requests
 
 from acmana.models.contest.vjudge_contest import VjudgeContest
-from acmana.models.contestant.vjudge_contestant import VjudgeContestant
+from acmana.models.account.vjudge_account import VjudgeContestant
 
 
 class VjudgeContestCrawler:

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from acmana.models import SQLBase, sqlsession
 
 if TYPE_CHECKING:
-    from acmana.models.contestant import OJAccountBase
+    from acmana.models.account import OJAccountBase
 
 class Student(SQLBase):
     """学生信息表"""

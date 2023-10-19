@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Mapped, relationship
 
 from acmana.models import SQLBase, sqlsession
-from acmana.models.contestant import OJAccountBase
+from acmana.models.account import OJAccountBase
 
 if TYPE_CHECKING:
     from ranking.vjudge_ranking import VjudgeRanking

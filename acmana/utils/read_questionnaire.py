@@ -8,8 +8,8 @@ from fake_useragent import UserAgent
 import acmana
 from acmana.crawler.nowcoder.user_info import get_nowcoder_nickname
 from acmana.crawler.vjudge.user_info import get_vjudge_nickname
-from acmana.models.contestant.nowcoder_contestant import NowcoderAccount
-from acmana.models.contestant.vjudge_contestant import VjudgeContestant
+from acmana.models.account.nowcoder_account import NowcoderAccount
+from acmana.models.account.vjudge_account import VjudgeContestant
 
 logger = logging.getLogger(__name__)
 
