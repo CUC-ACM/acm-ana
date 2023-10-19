@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import ForeignKey, Integer, String
@@ -8,6 +9,8 @@ from acmana.models import sqlsession
 if TYPE_CHECKING:
     from acmana.models.student import Student
 
+logger = logging.getLogger(__name__)
+
 
 class OJAccountBase:
     """各大 OJ 平台账号信息的基类"""
@@ -17,5 +20,6 @@ class OJAccountBase:
     student_id: Mapped[Optional[str]] = mapped_column(ForeignKey("student.id"))
 
     def commit_to_db(self):
+        logger.info(f"commiting {self} to db......")
         sqlsession.add(self)
         sqlsession.commit()

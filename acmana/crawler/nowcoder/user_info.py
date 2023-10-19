@@ -6,7 +6,7 @@ import fake_useragent
 
 
 async def get_nowcoder_nickname(
-    nowcoder_id: str, session: aiohttp.ClientSession
+    nowcoder_id: int, session: aiohttp.ClientSession
 ) -> str | None:
     """获取牛客网昵称"""
 
@@ -30,9 +30,9 @@ if __name__ == "__main__":
 
     async def main():
         async with aiohttp.ClientSession() as session:
-            nick_name = await get_nowcoder_nickname("767116230", session)
+            nick_name = await get_nowcoder_nickname(767116230, session)
             assert nick_name == "lim_Nobody"
-            now_coder_id = "804688108"  # 非 contest profile
+            now_coder_id = 804688108  # 非 contest profile
             nick_name = await get_nowcoder_nickname(now_coder_id, session)
             print(nick_name)
 

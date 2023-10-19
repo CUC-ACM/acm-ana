@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import ForeignKey, String
@@ -8,6 +9,8 @@ from acmana.models import SQLBase, sqlsession
 if TYPE_CHECKING:
     from acmana.models.account.nowcoder_account import NowcoderAccount
     from acmana.models.account.vjudge_account import VjudgeAccount
+
+logger = logging.getLogger(__name__)
 
 
 class Student(SQLBase):
@@ -29,6 +32,11 @@ class Student(SQLBase):
 
     def __repr__(self) -> str:
         return f"Student(real_name={self.real_name}, id={self.id}, major={self.major}, grade={self.grade}, in_course={self.in_course})"
+
+    def commit_to_db(self):
+        logger.info(f"commiting {self} to db......")
+        sqlsession.add(self)
+        sqlsession.commit()
 
     @staticmethod
     def query_from_student_id(student_id: str) -> Optional["Student"]:

@@ -22,7 +22,7 @@ class NowcoderAccount(OJAccountBase, SQLBase):
     )
 
     def __repr__(self) -> str:
-        return f"NowcoderAccount(id={self.id}, username={self.username}, nickname={self.nickname}, student={getattr(self, 'student'), None})"
+        return f"NowcoderAccount(id={self.id}, nickname={self.nickname}, student={getattr(self, 'student')})"
 
     @staticmethod
     def query_from_student_id(student_id: str) -> Optional["NowcoderAccount"]:

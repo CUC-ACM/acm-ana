@@ -9,7 +9,7 @@ from acmana.crawler.vjudge.user_info import get_vjudge_nickname, get_vjudge_user
 
 
 class TestUserInfoCrawler(IsolatedAsyncioTestCase):
-    nowcoder_id = "767116230"
+    nowcoder_id = 767116230
     vjudge_username = "youngwind"
 
     async def test_nowcoder_user_info_crawler(self):
@@ -19,10 +19,10 @@ class TestUserInfoCrawler(IsolatedAsyncioTestCase):
             )
             self.assertEqual(nick_name, "lim_Nobody")
             nick_name = await get_nowcoder_nickname(
-                TestUserInfoCrawler.vjudge_username, session
+                TestUserInfoCrawler.vjudge_username, session  # type: ignore
             )
             self.assertEqual(nick_name, None)
-            nowcoder_user_id = "804688108"
+            nowcoder_user_id = 804688108
             user_profile = await get_nowcoder_nickname(nowcoder_user_id, session)
             self.assertEqual(user_profile, "23数科闻学兵")
 
@@ -37,7 +37,7 @@ class TestUserInfoCrawler(IsolatedAsyncioTestCase):
 
             async def test_nick_name_LUZHOU72_none():
                 nick_name_LUZHOU72 = await get_vjudge_nickname(
-                    TestUserInfoCrawler.nowcoder_id, session
+                    TestUserInfoCrawler.nowcoder_id, session  # type: ignore
                 )
                 self.assertEqual(nick_name_LUZHOU72, None)
 

@@ -1,10 +1,13 @@
 import asyncio
+import logging
 import os
 import re
 
 import aiohttp
 import fake_useragent
 from lxml import etree
+
+logger = logging.getLogger(__name__)
 
 
 async def get_vjudge_nickname(
@@ -49,22 +52,28 @@ async def get_vjudge_user_id(username: str, session: aiohttp.ClientSession) -> i
         "sec-fetch-site": "same-origin",
         "sec-fetch-user": "?1",
         "upgrade-insecure-requests": "1",
-        "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.46",
+        "user-agent": fake_useragent.UserAgent().random,
     }
     async with session.get(
         "https://vjudge.net/message", headers=headers, params=params
     ) as response:
         re_vjudge_account_id = re.compile(
-            r'<li class="list-group-item contact " data-contact-id="(.*)">([\w\W]*)<b>{}</b>([\w\W]*)</li>'.format(username),
+            r'<li class="list-group-item contact " data-contact-id="(.*)">([\w\W]*)<b>{}</b>([\w\W]*)</li>'.format(
+                username
+            ),
             re.M | re.I,
         )
         matchObj = re_vjudge_account_id.search(await response.text())
-        if not matchObj:
+
+        if matchObj:
+            uid = int(matchObj.group(1).strip())
+            logger.info(f"vjudge username: {username}, user_id: {uid}")
+            return uid
+        else:
+            print(await response.text())
             raise ValueError(
                 f"vjudge username: {username} 不存在或者 VJUDGE_COOKIE 环境变量设置错误或过期"
             )
-        if matchObj:
-            return int(matchObj.group(1).strip())
 
 
 if __name__ == "__main__":
@@ -78,5 +87,10 @@ if __name__ == "__main__":
             nick_name = await get_vjudge_nickname("CUC_2023", session)
             print(nick_name)
             assert nick_name == "侯理想"
+            id = 835096
+
+            user_id = await get_vjudge_user_id("Chen_Lang", session)
+            print(user_id)
+            assert user_id == 835096
 
     asyncio.run(main())

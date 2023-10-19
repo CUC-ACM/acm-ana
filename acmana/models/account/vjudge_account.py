@@ -22,7 +22,7 @@ class VjudgeAccount(OJAccountBase, SQLBase):
     student: Mapped[Optional["Student"]] = relationship(back_populates="vjudge_account")
 
     def __repr__(self) -> str:
-        return f"VjudgeAccount(id={self.id}, username={self.username}, nickname={self.nickname}, student={getattr(self, 'student'), None})"
+        return f"VjudgeAccount(id={self.id}, username={self.username}, nickname={self.nickname}, student={getattr(self, 'student')})"
 
     @staticmethod
     def query_from_username(username: str) -> Optional["VjudgeAccount"]:
