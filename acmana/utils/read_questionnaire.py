@@ -7,7 +7,7 @@ from fake_useragent import UserAgent
 
 import acmana.config as config
 from acmana.crawler.nowcoder.get_nickname import get_nowcoder_nickname
-from acmana.crawler.vjudge.get_nickname import get_vjudge_nickname
+from acmana.crawler.vjudge.user_info import get_vjudge_nickname
 from acmana.models.contestant.nowcoder_contestant import NowcoderContestant
 from acmana.models.contestant.vjudge_contestant import VjudgeContestant
 
@@ -87,13 +87,13 @@ async def read_vjudge_questionnaire(df: pd.DataFrame):
             else:
                 is_in_course = False
 
-            vjudge_url = row["Vjudge 个人主页网址（必填）"]
-            nickname = await get_vjudge_nickname(vjudge_url, aiosession)
+            vjudge_username = row["Vjudge 个人主页网址（必填）"].split("/")[-1]
+            nickname = await get_vjudge_nickname(vjudge_username, aiosession)
             if nickname == None:
-                logger.warning(f"Vjudge网昵称获取失败: {row['姓名（必填）']}: {vjudge_url}")
+                logger.warning(f"Vjudge网昵称获取失败: {row['姓名（必填）']}: {vjudge_username}")
             else:
                 logger.debug(
-                    f"Vjudge网昵称获取成功: {row['姓名（必填）']}: {vjudge_url}: {nickname}"
+                    f"Vjudge网昵称获取成功: {row['姓名（必填）']}: username: {vjudge_username}, nickname: {nickname}"
                 )
 
             vjudge_contestant = VjudgeContestant(
