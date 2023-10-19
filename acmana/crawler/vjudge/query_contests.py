@@ -128,8 +128,8 @@ class VjudgeContestRetriever:
 
 if __name__ == "__main__":
     vjudge_contest_retriever = VjudgeContestRetriever(
-        title=config.config["vjudge"][0]["title_prefix"],
-        div=config.config["vjudge"][0]["div"],
+        title=config.config["vjudge"]["instances"][0]["title_prefix"],
+        div=config.config["vjudge"]["instances"][0]["div"],
     )
 
     vjudge_contest_retriever.get_contests()
