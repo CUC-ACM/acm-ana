@@ -4,13 +4,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import Mapped, relationship
 
 from acmana.models import SQLBase, sqlsession
-from acmana.models.contestant import ContestantBase
+from acmana.models.contestant import OJAccountBase
 
 if TYPE_CHECKING:
     from ranking.vjudge_ranking import VjudgeRanking
 
 
-class VjudgeContestant(SQLBase, ContestantBase):
+class VjudgeContestant(SQLBase, OJAccountBase):
     """存储 vjudge 所有参赛者信息 的表
 
     注意：同时参加 `牛客` 和 `Vjudge` 的同一人不被视作一个 Contestant"""
@@ -21,7 +21,7 @@ class VjudgeContestant(SQLBase, ContestantBase):
     )
 
     def __repr__(self) -> str:
-        return f"VjudgeContestant(real_name={self.real_name}, id={self.id}, username={self.username}, nickname={self.nickname}, student_id={self.student_id}, is_in_course={self.is_in_course})"
+        return f"VjudgeContestant(real_name={self.student.real_name}, id={self.id}, username={self.username}, nickname={self.nickname}, student_id={self.student_id}, is_in_course={self.student.in_course})"
 
     @staticmethod
     def query_from_username(username: str) -> Optional["VjudgeContestant"]:

@@ -13,10 +13,10 @@ class SQLBase(DeclarativeBase):
 #  初始化 orm
 from acmana.models.contest.nowcoder_contest import NowcoderContest
 from acmana.models.contest.vjudge_contest import VjudgeContest
-from acmana.models.contestant.nowcoder_contestant import NowcoderContestant
+from acmana.models.contestant.nowcoder_contestant import NowcoderAccount
 from acmana.models.contestant.vjudge_contestant import VjudgeContestant
 from acmana.models.ranking.nowcoder_ranking import NowcoderRanking
 from acmana.models.ranking.vjudge_ranking import VjudgeRanking
-from acmana.models.students import Student
+from acmana.models.student import Student
 
 SQLBase.metadata.create_all(engine)

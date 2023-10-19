@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class ContestBase:
     """比赛元信息的基类"""
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)  # 该平台 api 接口的的比赛 id
     title: Mapped[str] = mapped_column(String())  # 比赛名称
     begin: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=False))
     end: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=False))

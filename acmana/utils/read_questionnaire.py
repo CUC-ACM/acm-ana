@@ -8,7 +8,7 @@ from fake_useragent import UserAgent
 import acmana
 from acmana.crawler.nowcoder.user_info import get_nowcoder_nickname
 from acmana.crawler.vjudge.user_info import get_vjudge_nickname
-from acmana.models.contestant.nowcoder_contestant import NowcoderContestant
+from acmana.models.contestant.nowcoder_contestant import NowcoderAccount
 from acmana.models.contestant.vjudge_contestant import VjudgeContestant
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ async def read_nowcoder_questionnaire(df: pd.DataFrame):
     async with aiohttp.ClientSession() as aiosession:
         for index, row in df.iterrows():
             student_id = row["学号（必填）"]
-            cached_nowcoder_contestant = NowcoderContestant.query_from_student_id(
+            cached_nowcoder_contestant = NowcoderAccount.query_from_student_id(
                 student_id=student_id
             )
             if (
@@ -46,7 +46,7 @@ async def read_nowcoder_questionnaire(df: pd.DataFrame):
                 is_in_course = True
             else:
                 is_in_course = False
-            nowcoder_contestant = NowcoderContestant(
+            nowcoder_contestant = NowcoderAccount(
                 real_name=row["姓名（必填）"],
                 student_id=row["学号（必填）"],
                 nickname=nickname,

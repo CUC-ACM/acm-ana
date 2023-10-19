@@ -8,7 +8,7 @@ from acmana.models.ranking import RankingBase
 
 if TYPE_CHECKING:
     from contest.nowcoder_contest import NowcoderContest
-    from contestant.nowcoder_contestant import NowcoderContestant
+    from contestant.nowcoder_contestant import NowcoderAccount
 
 
 class NowcoderRanking(SQLBase, RankingBase):
@@ -16,6 +16,6 @@ class NowcoderRanking(SQLBase, RankingBase):
 
     __tablename__ = "nowcoder_ranking"
     contestant_id: Mapped[int] = mapped_column(ForeignKey("nowcoder_contestant.id"))
-    contestant: Mapped["NowcoderContestant"] = relationship(back_populates="rankings")
+    contestant: Mapped["NowcoderAccount"] = relationship(back_populates="rankings")
     contest_id: Mapped[int] = mapped_column(ForeignKey("nowcoder_contest.id"))
     contest: Mapped["NowcoderContest"] = relationship(back_populates="rankings")
