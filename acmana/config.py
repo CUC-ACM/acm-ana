@@ -1,5 +1,3 @@
-import logging.config
-
 import yaml
 
 with open("config.yaml", "r") as f:
@@ -12,8 +10,6 @@ COLORS = (
     "\033[91m",  # Red
     "\033[35m",  # Magenta
 )
-
-logging.config.dictConfig(config["Logging"])
 
 if __name__ == "__main__":
     print(config)
