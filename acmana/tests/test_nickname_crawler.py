@@ -4,7 +4,7 @@ from unittest import IsolatedAsyncioTestCase
 import aiohttp
 
 from acmana.crawler.nowcoder.get_nickname import get_nowcoder_nickname
-from acmana.crawler.vjudge.user_info import get_vjudge_nickname
+from acmana.crawler.vjudge.user_info import get_vjudge_nickname, get_vjudge_user_id
 
 
 class TestNicknameCrawler(IsolatedAsyncioTestCase):
@@ -22,12 +22,10 @@ class TestNicknameCrawler(IsolatedAsyncioTestCase):
             )
             self.assertEqual(nick_name, None)
             nowcoder_user_id = "804688108"
-            user_profile = await get_nowcoder_nickname(
-                nowcoder_user_id, session
-            )
+            user_profile = await get_nowcoder_nickname(nowcoder_user_id, session)
             self.assertEqual(user_profile, "23数科闻学兵")
 
-    async def test_vjudge_nickname_crawler(self):
+    async def test_vjudge_info_crawler(self):
         async with aiohttp.ClientSession() as session:
             nick_name = await get_vjudge_nickname(
                 TestNicknameCrawler.vjudge_username, session
@@ -38,6 +36,14 @@ class TestNicknameCrawler(IsolatedAsyncioTestCase):
                 TestNicknameCrawler.nowcoder_id, session
             )
             self.assertEqual(nick_name, None)
+
+            user_id = await get_vjudge_user_id("LUZHOU72", session)
+
+            self.assertEqual(user_id, 834670)
+
+            with self.assertRaises(ValueError):
+                user_id = await get_vjudge_user_id("x5u4iiuqfdadfe892w", session)
+                print(user_id)
 
 
 if __name__ == "__main__":

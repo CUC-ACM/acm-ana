@@ -73,8 +73,7 @@ class VjudgeRankingItem:
 
     def commit_to_db(self):
         VjudgeRanking(
-            vcontestant_id=self.vcontestant_id,
-            contestant=self.contestant,
+            contestant_id=self.contestant.id,
             contest_id=self.contest.id,
             competition_rank=self.competition_rank,
             score=self.score,
