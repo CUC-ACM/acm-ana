@@ -18,10 +18,10 @@ class VjudgeAccount(OJAccountBase, SQLBase):
     rankings: Mapped[List["VjudgeRanking"]] = relationship(
         back_populates="account", cascade="all, delete-orphan"
     )
-    student: Mapped["Student"] = relationship(back_populates="vjudge_account")
+    student: Mapped[Optional["Student"]] = relationship(back_populates="vjudge_account")
 
     def __repr__(self) -> str:
-        return f"VjudgeAccount(real_name={self.student.real_name}, id={self.id}, username={self.username}, nickname={self.nickname}, student_id={self.student_id}, in_course={self.student.in_course})"
+        return f"VjudgeAccount(id={self.id}, username={self.username}, nickname={self.nickname}, student={getattr(self, 'student'), None})"
 
     @staticmethod
     def query_from_username(username: str) -> Optional["VjudgeAccount"]:

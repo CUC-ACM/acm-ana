@@ -17,10 +17,12 @@ class NowcoderAccount(OJAccountBase, SQLBase):
     rankings: Mapped[List["NowcoderRanking"]] = relationship(
         back_populates="account", cascade="all, delete-orphan"
     )
-    student: Mapped["Student"] = relationship(back_populates="nowcoder_account")
+    student: Mapped[Optional["Student"]] = relationship(
+        back_populates="nowcoder_account"
+    )
 
     def __repr__(self) -> str:
-        return f"NowcoderAccount(id={self.id}, username={self.username}, nickname={self.nickname}, student_id={self.student_id}, is_in_course={self.student.in_course})"
+        return f"NowcoderAccount(id={self.id}, username={self.username}, nickname={self.nickname}, student={getattr(self, 'student'), None})"
 
     @staticmethod
     def query_from_student_id(student_id: int) -> Optional["NowcoderAccount"]:

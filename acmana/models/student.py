@@ -19,17 +19,11 @@ class Student(SQLBase):
     real_name: Mapped[Optional[str]] = mapped_column(String())
     major: Mapped[Optional[str]] = mapped_column(String())
     grade: Mapped[Optional[str]] = mapped_column(String())  # 考虑到有可能有研究生，所以用 str
-    in_course: Mapped[bool] = mapped_column()  # 是否在选课名单中
-    nowcoder_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("nowcoder_account.id")
-    )
-    nowcoder_account: Mapped["NowcoderAccount"] = relationship(
+    in_course: Mapped[Optional[bool]] = mapped_column()  # 是否在选课名单中
+    nowcoder_account: Mapped[Optional["NowcoderAccount"]] = relationship(
         "NowcoderAccount", back_populates="student"
     )
-    vjudge_account_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("vjudge_account.id")
-    )
-    vjudge_account: Mapped["VjudgeAccount"] = relationship(
+    vjudge_account: Mapped[Optional["VjudgeAccount"]] = relationship(
         "VjudgeAccount", back_populates="student"
     )
 
