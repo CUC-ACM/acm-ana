@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-engine = create_engine("sqlite:///scoreanalysis/resources/sqlite_data.db", echo=False)
+engine = create_engine("sqlite:///acmana/resources/sqlite_data.db", echo=False)
 SessionMaker = sessionmaker(bind=engine)
 sqlsession = SessionMaker()
 

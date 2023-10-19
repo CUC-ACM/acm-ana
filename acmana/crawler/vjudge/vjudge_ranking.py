@@ -164,7 +164,7 @@ class VjudgeRankingItem:
         }
         if config.config["debug_cache"]:
             async with aiofiles.open(
-                "scoreanalysis/tmp/vjudge_rank_587010.json", mode="r"
+                "acmana/tmp/vjudge_rank_587010.json", mode="r"
             ) as f:
                 vjudge_contest_crawler = VjudgeContestCrawler(
                     json.loads(await f.read())

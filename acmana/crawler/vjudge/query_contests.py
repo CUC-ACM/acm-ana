@@ -108,7 +108,7 @@ class VjudgeContestRetriever:
         }
         if config.config["debug_cache"]:
             logger.info("debug_cache is True, use cache")
-            with open("scoreanalysis/tmp/vjudge_retrive_contests.json", "r") as f:
+            with open("acmana/tmp/vjudge_retrive_contests.json", "r") as f:
                 data: list[list] = json.load(f)["data"]
         else:
             logger.info(
