@@ -25,7 +25,7 @@ class NowcoderAccount(OJAccountBase, SQLBase):
         return f"NowcoderAccount(id={self.id}, username={self.username}, nickname={self.nickname}, student={getattr(self, 'student'), None})"
 
     @staticmethod
-    def query_from_student_id(student_id: int) -> Optional["NowcoderAccount"]:
+    def query_from_student_id(student_id: str) -> Optional["NowcoderAccount"]:
         """根据学号查询"""
         stmt = sqlsession.query(NowcoderAccount).filter_by(student_id=student_id)
         return sqlsession.execute(stmt).scalar_one_or_none()

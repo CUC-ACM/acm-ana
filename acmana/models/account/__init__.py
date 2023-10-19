@@ -14,7 +14,6 @@ class OJAccountBase:
 
     id: Mapped[int] = mapped_column(primary_key=True)  # 该平台 api 接口的的账号 id
     nickname: Mapped[Optional[str]] = mapped_column(String())
-    username: Mapped[str] = mapped_column(String(), unique=True)
     student_id: Mapped[Optional[str]] = mapped_column(ForeignKey("student.id"))
 
     def commit_to_db(self):
