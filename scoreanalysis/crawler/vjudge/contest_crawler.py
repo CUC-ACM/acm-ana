@@ -95,8 +95,8 @@ class VjudgeContestCrawler:
         vjudge_contest = VjudgeContest(
             id=self.id,
             title=self.title,
-            start_time=self.begin,
-            end_time=self.end,
+            begin=self.begin,
+            end=self.end,
             url=f"https://vjudge.net/contest/{self.id}",
             div=div,
         )

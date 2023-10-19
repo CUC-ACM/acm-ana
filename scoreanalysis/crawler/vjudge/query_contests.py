@@ -17,28 +17,42 @@ class VjudgeContestRetriever:
         def __init__(
             self,
             vcontest_id: int,
-            name: str,
+            title: str,
             div: str,
             begin: datetime.datetime,
             end: datetime.datetime,
         ) -> None:
             self.vcontest_id: int = vcontest_id
-            self.name: str = name
+            self.title: str = title
             self.div: str = div
             self.begin: datetime.datetime = begin
             self.end: datetime.datetime = end
 
         def __repr__(self) -> str:
-            return f"(vcontest_id: {self.vcontest_id}, name: {self.name}, time({self.begin}, {self.end}))"
+            return f"(vcontest_id: {self.vcontest_id}, name: {self.title}, time({self.begin}, {self.end}))"
 
         def commit_to_db(self):
-            VjudgeContest(
-                id=self.vcontest_id,
-                name=self.name,
-                div=self.div,
-                begin=self.begin,
-                end=self.end,
-            ).commit_to_db()
+            logger.info(f"Committing contest {self} to database......")
+            vjudge_contest: VjudgeContest | None = VjudgeContest.query_from_id(
+                id=self.vcontest_id
+            )  # type: ignore
+
+            if vjudge_contest is None:  # 数据库中不存在
+                logger.info(f"Contest {self} not found in database, creating......")
+                VjudgeContest(
+                    id=self.vcontest_id,
+                    title=self.title,
+                    div=self.div,
+                    begin=self.begin,
+                    end=self.end,
+                ).commit_to_db()
+            else:  # 更新此比赛
+                logger.info(f"Contest {self} found in database, updating......")
+                vjudge_contest.title = self.title
+                vjudge_contest.div = self.div
+                vjudge_contest.begin = self.begin
+                vjudge_contest.end = self.end
+                vjudge_contest.commit_to_db()
 
     def __init__(
         self,
@@ -81,7 +95,7 @@ class VjudgeContestRetriever:
 
     def _to_contest(self, l: list) -> "VjudgeContestRetriever.Contest":
         return VjudgeContestRetriever.Contest(
-            name=l[1],
+            title=l[1],
             vcontest_id=int(l[0]),
             div=self.div,
             begin=datetime.datetime.utcfromtimestamp(int(l[3]) / 1000),
@@ -121,4 +135,5 @@ if __name__ == "__main__":
     vjudge_contest_retriever.get_contests()
 
     for contest in vjudge_contest_retriever.retrieved_contests:
-        print(contest)
+        logger.info(contest)
+        contest.commit_to_db()
