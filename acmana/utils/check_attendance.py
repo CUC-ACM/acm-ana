@@ -14,11 +14,11 @@ def check_attendance():
     df = pd.read_csv(acmana.config["input"]["attendance_path"])
     for index, row in df.iterrows():
         student_id = row["学号"]
-        cached_nowcoder_contestant = NowcoderAccount.query_from_student_id(
+        cached_nowcoder_account = NowcoderAccount.query_from_student_id(
             student_id=student_id
         )
 
-        if not cached_nowcoder_contestant:
+        if not cached_nowcoder_account:
             logging.info(f"已选课未填表: {row['姓名']}")
 
 

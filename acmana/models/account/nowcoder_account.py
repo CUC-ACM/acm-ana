@@ -14,7 +14,7 @@ class NowcoderAccount(SQLBase, OJAccountBase):
 
     __tablename__ = "nowcoder_account"
     rankings: Mapped[List["NowcoderRanking"]] = relationship(
-        back_populates="contestant", cascade="all, delete-orphan"
+        back_populates="account", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:

@@ -9,7 +9,7 @@ import acmana
 from acmana.crawler.nowcoder.user_info import get_nowcoder_nickname
 from acmana.crawler.vjudge.user_info import get_vjudge_nickname
 from acmana.models.account.nowcoder_account import NowcoderAccount
-from acmana.models.account.vjudge_account import VjudgeContestant
+from acmana.models.account.vjudge_account import VjudgeAccount
 
 logger = logging.getLogger(__name__)
 
@@ -20,16 +20,16 @@ async def read_nowcoder_questionnaire(df: pd.DataFrame):
     async with aiohttp.ClientSession() as aiosession:
         for index, row in df.iterrows():
             student_id = row["学号（必填）"]
-            cached_nowcoder_contestant = NowcoderAccount.query_from_student_id(
+            cached_nowcoder_account = NowcoderAccount.query_from_student_id(
                 student_id=student_id
             )
             if (
-                cached_nowcoder_contestant
+                cached_nowcoder_account
                 and acmana.config["input"]["using_nickname_cache"]
-                and cached_nowcoder_contestant.nickname
+                and cached_nowcoder_account.nickname
             ):  # using cache
                 logger.debug(
-                    f"牛客网昵称已缓存: {row['姓名（必填）']}, nickname: {cached_nowcoder_contestant.nickname}"
+                    f"牛客网昵称已缓存: {row['姓名（必填）']}, nickname: {cached_nowcoder_account.nickname}"
                 )
                 continue
 
@@ -46,7 +46,7 @@ async def read_nowcoder_questionnaire(df: pd.DataFrame):
                 is_in_course = True
             else:
                 is_in_course = False
-            nowcoder_contestant = NowcoderAccount(
+            nowcoder_account = NowcoderAccount(
                 real_name=row["姓名（必填）"],
                 student_id=row["学号（必填）"],
                 nickname=nickname,
@@ -56,28 +56,28 @@ async def read_nowcoder_questionnaire(df: pd.DataFrame):
                 grade=row["年级（必填）"][:-1],
                 div="div2",
             )
-            if cached_nowcoder_contestant is not None:  # update
-                cached_nowcoder_contestant.nickname = nickname
-                cached_nowcoder_contestant.commit_to_db()
+            if cached_nowcoder_account is not None:  # update
+                cached_nowcoder_account.nickname = nickname
+                cached_nowcoder_account.commit_to_db()
             else:
-                nowcoder_contestant.commit_to_db()
+                nowcoder_account.commit_to_db()
 
 
 async def read_vjudge_questionnaire(df: pd.DataFrame):
     async with aiohttp.ClientSession() as aiosession:
         for index, row in df.iterrows():
             student_id = row["学号（必填）"]
-            cached_vjudge_contestant = VjudgeContestant.query_from_student_id(
+            cached_vjudge_account = VjudgeAccount.query_from_student_id(
                 student_id=student_id
             )
 
             if (
-                cached_vjudge_contestant
+                cached_vjudge_account
                 and acmana.config["input"]["using_nickname_cache"]
-                and cached_vjudge_contestant.nickname
+                and cached_vjudge_account.nickname
             ):  # using cache
                 logger.debug(
-                    f"Vjudge网昵称已缓存: {row['姓名（必填）']}, nickname: {cached_vjudge_contestant.nickname}"
+                    f"Vjudge网昵称已缓存: {row['姓名（必填）']}, nickname: {cached_vjudge_account.nickname}"
                 )
                 continue
 
@@ -96,7 +96,7 @@ async def read_vjudge_questionnaire(df: pd.DataFrame):
                     f"Vjudge网昵称获取成功: {row['姓名（必填）']}: username: {vjudge_username}, nickname: {nickname}"
                 )
 
-            vjudge_contestant = VjudgeContestant(
+            vjudge_account = VjudgeAccount(
                 real_name=row["姓名（必填）"],
                 student_id=row["学号（必填）"],
                 nickname=nickname,
@@ -106,11 +106,11 @@ async def read_vjudge_questionnaire(df: pd.DataFrame):
                 grade=row["年级（必填）"][:-1],
                 div="div1",
             )
-            if cached_vjudge_contestant:
-                cached_vjudge_contestant.nickname = nickname
-                cached_vjudge_contestant.commit_to_db
+            if cached_vjudge_account:
+                cached_vjudge_account.nickname = nickname
+                cached_vjudge_account.commit_to_db
             else:
-                vjudge_contestant.commit_to_db()
+                vjudge_account.commit_to_db()
 
 
 def read_questionnaire():

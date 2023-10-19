@@ -10,27 +10,25 @@ if TYPE_CHECKING:
     from ranking.vjudge_ranking import VjudgeRanking
 
 
-class VjudgeContestant(SQLBase, OJAccountBase):
-    """存储 vjudge 所有参赛者信息 的表
+class VjudgeAccount(SQLBase, OJAccountBase):
+    """存储 `Vjudge 账号` 信息"""
 
-    注意：同时参加 `牛客` 和 `Vjudge` 的同一人不被视作一个 Contestant"""
-
-    __tablename__ = "vjudge_contestant"
+    __tablename__ = "vjudge_account"
     rankings: Mapped[List["VjudgeRanking"]] = relationship(
-        back_populates="contestant", cascade="all, delete-orphan"
+        back_populates="account", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:
-        return f"VjudgeContestant(real_name={self.student.real_name}, id={self.id}, username={self.username}, nickname={self.nickname}, student_id={self.student_id}, is_in_course={self.student.in_course})"
+        return f"VjudgeAccount(real_name={self.student.real_name}, id={self.id}, username={self.username}, nickname={self.nickname}, student_id={self.student_id}, in_course={self.student.in_course})"
 
     @staticmethod
-    def query_from_username(username: str) -> Optional["VjudgeContestant"]:
-        stmt = select(VjudgeContestant).where(VjudgeContestant.username == username)
+    def query_from_username(username: str) -> Optional["VjudgeAccount"]:
+        stmt = select(VjudgeAccount).where(VjudgeAccount.username == username)
 
         return sqlsession.execute(stmt).scalar_one_or_none()
 
     @staticmethod
-    def query_from_student_id(student_id: int) -> Optional["VjudgeContestant"]:
+    def query_from_student_id(student_id: int) -> Optional["VjudgeAccount"]:
         """根据学号查询"""
-        stmt = sqlsession.query(VjudgeContestant).filter_by(student_id=student_id)
+        stmt = sqlsession.query(VjudgeAccount).filter_by(student_id=student_id)
         return sqlsession.execute(stmt).scalar_one_or_none()

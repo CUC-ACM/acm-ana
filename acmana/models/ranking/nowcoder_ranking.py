@@ -15,7 +15,7 @@ class NowcoderRanking(SQLBase, RankingBase):
     """存储牛客 所有比赛排名 的表(各场比赛混在一起)"""
 
     __tablename__ = "nowcoder_ranking"
-    contestant_id: Mapped[int] = mapped_column(ForeignKey("nowcoder_contestant.id"))
-    contestant: Mapped["NowcoderAccount"] = relationship(back_populates="rankings")
+    account_id: Mapped[int] = mapped_column(ForeignKey("nowcoder_account.id"))
+    account: Mapped["NowcoderAccount"] = relationship(back_populates="rankings")
     contest_id: Mapped[int] = mapped_column(ForeignKey("nowcoder_contest.id"))
     contest: Mapped["NowcoderContest"] = relationship(back_populates="rankings")

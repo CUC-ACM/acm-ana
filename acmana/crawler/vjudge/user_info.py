@@ -54,11 +54,11 @@ async def get_vjudge_user_id(username: str, session: aiohttp.ClientSession) -> i
     async with session.get(
         "https://vjudge.net/message", headers=headers, params=params
     ) as response:
-        re_vjudge_contestant_id = re.compile(
+        re_vjudge_account_id = re.compile(
             r'<li class="list-group-item contact " data-contact-id="(.*)">([\w\W]*)<b>{}</b>([\w\W]*)</li>'.format(username),
             re.M | re.I,
         )
-        matchObj = re_vjudge_contestant_id.search(await response.text())
+        matchObj = re_vjudge_account_id.search(await response.text())
         if not matchObj:
             raise ValueError(
                 f"vjudge username: {username} 不存在或者 VJUDGE_COOKIE 环境变量设置错误或过期"

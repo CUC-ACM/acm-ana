@@ -4,47 +4,47 @@ import fake_useragent
 import requests
 
 from acmana.models.contest.vjudge_contest import VjudgeContest
-from acmana.models.account.vjudge_account import VjudgeContestant
+from acmana.models.account.vjudge_account import VjudgeAccount
 
 
 class VjudgeContestCrawler:
     class Submission:
         def __init__(
             self,
-            vcontestant_id: int,
+            vaccount_id: int,
             problem_id: int,
             accepted: bool,
             time: datetime.timedelta,
-            contestant: VjudgeContestant,
+            account: VjudgeAccount,
             contest: "VjudgeContestCrawler",
         ) -> None:
-            self.vcontestant_id: int = (
-                vcontestant_id  # 注意，这里是 vjudge 自己的 vcontestant_id
+            self.vaccount_id: int = (
+                vaccount_id  # 注意，这里是 vjudge 自己的 vaccount_id
             )
             self.problem_id = problem_id
             self.accepted: bool = accepted
             self.time: datetime.timedelta = time
-            self.contestant: VjudgeContestant = contestant
+            self.account: VjudgeAccount = account
             self.contest: VjudgeContestCrawler = contest
 
         @classmethod
         def from_api_list(
             cls,
             l: list,
-            participants_dict: dict[int, VjudgeContestant],
+            participants_dict: dict[int, VjudgeAccount],
             contest: "VjudgeContestCrawler",
         ) -> "VjudgeContestCrawler.Submission":
             return cls(
-                vcontestant_id=int(l[0]),
+                vaccount_id=int(l[0]),
                 problem_id=int(l[1]),
                 accepted=bool(l[2]),
                 time=datetime.timedelta(seconds=int(l[3])),
-                contestant=participants_dict[int(l[0])],
+                account=participants_dict[int(l[0])],
                 contest=contest,
             )
 
         def __repr__(self) -> str:
-            return f"vcontestant_id: {self.vcontestant_id}, contestant: {self.contestant} promble_id: {self.problem_id}, accepted: {self.accepted}, time: {self.time}"
+            return f"vaccount_id: {self.vaccount_id}, account: {self.account} promble_id: {self.problem_id}, accepted: {self.accepted}, time: {self.time}"
 
     def __init__(self, d: dict) -> None:
         self.id: int = int(d["id"])
@@ -55,18 +55,18 @@ class VjudgeContestCrawler:
             int(d["begin"] / 1000)
         )
         self.end: datetime.datetime = self.begin + self.length
-        self.participants: dict[int, VjudgeContestant | None] = {}
+        self.participants: dict[int, VjudgeAccount | None] = {}
 
-        for vcontestant_id, val in d["participants"].items():
-            vcontestant_id = int(vcontestant_id)
+        for vaccount_id, val in d["participants"].items():
+            vaccount_id = int(vaccount_id)
             username = val[0]
             nickname = val[1]
 
-            self.participants[vcontestant_id] = VjudgeContestant.query_from_username(
+            self.participants[vaccount_id] = VjudgeAccount.query_from_username(
                 username=username
             )
-            if self.participants[vcontestant_id] is None:
-                self.participants[vcontestant_id] = VjudgeContestant(
+            if self.participants[vaccount_id] is None:
+                self.participants[vaccount_id] = VjudgeAccount(
                     username=username, nickname=nickname
                 )
 

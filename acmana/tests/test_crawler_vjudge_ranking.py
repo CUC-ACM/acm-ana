@@ -32,14 +32,14 @@ class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
 
         # No.14 ADITLINK (张博)
         logger.debug(f"测试 No.14 ADITLINK (张博)")
-        self.assertEqual(vjudge_ranking_items[13].contestant.username, "ADITLINK")
+        self.assertEqual(vjudge_ranking_items[13].account.username, "ADITLINK")
 
         logger.debug(f"测试过题数为 0 的同学的排名")
 
         def test_0_solve_cnt(rank: int, username: str):
             """测试过题数为 0 的同学"""
             logger.debug(f"测试过题数为 0 的同学: {vjudge_ranking_items[rank]}")
-            self.assertEqual(vjudge_ranking_items[rank].contestant.username, username)
+            self.assertEqual(vjudge_ranking_items[rank].account.username, username)
             self.assertEqual(
                 vjudge_ranking_items[rank].total_penalty, datetime.timedelta()
             )
@@ -69,12 +69,12 @@ class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
             )
 
         for item in vjudge_attendance_total_ranking_items:
-            self.assertTrue(item.contestant.is_in_course, "只测试参加了课程的同学")
+            self.assertTrue(item.account.is_in_course, "只测试参加了课程的同学")
             self.assertLessEqual(item.score, 100, "得分不应该超过 100 分")
             # print(item)
 
         item_dict: dict[int, VjudgeRankingItem] = {
-            item.vcontestant_id: item for item in vjudge_attendance_total_ranking_items
+            item.vaccount_id: item for item in vjudge_attendance_total_ranking_items
         }
 
         # 王戈(没有参加比赛，但是补了一道题)
