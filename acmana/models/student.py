@@ -15,7 +15,7 @@ class Student(SQLBase):
 
     __tablename__ = "student"
 
-    id: Mapped[int] = mapped_column(primary_key=True)  # 学校学号
+    id: Mapped[str] = mapped_column(primary_key=True)  # 学校学号
     real_name: Mapped[Optional[str]] = mapped_column(String())
     major: Mapped[Optional[str]] = mapped_column(String())
     grade: Mapped[Optional[str]] = mapped_column(String())  # 考虑到有可能有研究生，所以用 str
