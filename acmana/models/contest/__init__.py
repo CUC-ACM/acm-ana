@@ -3,7 +3,7 @@ import logging
 from typing import Optional
 
 from sqlalchemy import DateTime, Select, String, select
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from acmana.models import sqlsession
 
@@ -21,7 +21,7 @@ class ContestBase:
         String()
     )  # 比赛组别："div1", "div2", "div1 & div2"
 
-    def commit_to_db(self):
+    def commit_to_db(self, sqlsession: Session = sqlsession):
         logger.info(f"Committing contest {self} to database......")
         sqlsession.add(self)
         sqlsession.commit()

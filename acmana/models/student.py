@@ -2,7 +2,7 @@ import logging
 from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import ForeignKey, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 
 from acmana.models import SQLBase, sqlsession
 
@@ -33,7 +33,7 @@ class Student(SQLBase):
     def __repr__(self) -> str:
         return f"Student(real_name={self.real_name}, id={self.id}, major={self.major}, grade={self.grade}, in_course={self.in_course})"
 
-    def commit_to_db(self):
+    def commit_to_db(self, sqlsession: Session = sqlsession):
         logger.info(f"commiting {self} to db......")
         sqlsession.add(self)
         sqlsession.commit()

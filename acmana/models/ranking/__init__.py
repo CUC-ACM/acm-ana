@@ -1,7 +1,7 @@
 import logging
 
 from sqlalchemy import Float, Integer, Select, select
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from acmana.models import sqlsession
 
@@ -18,7 +18,7 @@ class RankingBase:
     upsolved_cnt: Mapped[int] = mapped_column(Integer())  # 补题数
     penalty: Mapped[int] = mapped_column(Integer())  # 罚时
 
-    def commit_to_db(self):
+    def commit_to_db(self, sqlsession: Session = sqlsession):
         logger.info(f"commiting {self} to db......")
         sqlsession.add(self)
         sqlsession.commit()

@@ -2,7 +2,7 @@ import logging
 from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import ForeignKey, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from acmana.models import sqlsession
 
@@ -19,7 +19,7 @@ class OJAccountBase:
     nickname: Mapped[Optional[str]] = mapped_column(String())
     student_id: Mapped[Optional[str]] = mapped_column(ForeignKey("student.id"))
 
-    def commit_to_db(self):
+    def commit_to_db(self, sqlsession: Session = sqlsession):
         logger.info(f"commiting {self} to db......")
         sqlsession.add(self)
         sqlsession.commit()
