@@ -70,7 +70,6 @@ async def get_vjudge_user_id(username: str, session: aiohttp.ClientSession) -> i
             logger.info(f"vjudge username: {username}, user_id: {uid}")
             return uid
         else:
-            print(await response.text())
             raise ValueError(
                 f"vjudge username: {username} 不存在或者 VJUDGE_COOKIE 环境变量设置错误或过期"
             )

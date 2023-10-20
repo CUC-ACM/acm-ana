@@ -109,9 +109,16 @@ async def async_read_questionnaire_update_db(df: pd.DataFrame, concurrency: int 
             questionnaire.vjudge_nickename = await get_vjudge_nickname(
                 questionnaire.vjudge_username, session=clientsession
             )
-            questionnaire.vjudge_userid = await get_vjudge_user_id(
-                questionnaire.vjudge_username, session=clientsession
-            )
+            try:
+                questionnaire.vjudge_userid = await get_vjudge_user_id(
+                    questionnaire.vjudge_username, session=clientsession
+                )
+            except ValueError:
+                logger.error(
+                    f"Vjudge网昵称获取失败: {questionnaire.name}: {questionnaire.vjudge_nickename}, "
+                    f"可能是由于 VJUDGE_COOKIE 环境变量设置错误或过期，或者爬取速度过快导致的，skipping......"
+                )
+                return
             logger.info(
                 f"Vjudge网昵称获取成功: {questionnaire.name}: {questionnaire.vjudge_nickename}"
             )
@@ -140,6 +147,7 @@ async def async_read_questionnaire_update_db(df: pd.DataFrame, concurrency: int 
                     nowcoder_account.nickname
                 )  # 准备之后更新数据库
                 crt_questionnaire.cached_nowcoder_account = nowcoder_account
+                logger.info(f"牛客网昵称缓存命中: {crt_questionnaire.name}")
             else:  # 没有缓存——>获取
                 tasks.append(
                     asyncio.create_task(
@@ -155,6 +163,7 @@ async def async_read_questionnaire_update_db(df: pd.DataFrame, concurrency: int 
                 crt_questionnaire.vjudge_nickename = vjudge_account.nickname
                 crt_questionnaire.vjudge_userid = vjudge_account.id
                 crt_questionnaire.cache_vjudge_account = vjudge_account
+                logger.info(f"Vjudge网昵称缓存命中: {crt_questionnaire.name}")
             else:  # 没有缓存——>获取
                 tasks.append(
                     asyncio.create_task(
