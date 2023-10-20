@@ -37,7 +37,7 @@ class VjudgeContestCrawler:
             self.participants[vaccount_id] = VjudgeAccount.query_from_username(  # type: ignore
                 username=username
             )
-            if self.participants[vaccount_id] is None:
+            if self.participants[vaccount_id] is None:  # 在解析的时候就直接将没有见过的用户存入数据库
                 logger.warning(
                     f"vjudge account {username}, {nickname} not found, create a new one and commit to db......"
                 )
@@ -87,7 +87,7 @@ class VjudgeContestCrawler:
         return response.json()
 
     def commit_to_vjudge_contest_db(self, div: str | None = None):
-        """将当前的比赛信息提交到数据库 vjudge_contest 中"""
+        """将当前的比赛的 `元信息` 及其所有的 VjudgeRankingItem 提交到数据库中"""
 
         vjudge_contest = VjudgeContest(
             id=self.id,
@@ -96,6 +96,9 @@ class VjudgeContestCrawler:
             end=self.end,
             div=div,
         )
+
+        map(VjudgeRankingItem.commit_to_db, self.total_until_now_ranking_items)
+
         vjudge_contest.commit_to_db()
 
 

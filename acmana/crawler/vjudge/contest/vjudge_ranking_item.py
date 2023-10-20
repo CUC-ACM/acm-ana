@@ -76,10 +76,13 @@ class VjudgeRankingItem:
     def commit_to_db(self):
         assert self.vaccount_id is not None
         vjudge_account = VjudgeAccount.query_from_account_id(id=self.vaccount_id)
+        logger.info(f"Commiting {self} to db")
         if not vjudge_account:
             logger.warning(
-                f"VjudgeAccount(id={self.vaccount_id}, username={self}) not found, creating......"
+                f"VjudgeAccount(id={self.vaccount_id}, username={self}) not found, creating and commit to db......"
             )
+
+            self.account.commit_to_db()
 
         VjudgeRanking(
             account_id=self.vaccount_id,
@@ -215,6 +218,7 @@ if __name__ == "__main__":
     """下面的代码尽量不要运行——>会对数据库进行操作，使用 unittest 进行测试"""
     from acmana.crawler.vjudge.contest import VjudgeContestCrawler
     from acmana.models import engine
+
     logger.warning(f"Droping table {VjudgeRanking.__tablename__}")
     VjudgeRanking.metadata.drop_all(engine)
     logger.info(f"Creating table {VjudgeRanking.__tablename__}")
