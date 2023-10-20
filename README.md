@@ -49,3 +49,9 @@ $$
 $$
 比赛后补题分 = 补题数\times 6
 $$
+
+## 后期维护人员须知
+
+- 需要设置 `VJUDGE_COOKIE` 环境变量
+  - `acmana/crawler/vjudge/user_info.py` 中爬取 `Vjudge 用户 ID` 时需要用到
+  - `Github Actions` 中的 `CICD` `unittest` 中需要用到，记得在 `Github` 中设置 `Secrets`
