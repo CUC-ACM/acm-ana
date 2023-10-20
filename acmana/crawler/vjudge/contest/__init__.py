@@ -88,7 +88,7 @@ class VjudgeContestCrawler:
             "User-Agent": fake_useragent.UserAgent().random,
         }
         response = requests.get(
-            f"https://vjudge.net/contest/rank/single/{self.vjudge_contest.id}",
+            f"https://vjudge.net/contest/rank/single/{self._contest_id}",
             headers=headers,
         )
         with open(cache_path, "w") as f:  # 保存 cache 到本地
