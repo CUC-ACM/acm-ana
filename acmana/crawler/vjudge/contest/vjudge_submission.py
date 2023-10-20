@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING
 from acmana.models.account.vjudge_account import VjudgeAccount
 
 if TYPE_CHECKING:
-    from acmana.crawler.vjudge.contest import VjContest
+    from acmana.crawler.vjudge.contest import VjudgeContestCrawler
 
 
-class VjSubmission:
+class VjudgeSubmission:
     def __init__(
         self,
         vaccount_id: int,
@@ -15,22 +15,22 @@ class VjSubmission:
         accepted: bool,
         time: datetime.timedelta,
         account: VjudgeAccount,
-        contest: "VjContest",
+        contest: "VjudgeContestCrawler",
     ) -> None:
         self.vaccount_id: int = vaccount_id  # 注意，这里是 vjudge 自己的 vaccount_id
         self.problem_id = problem_id
         self.accepted: bool = accepted
         self.time: datetime.timedelta = time
         self.account: VjudgeAccount = account
-        self.contest: VjContest = contest
+        self.contest: VjudgeContestCrawler = contest
 
     @classmethod
     def from_api_list(
         cls,
         l: list,
         participants_dict: dict[int, VjudgeAccount],
-        contest: "VjContest",
-    ) -> "VjSubmission":
+        contest: "VjudgeContestCrawler",
+    ) -> "VjudgeSubmission":
         return cls(
             vaccount_id=int(l[0]),
             problem_id=int(l[1]),

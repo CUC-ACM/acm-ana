@@ -3,12 +3,12 @@ import datetime
 import fake_useragent
 import requests
 
-from acmana.crawler.vjudge.contest.vj_submission import VjSubmission
+from acmana.crawler.vjudge.contest.vjudge_submission import VjudgeSubmission
 from acmana.models.account.vjudge_account import VjudgeAccount
 from acmana.models.contest.vjudge_contest import VjudgeContest
 
 
-class VjContest:
+class VjudgeContestCrawler:
     def __init__(self, d: dict) -> None:
         self.id: int = int(d["id"])
         self.title: str = d["title"]
@@ -33,14 +33,14 @@ class VjContest:
                     username=username, nickname=nickname
                 )
 
-        self.submissions = [VjSubmission.from_api_list(submission, self.participants, self) for submission in d["submissions"]]  # type: ignore
+        self.submissions = [VjudgeSubmission.from_api_list(submission, self.participants, self) for submission in d["submissions"]]  # type: ignore
         self.submissions.sort(key=lambda x: x.time)
 
     def __repr__(self) -> str:
         return f"id: {self.id}, title: {self.title}, begin: {self.begin}, end: {self.end}, participants: {self.participants}, submissions: {self.submissions}"
 
     @classmethod
-    def get_rank_from_http_api(cls, contest_id: int) -> "VjContest":
+    def get_rank_from_http_api(cls, contest_id: int) -> "VjudgeContestCrawler":
         headers = {
             "User-Agent": fake_useragent.UserAgent().random,
         }
@@ -71,12 +71,12 @@ if __name__ == "__main__":
     contest_id = 587010
     if os.path.exists(cache_path):
         with open(cache_path) as f:
-            vj_contest_crawler = VjContest(json.load(f))
+            vj_contest_crawler = VjudgeContestCrawler(json.load(f))
     else:
         response = requests.get(f"https://vjudge.net/contest/rank/single/{contest_id}")
         with open(cache_path, "w") as f:
             json.dump(response.json(), f, ensure_ascii=False)
-        vj_contest_crawler = VjContest(response.json())
+        vj_contest_crawler = VjudgeContestCrawler(response.json())
     # print(vj_contest_crawler)
     for submission in vj_contest_crawler.submissions:
         print(submission)
