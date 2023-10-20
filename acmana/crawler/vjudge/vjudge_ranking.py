@@ -162,7 +162,7 @@ class VjudgeRankingItem:
         headers = {
             "User-Agent": fake_useragent.UserAgent().random,
         }
-        if os.getenv("DEBUG_CACHE", "True").lower() in ("true", "1", "t"):
+        if os.getenv("DEBUG_CACHE", "False").lower() in ("true", "1", "t"):
             cache_path = f"acmana/tmp/vjudge_rank_{contest_id}.json"
             logger.info(f"DEBUG_CACHE is True, use cache {cache_path}")
             async with aiofiles.open(cache_path, mode="r") as f:

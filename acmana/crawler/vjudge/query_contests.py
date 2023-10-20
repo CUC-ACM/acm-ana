@@ -107,7 +107,7 @@ class VjudgeContestRetriever:
         headers = {
             "User-Agent": fake_useragent.UserAgent().random,
         }
-        if os.getenv("DEBUG_CACHE", "True").lower() in ("true", "1", "t"):
+        if os.getenv("DEBUG_CACHE", "False").lower() in ("true", "1", "t"):
             cache_path = "acmana/tmp/vjudge_retrive_contests.json"
             logger.info(f"DEBUG_CACHE is True, use cache {cache_path}")
             with open(cache_path, "r") as f:

@@ -31,8 +31,6 @@ input:
   questionnaire_path: "acmana/resources/CUCACM积分系统信息收集表（收集结果）-CUCACM积分系统信息收集表（收集结果）.csv" # 问卷 csv 文件路径
   using_nickname_cache: true
 
-debug_cache: true
-
 coloredlogs:
   level: INFO
   fmt: "%(asctime)s %(name)s[%(process)d] %(levelname)s\n%(message)s"
