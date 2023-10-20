@@ -178,7 +178,7 @@ class VjudgeRankingItem:
         if only_attendance:  # 只对参加了课程的人进行排名
             vjudge_contest_crawler.submissions = list(
                 filter(
-                    lambda x: x.account.is_in_course,
+                    lambda x: x.account.student and x.account.student.in_course,
                     vjudge_contest_crawler.submissions,
                 )
             )

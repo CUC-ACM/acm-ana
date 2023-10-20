@@ -33,6 +33,10 @@ input:
 
 debug_cache: true
 
+coloredlogs:
+  level: INFO
+  fmt: "%(asctime)s %(name)s[%(process)d] %(levelname)s\n%(message)s"
+
 Logging: # logging 配置
   disable_existing_loggers: false
   formatters:
