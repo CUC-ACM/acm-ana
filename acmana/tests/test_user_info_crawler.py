@@ -52,9 +52,11 @@ class TestUserInfoCrawler(IsolatedAsyncioTestCase):
 
             await asyncio.gather(
                 test_nick_name_youngwind(),
+                test_vjudge_user_id_exception(),
+            )
+            await asyncio.gather(  # 并发度太高很大概率会导致被 ban
                 test_nick_name_LUZHOU72_none(),
                 test_vjudge_user_id(),
-                test_vjudge_user_id_exception(),
             )
 
 
