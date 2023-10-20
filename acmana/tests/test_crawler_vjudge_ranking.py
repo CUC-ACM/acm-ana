@@ -104,7 +104,7 @@ class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
             self.assertLessEqual(item.score, 100, "得分不应该超过 100 分")
 
         item_dict: dict[int, VjudgeRankingItem] = {
-            item.vaccount_id: item for item in attendance_until_now_ranking_items
+            item.account.id: item for item in attendance_until_now_ranking_items
         }
 
         # 王戈(没有参加比赛，但是补了一道题)

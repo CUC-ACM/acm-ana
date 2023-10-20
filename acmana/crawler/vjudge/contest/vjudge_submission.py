@@ -10,14 +10,12 @@ if TYPE_CHECKING:
 class VjudgeSubmission:
     def __init__(
         self,
-        vaccount_id: int,
         problem_id: int,
         accepted: bool,
         time: datetime.timedelta,
         account: VjudgeAccount,
         contest: "VjudgeContestCrawler",
     ) -> None:
-        self.vaccount_id: int = vaccount_id  # 注意，这里是 vjudge 自己的 vaccount_id
         self.problem_id = problem_id
         self.accepted: bool = accepted
         self.time: datetime.timedelta = time
@@ -32,7 +30,6 @@ class VjudgeSubmission:
         contest: "VjudgeContestCrawler",
     ) -> "VjudgeSubmission":
         return cls(
-            vaccount_id=int(l[0]),
             problem_id=int(l[1]),
             accepted=bool(l[2]),
             time=datetime.timedelta(seconds=int(l[3])),
@@ -41,4 +38,4 @@ class VjudgeSubmission:
         )
 
     def __repr__(self) -> str:
-        return f"vaccount_id: {self.vaccount_id}, account: {self.account} promble_id: {self.problem_id}, accepted: {self.accepted}, time: {self.time}"
+        return f"account: {self.account} promble_id: {self.problem_id}, accepted: {self.accepted}, time: {self.time}"

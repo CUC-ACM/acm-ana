@@ -35,25 +35,27 @@ class VjudgeContestCrawler:
                 id=contest_id, title=_title, begin=_begin, end=_end, div=div
             )
 
-        self.participants: dict[int, VjudgeAccount] = {}
+        self.participants_vjudge_account: dict[int, VjudgeAccount] = {}
 
         for vaccount_id, val in self._contest_api_metadata["participants"].items():
             vaccount_id = int(vaccount_id)
             username, nickname = val[0], val[1]
 
-            self.participants[vaccount_id] = VjudgeAccount.query_from_username(  # type: ignore
+            self.participants_vjudge_account[vaccount_id] = VjudgeAccount.query_from_username(  # type: ignore
                 username=username
             )
-            if self.participants[vaccount_id] is None:  # 在解析的时候就直接将没有见过的用户存入数据库
+            if (
+                self.participants_vjudge_account[vaccount_id] is None
+            ):  # 在解析的时候就直接将没有见过的用户存入数据库
                 logger.warning(
                     f"vjudge account {username}, {nickname} not found, create a new one and commit to db......"
                 )
-                self.participants[vaccount_id] = VjudgeAccount(
+                self.participants_vjudge_account[vaccount_id] = VjudgeAccount(
                     username=username, nickname=nickname, id=vaccount_id
                 )
-                self.participants[vaccount_id].commit_to_db()  # type: ignore
+                self.participants_vjudge_account[vaccount_id].commit_to_db()  # type: ignore
 
-        self.submissions = [VjudgeSubmission.from_api_list(submission, self.participants, self) for submission in self._contest_api_metadata["submissions"]]  # type: ignore
+        self.submissions = [VjudgeSubmission.from_api_list(submission, self.participants_vjudge_account, self) for submission in self._contest_api_metadata["submissions"]]  # type: ignore
         self.submissions.sort(key=lambda x: x.time)
         (
             self.total_until_now_ranking_items,
@@ -69,7 +71,7 @@ class VjudgeContestCrawler:
         )
 
     def __repr__(self) -> str:
-        return f"VjudgeContestCrawler(vjudge_contest={self.vjudge_contest}, submissions={self.submissions}, participants={self.participants})"
+        return f"VjudgeContestCrawler(vjudge_contest={self.vjudge_contest}, submissions={self.submissions}, participants={self.participants_vjudge_account})"
 
     def crawl_ranking_metadata_json(self) -> dict:
         cache_path = f"acmana/tmp/vjudge_rank_{self._contest_id}.json"
