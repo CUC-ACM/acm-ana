@@ -46,6 +46,11 @@ class VjudgeRankingItem:
         self.first_submit_time: datetime.timedelta | None = None
         self.problem_set: ProblemSet = ProblemSet()
 
+    @property
+    def total_solved_cnt(self) -> int:
+        """总过题数"""
+        return self.solved_cnt + self.upsolved_cnt
+
     def __repr__(self) -> str:
         return f"vaccount_id: {self.vaccount_id}, account: {self.account}, contest_id: {self.contest.id}, competition_rank: {self.competition_rank}, score: {self.score}, solved_cnt: {self.solved_cnt}, upsolved_cnt: {self.upsolved_cnt}, penalty: {self.total_penalty}, first_submit_time: {self.first_submit_time}"
 
