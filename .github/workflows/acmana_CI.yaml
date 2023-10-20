@@ -6,7 +6,7 @@ on: [push]
 # jobs就是这套工作流程了
 jobs:
   # build相当于<job_id>,可以自定义
-  unittest:
+  "Unit_Test":
     # 指定该job_id下的运行环境
     runs-on: ubuntu-latest
 
@@ -20,6 +20,8 @@ jobs:
           # 安装所需要的依赖
           pip3 install -r requirements.txt
       - name: Coverage && Unit Test
+        env:
+          VJUDGE_COOKIE: ${{ secrets.VJUDGE_COOKIE }}
         run:
           # 运行测试用例
           coverage run -m unittest
