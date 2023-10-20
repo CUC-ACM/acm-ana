@@ -73,6 +73,12 @@ class VjudgeRankingItem:
 
     def commit_to_db(self):
         assert self.vaccount_id is not None
+        vjudge_account = VjudgeAccount.query_from_account_id(id=self.vaccount_id)
+        if not vjudge_account:
+            logger.warning(
+                f"VjudgeAccount(id={self.vaccount_id}, username={self}) not found, creating......"
+            )
+        
         VjudgeRanking(
             account_id=self.vaccount_id,
             contest_id=self.contest.id,
@@ -224,19 +230,25 @@ class VjudgeRankingItem:
 
 
 if __name__ == "__main__":
+    from acmana.models import engine
+
+    logger.warning(f"Droping table {VjudgeRanking.__tablename__}")
+    VjudgeRanking.metadata.drop_all(engine)
+    logger.info(f"Creating table {VjudgeRanking.__tablename__}")
+    VjudgeRanking.metadata.create_all(engine)
 
     async def main():
         async with aiohttp.ClientSession() as aiosession:
             (
-                _,
+                vjudge_total_ranking_items_list,
                 vjudge_competition_ranking_items_list,
             ) = await VjudgeRankingItem.get_vjudge_ranking_items(
                 contest_id=587010, aiosession=aiosession
             )
 
-        for item in vjudge_competition_ranking_items_list:
-            item.commit_to_db()
+        for item in vjudge_total_ranking_items_list:
             print(item)
+            item.commit_to_db()
 
         # 测试 youngwind (22物联网黄屹)
         accurate_penalty = datetime.timedelta(hours=5, minutes=44, seconds=27)

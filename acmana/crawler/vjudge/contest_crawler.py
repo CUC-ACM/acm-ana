@@ -18,9 +18,7 @@ class VjudgeContestCrawler:
             account: VjudgeAccount,
             contest: "VjudgeContestCrawler",
         ) -> None:
-            self.vaccount_id: int = (
-                vaccount_id  # 注意，这里是 vjudge 自己的 vaccount_id
-            )
+            self.vaccount_id: int = vaccount_id  # 注意，这里是 vjudge 自己的 vaccount_id
             self.problem_id = problem_id
             self.accepted: bool = accepted
             self.time: datetime.timedelta = time
@@ -65,7 +63,7 @@ class VjudgeContestCrawler:
             self.participants[vaccount_id] = VjudgeAccount.query_from_username(
                 username=username
             )
-            if self.participants[vaccount_id] is None:
+            if self.participants[vaccount_id] is None:  # TODO: commit to db
                 self.participants[vaccount_id] = VjudgeAccount(
                     username=username, nickname=nickname
                 )
@@ -95,7 +93,6 @@ class VjudgeContestCrawler:
             title=self.title,
             begin=self.begin,
             end=self.end,
-            url=f"https://vjudge.net/contest/{self.id}",
             div=div,
         )
         vjudge_contest.commit_to_db()
@@ -113,7 +110,7 @@ if __name__ == "__main__":
     else:
         response = requests.get(f"https://vjudge.net/contest/rank/single/{contest_id}")
         with open(cache_path, "w") as f:
-            json.dump(response.json(), f)
+            json.dump(response.json(), f, ensure_ascii=False)
         vj_contest_crawler = VjudgeContestCrawler(response.json())
     # print(vj_contest_crawler)
     for submission in vj_contest_crawler.submissions:

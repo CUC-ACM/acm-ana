@@ -23,3 +23,8 @@ class OJAccountBase:
         logger.info(f"commiting {self} to db......")
         sqlsession.add(self)
         sqlsession.commit()
+
+    @classmethod
+    def query_from_account_id(cls, id: int) -> Optional["OJAccountBase"]:
+        stmt = sqlsession.query(cls).filter_by(id=id)
+        return sqlsession.execute(stmt).scalar_one_or_none()
