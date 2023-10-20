@@ -8,7 +8,7 @@ import aiofiles
 import aiohttp
 import fake_useragent
 
-from acmana.crawler.vjudge.contest_crawler import VjudgeContestCrawler
+from acmana.crawler.vjudge.contest import VjContest
 from acmana.models.account.vjudge_account import VjudgeAccount
 from acmana.models.ranking.vjudge_ranking import VjudgeRanking
 
@@ -38,11 +38,11 @@ class VjudgeRankingItem:
         self,
         vaccount_id: int,
         account: VjudgeAccount,
-        contest: VjudgeContestCrawler,
+        contest: VjContest,
     ) -> None:
         self.vaccount_id: int = vaccount_id  # 注意，这里是 vjudge 自己的 vaccount_id
         self.account: VjudgeAccount = account
-        self.contest: VjudgeContestCrawler = contest
+        self.contest: VjContest = contest
         self.competition_rank: int | None = None  # 比赛排名。如果没有参加比赛而补了题，为 None
         self.score: float = 0
         self.solved_cnt: int = 0
@@ -115,7 +115,7 @@ class VjudgeRankingItem:
 
         self.score = min(100, self.score)
 
-    def submit(self, submission: VjudgeContestCrawler.Submission):
+    def submit(self, submission: VjContest.VjSubmission):
         """提交题目。注意！需要按照提交时间排序顺序提交！"""
 
         if self.first_submit_time is None:  # 第一次提交
@@ -172,7 +172,7 @@ class VjudgeRankingItem:
             cache_path = f"acmana/tmp/vjudge_rank_{contest_id}.json"
             logger.info(f"DEBUG_CACHE is True, use cache {cache_path}")
             async with aiofiles.open(cache_path, mode="r") as f:
-                vjudge_contest_crawler = VjudgeContestCrawler(
+                vjudge_contest_crawler = VjContest(
                     json.loads(await f.read())
                 )
         else:
@@ -181,7 +181,7 @@ class VjudgeRankingItem:
                 f"https://vjudge.net/contest/rank/single/{contest_id}",
                 headers=headers,
             ) as response:
-                vjudge_contest_crawler = VjudgeContestCrawler(await response.json())
+                vjudge_contest_crawler = VjContest(await response.json())
 
         if only_attendance:  # 只对参加了课程的人进行排名
             vjudge_contest_crawler.submissions = list(

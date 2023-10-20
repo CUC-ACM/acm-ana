@@ -7,8 +7,8 @@ from acmana.models.contest.vjudge_contest import VjudgeContest
 from acmana.models.account.vjudge_account import VjudgeAccount
 
 
-class VjudgeContestCrawler:
-    class Submission:
+class VjContest:
+    class VjSubmission:
         def __init__(
             self,
             vaccount_id: int,
@@ -16,22 +16,22 @@ class VjudgeContestCrawler:
             accepted: bool,
             time: datetime.timedelta,
             account: VjudgeAccount,
-            contest: "VjudgeContestCrawler",
+            contest: "VjContest",
         ) -> None:
             self.vaccount_id: int = vaccount_id  # 注意，这里是 vjudge 自己的 vaccount_id
             self.problem_id = problem_id
             self.accepted: bool = accepted
             self.time: datetime.timedelta = time
             self.account: VjudgeAccount = account
-            self.contest: VjudgeContestCrawler = contest
+            self.contest: VjContest = contest
 
         @classmethod
         def from_api_list(
             cls,
             l: list,
             participants_dict: dict[int, VjudgeAccount],
-            contest: "VjudgeContestCrawler",
-        ) -> "VjudgeContestCrawler.Submission":
+            contest: "VjContest",
+        ) -> "VjContest.VjSubmission":
             return cls(
                 vaccount_id=int(l[0]),
                 problem_id=int(l[1]),
@@ -68,14 +68,14 @@ class VjudgeContestCrawler:
                     username=username, nickname=nickname
                 )
 
-        self.submissions = [VjudgeContestCrawler.Submission.from_api_list(submission, self.participants, self) for submission in d["submissions"]]  # type: ignore
+        self.submissions = [VjContest.VjSubmission.from_api_list(submission, self.participants, self) for submission in d["submissions"]]  # type: ignore
         self.submissions.sort(key=lambda x: x.time)
 
     def __repr__(self) -> str:
         return f"id: {self.id}, title: {self.title}, begin: {self.begin}, end: {self.end}, participants: {self.participants}, submissions: {self.submissions}"
 
     @classmethod
-    def get_rank_from_http_api(cls, contest_id: int) -> "VjudgeContestCrawler":
+    def get_rank_from_http_api(cls, contest_id: int) -> "VjContest":
         headers = {
             "User-Agent": fake_useragent.UserAgent().random,
         }
@@ -106,12 +106,12 @@ if __name__ == "__main__":
     contest_id = 587010
     if os.path.exists(cache_path):
         with open(cache_path) as f:
-            vj_contest_crawler = VjudgeContestCrawler(json.load(f))
+            vj_contest_crawler = VjContest(json.load(f))
     else:
         response = requests.get(f"https://vjudge.net/contest/rank/single/{contest_id}")
         with open(cache_path, "w") as f:
             json.dump(response.json(), f, ensure_ascii=False)
-        vj_contest_crawler = VjudgeContestCrawler(response.json())
+        vj_contest_crawler = VjContest(response.json())
     # print(vj_contest_crawler)
     for submission in vj_contest_crawler.submissions:
         print(submission)
