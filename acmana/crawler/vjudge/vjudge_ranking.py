@@ -72,14 +72,15 @@ class VjudgeRankingItem:
             return self.solved_cnt > other.solved_cnt  # 通过题目数多的排名靠前
 
     def commit_to_db(self):
+        assert self.vaccount_id is not None
         VjudgeRanking(
-            account_id=self.account.id,
+            account_id=self.vaccount_id,
             contest_id=self.contest.id,
             competition_rank=self.competition_rank,
             score=self.score,
             solved_cnt=self.solved_cnt,
             upsolved_cnt=self.upsolved_cnt,
-            penalty=self.total_penalty,
+            penalty=self.total_penalty.total_seconds(),
         ).commit_to_db()
 
     def cal_score(self, account_num: int):
@@ -233,6 +234,7 @@ if __name__ == "__main__":
             )
 
         for item in vjudge_competition_ranking_items_list:
+            item.commit_to_db()
             print(item)
 
         # 测试 youngwind (22物联网黄屹)
