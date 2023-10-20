@@ -1,11 +1,13 @@
-import asyncio
 import datetime
 import logging
+from typing import TYPE_CHECKING
 
-from acmana.crawler.vjudge.contest import VjudgeContestCrawler
 from acmana.crawler.vjudge.contest.vjudge_submission import VjudgeSubmission
 from acmana.models.account.vjudge_account import VjudgeAccount
 from acmana.models.ranking.vjudge_ranking import VjudgeRanking
+
+if TYPE_CHECKING:
+    from acmana.crawler.vjudge.contest import VjudgeContestCrawler
 
 logger = logging.getLogger(__name__)
 
@@ -33,11 +35,11 @@ class VjudgeRankingItem:
         self,
         vaccount_id: int,
         account: VjudgeAccount,
-        contest: VjudgeContestCrawler,
+        contest: "VjudgeContestCrawler",
     ) -> None:
         self.vaccount_id: int = vaccount_id  # 注意，这里是 vjudge 自己的 vaccount_id
         self.account: VjudgeAccount = account
-        self.contest: VjudgeContestCrawler = contest
+        self.contest: "VjudgeContestCrawler" = contest
         self.competition_rank: int | None = None  # 比赛排名。如果没有参加比赛而补了题，为 None
         self.score: float = 0
         self.solved_cnt: int = 0
@@ -152,9 +154,9 @@ class VjudgeRankingItem:
             logger.debug(f"补题超过 7 天，跳过: {submission}")
 
     @staticmethod
-    async def get_vjudge_ranking_items(
+    def get_vjudge_ranking_items(
         only_attendance: bool,
-        vjudge_contest_crawler: VjudgeContestCrawler,
+        vjudge_contest_crawler: "VjudgeContestCrawler",
     ) -> tuple[list["VjudgeRankingItem"], list["VjudgeRankingItem"]]:
         """获取 vjudge_contest_crawler 对应 VjudgeRankingItem 列表
 
@@ -210,8 +212,9 @@ class VjudgeRankingItem:
 
 
 if __name__ == "__main__":
+    """下面的代码尽量不要运行——>会对数据库进行操作，使用 unittest 进行测试"""
+    from acmana.crawler.vjudge.contest import VjudgeContestCrawler
     from acmana.models import engine
-
     logger.warning(f"Droping table {VjudgeRanking.__tablename__}")
     VjudgeRanking.metadata.drop_all(engine)
     logger.info(f"Creating table {VjudgeRanking.__tablename__}")
@@ -219,11 +222,11 @@ if __name__ == "__main__":
 
     vjudge_contest_crawler = VjudgeContestCrawler(contest_id=587010)
 
-    async def main():
+    def main():
         (
             vjudge_total_ranking_items_list,
             vjudge_competition_ranking_items_list,
-        ) = await VjudgeRankingItem.get_vjudge_ranking_items(
+        ) = VjudgeRankingItem.get_vjudge_ranking_items(
             only_attendance=False,
             vjudge_contest_crawler=vjudge_contest_crawler,
         )
@@ -252,4 +255,4 @@ if __name__ == "__main__":
 
         # 测试补题
 
-    asyncio.run(main())
+    main()

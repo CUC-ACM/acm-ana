@@ -6,6 +6,7 @@ import os
 import fake_useragent
 import requests
 
+from acmana.crawler.vjudge.contest.vjudge_ranking_item import VjudgeRankingItem
 from acmana.crawler.vjudge.contest.vjudge_submission import VjudgeSubmission
 from acmana.models.account.vjudge_account import VjudgeAccount
 from acmana.models.contest.vjudge_contest import VjudgeContest
@@ -47,6 +48,12 @@ class VjudgeContestCrawler:
 
         self.submissions = [VjudgeSubmission.from_api_list(submission, self.participants, self) for submission in self._contest_api_metadata["submissions"]]  # type: ignore
         self.submissions.sort(key=lambda x: x.time)
+        (
+            self.total_ranking_items,
+            self.competion_ranking_items,
+        ) = VjudgeRankingItem.get_vjudge_ranking_items(
+            only_attendance=False, vjudge_contest_crawler=self
+        )
 
     def __repr__(self) -> str:
         return f"id: {self.id}, title: {self.title}, begin: {self.begin}, end: {self.end}, participants: {self.participants}, submissions: {self.submissions}"
