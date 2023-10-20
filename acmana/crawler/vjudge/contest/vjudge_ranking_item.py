@@ -1,12 +1,6 @@
 import asyncio
 import datetime
-import json
 import logging
-import os
-
-import aiofiles
-import aiohttp
-import fake_useragent
 
 from acmana.crawler.vjudge.contest import VjudgeContestCrawler
 from acmana.crawler.vjudge.contest.vjudge_submission import VjudgeSubmission
@@ -79,7 +73,7 @@ class VjudgeRankingItem:
             logger.warning(
                 f"VjudgeAccount(id={self.vaccount_id}, username={self}) not found, creating......"
             )
-        
+
         VjudgeRanking(
             account_id=self.vaccount_id,
             contest_id=self.contest.id,
@@ -155,34 +149,19 @@ class VjudgeRankingItem:
     @staticmethod
     async def get_vjudge_ranking_items(
         contest_id: int,
-        aiosession: aiohttp.ClientSession,
         only_attendance: bool = False,
     ) -> tuple[list["VjudgeRankingItem"], list["VjudgeRankingItem"]]:
         """获取编号为 contest_id 的 vjudge_ranking_items
 
         :param contest_id: 比赛编号
-        :param aiosession: aiohttp.ClientSession
         :param only_attendance: 是否只将参加了课程的人进行排名
 
         :return: 返回 tuple[总榜, 比赛榜]"""
         vjudge_ranking_items_dict: dict[int, VjudgeRankingItem] = {}
-        headers = {
-            "User-Agent": fake_useragent.UserAgent().random,
-        }
-        if os.getenv("DEBUG_CACHE", "False").lower() in ("true", "1", "t"):
-            cache_path = f"acmana/tmp/vjudge_rank_{contest_id}.json"
-            logger.info(f"DEBUG_CACHE is True, use cache {cache_path}")
-            async with aiofiles.open(cache_path, mode="r") as f:
-                vjudge_contest_crawler = VjudgeContestCrawler(
-                    json.loads(await f.read())
-                )
-        else:
-            logger.info(f"Getting contests submissions from vjudge.net......")
-            async with aiosession.get(
-                f"https://vjudge.net/contest/rank/single/{contest_id}",
-                headers=headers,
-            ) as response:
-                vjudge_contest_crawler = VjudgeContestCrawler(await response.json())
+
+        vjudge_contest_crawler: VjudgeContestCrawler = VjudgeContestCrawler(
+            contest_id=contest_id
+        )
 
         if only_attendance:  # 只对参加了课程的人进行排名
             vjudge_contest_crawler.submissions = list(
@@ -239,13 +218,10 @@ if __name__ == "__main__":
     VjudgeRanking.metadata.create_all(engine)
 
     async def main():
-        async with aiohttp.ClientSession() as aiosession:
-            (
-                vjudge_total_ranking_items_list,
-                vjudge_competition_ranking_items_list,
-            ) = await VjudgeRankingItem.get_vjudge_ranking_items(
-                contest_id=587010, aiosession=aiosession
-            )
+        (
+            vjudge_total_ranking_items_list,
+            vjudge_competition_ranking_items_list,
+        ) = await VjudgeRankingItem.get_vjudge_ranking_items(contest_id=587010)
 
         for item in vjudge_total_ranking_items_list:
             print(item)

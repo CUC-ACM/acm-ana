@@ -5,7 +5,6 @@ upsolve: # 补题
 # 各个 OJ 的配置（将会用于实例化 ContestRetriever）
 
 vjudge: # vjudge config
-  cookie: ""
   instances:
     - # instance 1
       enable: true # 是否启用此 instance
@@ -17,12 +16,10 @@ vjudge: # vjudge config
     #   enable: true # 是否启用 vjudge
 
 nowcoder: # 牛客 config
-  cookie: ""
   instances:
     - # instance 1
       enable: true # 是否启用此 instance
       title_prefix: ""
-      cookie: ""
       div: "div2" # div1 or div2, 没有组别可以为 ""
     -  # instance 2
 
