@@ -14,7 +14,7 @@ class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
     async def test_vjudge_total_ranking_items(self):
         async with aiohttp.ClientSession() as aiosession:
             _, vjudge_ranking_items = await VjudgeRankingItem.get_vjudge_ranking_items(
-                contest_id=587010, aiosession=aiosession
+                contest_id=587010
             )
         logger.debug(f"测试排名前三名")
         # 测试 youngwind (22物联网黄屹)
@@ -65,7 +65,7 @@ class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
                 vjudge_attendance_total_ranking_items,
                 _,
             ) = await VjudgeRankingItem.get_vjudge_ranking_items(
-                contest_id=587010, aiosession=aiosession, only_attendance=True
+                contest_id=587010, only_attendance=True
             )
 
         for item in vjudge_attendance_total_ranking_items:
