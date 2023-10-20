@@ -153,20 +153,15 @@ class VjudgeRankingItem:
 
     @staticmethod
     async def get_vjudge_ranking_items(
-        contest_id: int,
-        only_attendance: bool = False,
+        only_attendance: bool,
+        vjudge_contest_crawler: VjudgeContestCrawler,
     ) -> tuple[list["VjudgeRankingItem"], list["VjudgeRankingItem"]]:
-        """获取编号为 contest_id 的 vjudge_ranking_items
+        """获取 vjudge_contest_crawler 对应 VjudgeRankingItem 列表
 
-        :param contest_id: 比赛编号
         :param only_attendance: 是否只将参加了课程的人进行排名
 
         :return: 返回 tuple[总榜, 比赛榜]"""
         vjudge_ranking_items_dict: dict[int, VjudgeRankingItem] = {}
-
-        vjudge_contest_crawler: VjudgeContestCrawler = VjudgeContestCrawler(
-            contest_id=contest_id
-        )
 
         if only_attendance:  # 只对参加了课程的人进行排名
             vjudge_contest_crawler.submissions = list(
@@ -222,11 +217,16 @@ if __name__ == "__main__":
     logger.info(f"Creating table {VjudgeRanking.__tablename__}")
     VjudgeRanking.metadata.create_all(engine)
 
+    vjudge_contest_crawler = VjudgeContestCrawler(contest_id=587010)
+
     async def main():
         (
             vjudge_total_ranking_items_list,
             vjudge_competition_ranking_items_list,
-        ) = await VjudgeRankingItem.get_vjudge_ranking_items(contest_id=587010)
+        ) = await VjudgeRankingItem.get_vjudge_ranking_items(
+            only_attendance=False,
+            vjudge_contest_crawler=vjudge_contest_crawler,
+        )
 
         for item in vjudge_total_ranking_items_list:
             print(item)

@@ -5,6 +5,7 @@ from unittest import IsolatedAsyncioTestCase
 
 import aiohttp
 
+from acmana.crawler.vjudge.contest import VjudgeContestCrawler
 from acmana.crawler.vjudge.contest.vjudge_ranking_item import VjudgeRankingItem
 
 logger = logging.getLogger(__name__)
@@ -12,9 +13,12 @@ logger = logging.getLogger(__name__)
 
 class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
     async def test_vjudge_total_ranking_items(self):
+        contest_id = 587010
+        vjudge_contest_crawler = VjudgeContestCrawler(contest_id=contest_id)
         async with aiohttp.ClientSession() as aiosession:
             _, vjudge_ranking_items = await VjudgeRankingItem.get_vjudge_ranking_items(
-                contest_id=587010
+                only_attendance=False,
+                vjudge_contest_crawler=vjudge_contest_crawler,
             )
         logger.debug(f"测试排名前三名")
         # 测试 youngwind (22物联网黄屹)
@@ -60,12 +64,15 @@ class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
 
     async def test_vjudge_attentance_ranking_items(self):
         """测试 vjudge_attentance_ranking_items(参加了课程的同学的排名)"""
+        contest_id = 587010
+        vjudge_contest_crawler = VjudgeContestCrawler(contest_id=contest_id)
         async with aiohttp.ClientSession() as aiosession:
             (
                 vjudge_attendance_total_ranking_items,
                 _,
             ) = await VjudgeRankingItem.get_vjudge_ranking_items(
-                contest_id=587010, only_attendance=True
+                only_attendance=True,
+                vjudge_contest_crawler=vjudge_contest_crawler,
             )
 
         for item in vjudge_attendance_total_ranking_items:
