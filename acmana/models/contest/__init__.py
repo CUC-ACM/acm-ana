@@ -21,6 +21,10 @@ class ContestBase:
         String()
     )  # 比赛组别："div1", "div2", "div1 & div2"
 
+    @property
+    def length(self) -> datetime.timedelta:
+        return self.end - self.begin
+
     def commit_to_db(self, sqlsession: Session = sqlsession):
         logger.info(f"Committing contest {self} to database......")
         sqlsession.add(self)

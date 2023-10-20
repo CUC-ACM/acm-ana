@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
     async def test_vjudge_total_ranking_items(self):
         contest_id = 587010
-        vjudge_contest_crawler = VjudgeContestCrawler(contest_id=contest_id)
+        vjudge_contest_crawler = VjudgeContestCrawler(contest_id=contest_id, div="div1")
 
         # total_competion_ranking_items = vjudge_contest_crawler.total_competion_ranking_items
         _, total_competion_ranking_items = VjudgeRankingItem.get_vjudge_ranking_items(
@@ -80,7 +80,7 @@ class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
     async def test_vjudge_attentance_ranking_items(self):
         """测试 vjudge_attentance_ranking_items(参加了课程的同学的排名)"""
         contest_id = 587010
-        vjudge_contest_crawler = VjudgeContestCrawler(contest_id=contest_id)
+        vjudge_contest_crawler = VjudgeContestCrawler(contest_id=contest_id, div="div1")
 
         (
             attendance_until_now_ranking_items,
@@ -111,7 +111,7 @@ class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
         crt_id = 834306
         self.assertGreater(
             item_dict[crt_id].first_submit_time,
-            item_dict[crt_id].contest.length,  # type: ignore
+            item_dict[crt_id].vjudge_contest_crawler.vjudge_contest.length,  # type: ignore
             "没有参加比赛",
         )
         self.assertEqual(item_dict[crt_id].solved_cnt, 0)
@@ -123,7 +123,7 @@ class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
         crt_id = 835024
         self.assertLessEqual(
             item_dict[crt_id].first_submit_time,
-            item_dict[crt_id].contest.length,  # type: ignore
+            item_dict[crt_id].vjudge_contest_crawler.vjudge_contest.length,  # type: ignore
             "参加了比赛",
         )
         self.assertEqual(item_dict[crt_id].solved_cnt, 0, "没有过题")
@@ -135,7 +135,7 @@ class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
         crt_id = 834865
         self.assertLessEqual(
             item_dict[crt_id].first_submit_time,
-            item_dict[crt_id].contest.length,  # type: ignore
+            item_dict[crt_id].vjudge_contest_crawler.vjudge_contest.length,  # type: ignore
             "参加了比赛",
         )
         self.assertEqual(item_dict[crt_id].solved_cnt, 3, "过了 3 题")

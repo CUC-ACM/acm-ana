@@ -15,19 +15,26 @@ logger = logging.getLogger(__name__)
 
 
 class VjudgeContestCrawler:
-    def __init__(self, contest_id: int) -> None:
-        self.contest_id: int = contest_id
+    def __init__(self, contest_id: int, div: str | None) -> None:
+        self._contest_id = contest_id
         self._contest_api_metadata: dict = self.crawl_ranking_metadata_json()
-        self.id: int = int(self._contest_api_metadata["id"])
-        self.title: str = self._contest_api_metadata["title"]
-        self.isReplay: bool = self._contest_api_metadata["isReplay"]
-        self.length = datetime.timedelta(
+        _id: int = int(self._contest_api_metadata["id"])
+        assert _id == contest_id
+        _title: str = self._contest_api_metadata["title"]
+        _isReplay: bool = self._contest_api_metadata["isReplay"]
+        _length = datetime.timedelta(
             seconds=int(self._contest_api_metadata["length"]) / 1000
         )
-        self.begin: datetime.datetime = datetime.datetime.utcfromtimestamp(
+        _begin: datetime.datetime = datetime.datetime.utcfromtimestamp(
             int(self._contest_api_metadata["begin"] / 1000)
         )
-        self.end: datetime.datetime = self.begin + self.length
+        _end: datetime.datetime = _begin + _length
+        self.vjudge_contest: VjudgeContest = VjudgeContest.query_from_id(contest_id)  # type: ignore
+        if self.vjudge_contest is None:
+            self.vjudge_contest = VjudgeContest(
+                id=contest_id, title=_title, begin=_begin, end=_end, div=div
+            )
+
         self.participants: dict[int, VjudgeAccount] = {}
 
         for vaccount_id, val in self._contest_api_metadata["participants"].items():
@@ -62,10 +69,10 @@ class VjudgeContestCrawler:
         )
 
     def __repr__(self) -> str:
-        return f"id: {self.id}, title: {self.title}, begin: {self.begin}, end: {self.end}, participants: {self.participants}, submissions: {self.submissions}"
+        return f"VjudgeContestCrawler(vjudge_contest={self.vjudge_contest}, submissions={self.submissions}, participants={self.participants})"
 
     def crawl_ranking_metadata_json(self) -> dict:
-        cache_path = f"acmana/tmp/vjudge_rank_{self.contest_id}.json"
+        cache_path = f"acmana/tmp/vjudge_rank_{self._contest_id}.json"
         if os.getenv("DEBUG_CACHE", "False").lower() in (
             "true",
             "1",
@@ -79,27 +86,20 @@ class VjudgeContestCrawler:
             "User-Agent": fake_useragent.UserAgent().random,
         }
         response = requests.get(
-            f"https://vjudge.net/contest/rank/single/{self.contest_id}",
+            f"https://vjudge.net/contest/rank/single/{self.vjudge_contest.id}",
             headers=headers,
         )
         with open(cache_path, "w") as f:  # 保存 cache 到本地
             json.dump(response.json(), f, ensure_ascii=False)
         return response.json()
 
-    def commit_to_vjudge_contest_db(self, div: str | None = None):
+    def commit_to_vjudge_contest_db(self):
         """将当前的比赛的 `元信息` 及其所有的 VjudgeRankingItem 提交到数据库中"""
 
-        vjudge_contest = VjudgeContest(
-            id=self.id,
-            title=self.title,
-            begin=self.begin,
-            end=self.end,
-            div=div,
-        )
+        self.vjudge_contest.commit_to_db()
 
-        map(VjudgeRankingItem.commit_to_db, self.total_until_now_ranking_items)
-
-        vjudge_contest.commit_to_db()
+        for ranking_item in self.total_until_now_ranking_items:
+            ranking_item.commit_to_db()
 
 
 if __name__ == "__main__":
@@ -108,8 +108,8 @@ if __name__ == "__main__":
 
     contest_id = 587010
 
-    vj_contest_crawler = VjudgeContestCrawler(contest_id)
+    vj_contest_crawler = VjudgeContestCrawler(contest_id, "div1")
     # print(vj_contest_crawler)
     for submission in vj_contest_crawler.submissions:
         print(submission)
-    # vj_contest_crawler.commit_to_vjudge_contest_db(div="div1")
+    vj_contest_crawler.commit_to_vjudge_contest_db()

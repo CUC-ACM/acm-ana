@@ -35,11 +35,11 @@ class VjudgeRankingItem:
         self,
         vaccount_id: int,
         account: VjudgeAccount,
-        contest: "VjudgeContestCrawler",
+        vjudge_contest_crawler: "VjudgeContestCrawler",
     ) -> None:
         self.vaccount_id: int = vaccount_id  # 注意，这里是 vjudge 自己的 vaccount_id
         self.account: VjudgeAccount = account
-        self.contest: "VjudgeContestCrawler" = contest
+        self.vjudge_contest_crawler: "VjudgeContestCrawler" = vjudge_contest_crawler
         self.competition_rank: int | None = None  # 比赛排名。如果没有参加比赛而补了题，为 None
         self.score: float = 0
         self.solved_cnt: int = 0
@@ -54,11 +54,11 @@ class VjudgeRankingItem:
         return self.solved_cnt + self.upsolved_cnt
 
     def __repr__(self) -> str:
-        return f"vaccount_id: {self.vaccount_id}, account: {self.account}, contest_id: {self.contest.id}, competition_rank: {self.competition_rank}, score: {self.score}, solved_cnt: {self.solved_cnt}, upsolved_cnt: {self.upsolved_cnt}, penalty: {self.total_penalty}, first_submit_time: {self.first_submit_time}"
+        return f"vaccount_id: {self.vaccount_id}, account: {self.account}, contest_id: {self.vjudge_contest_crawler.vjudge_contest.id}, competition_rank: {self.competition_rank}, score: {self.score}, solved_cnt: {self.solved_cnt}, upsolved_cnt: {self.upsolved_cnt}, penalty: {self.total_penalty}, first_submit_time: {self.first_submit_time}"
 
     def __lt__(self, other: "VjudgeRankingItem") -> bool:
         if (
-            self.solved_cnt == 0 and self.first_submit_time > self.contest.length  # type: ignore
+            self.solved_cnt == 0 and self.first_submit_time > self.vjudge_contest_crawler.vjudge_contest.length  # type: ignore
         ):  # 只参加了补题
             if self.upsolved_cnt != other.upsolved_cnt:  # 如果补题数不同
                 return self.upsolved_cnt > other.upsolved_cnt  # 补题数多的排名靠前
@@ -75,24 +75,28 @@ class VjudgeRankingItem:
 
     def commit_to_db(self):
         assert self.vaccount_id is not None
-        vjudge_account = VjudgeAccount.query_from_account_id(id=self.vaccount_id)
-        logger.info(f"Commiting {self} to db")
-        if not vjudge_account:
-            logger.warning(
-                f"VjudgeAccount(id={self.vaccount_id}, username={self}) not found, creating and commit to db......"
-            )
-
-            self.account.commit_to_db()
-
-        VjudgeRanking(
+        db_vjudge_ranking: VjudgeRanking | None = VjudgeRanking.index_query(
+            contest_id=self.vjudge_contest_crawler.vjudge_contest.id,
             account_id=self.vaccount_id,
-            contest_id=self.contest.id,
-            competition_rank=self.competition_rank,
-            score=self.score,
-            solved_cnt=self.solved_cnt,
-            upsolved_cnt=self.upsolved_cnt,
-            penalty=self.total_penalty.total_seconds(),
-        ).commit_to_db()
+        )
+
+        if db_vjudge_ranking:
+            db_vjudge_ranking.competition_rank = self.competition_rank
+            db_vjudge_ranking.score = self.score
+            db_vjudge_ranking.solved_cnt = self.solved_cnt
+            db_vjudge_ranking.upsolved_cnt = self.upsolved_cnt
+            db_vjudge_ranking.penalty = int(self.total_penalty.total_seconds())
+        else:  # 如果还没有创建过 “这个人这场比赛” 对应的 VjudgeRanking
+            db_vjudge_ranking = VjudgeRanking(
+                account_id=self.vaccount_id,
+                contest_id=self.vjudge_contest_crawler.vjudge_contest.id,
+                competition_rank=self.competition_rank,
+                score=self.score,
+                solved_cnt=self.solved_cnt,
+                upsolved_cnt=self.upsolved_cnt,
+                penalty=int(self.total_penalty.total_seconds()),
+            )
+        db_vjudge_ranking.commit_to_db()
 
     def cal_score(self, account_num: int):
         """计算得分。注意 account_num 是在比赛期间参加比赛的人数！
@@ -100,7 +104,7 @@ class VjudgeRankingItem:
         :param account_num: `在比赛期间参加比赛` 的人数"""
         # 1. 比赛期间得分
         if (
-            self.first_submit_time <= self.contest.length  # type: ignore
+            self.first_submit_time <= self.vjudge_contest_crawler.vjudge_contest.length  # type: ignore
             and self.competition_rank is not None
         ):  # 参加了比赛——>比赛期间得分
             percentage = self.competition_rank / account_num
@@ -126,7 +130,9 @@ class VjudgeRankingItem:
         if self.first_submit_time is None:  # 第一次提交
             self.first_submit_time = submission.time
 
-        if submission.time < self.contest.length:  # 在比赛时间内提交
+        if (
+            submission.time < self.vjudge_contest_crawler.vjudge_contest.length
+        ):  # 在比赛时间内提交
             if not self.problem_set[submission.problem_id].accepted:  # 如果之前还没有通过这道题
                 if submission.accepted:  # 如果通过这道题——>通过题目数+1，总罚时 += 此题的罚时
                     self.solved_cnt += 1
@@ -142,8 +148,10 @@ class VjudgeRankingItem:
             else:  # 对于已经通过的题目，不再进行处理
                 if submission.accepted:
                     logger.debug(f"比赛时重复提交已经通过的题目并通过，跳过: {submission}")
-        elif submission.time <= submission.contest.length + datetime.timedelta(
-            days=7
+        elif (
+            submission.time
+            <= self.vjudge_contest_crawler.vjudge_contest.length
+            + datetime.timedelta(days=7)
         ):  # 7 天内补题
             if submission.accepted:
                 if self.problem_set[submission.problem_id].accepted:  # 过题后重复提交
@@ -186,7 +194,7 @@ class VjudgeRankingItem:
                 crt_item = VjudgeRankingItem(
                     vaccount_id=submission.vaccount_id,
                     account=submission.account,
-                    contest=vjudge_contest_crawler,
+                    vjudge_contest_crawler=vjudge_contest_crawler,
                 )
                 vjudge_ranking_items_dict[submission.vaccount_id] = crt_item
 
@@ -198,7 +206,8 @@ class VjudgeRankingItem:
         vjudge_competition_ranking_items_list = list(
             filter(
                 lambda item: item.first_submit_time is not None
-                and item.first_submit_time <= vjudge_contest_crawler.length,
+                and item.first_submit_time
+                <= vjudge_contest_crawler.vjudge_contest.length,
                 vjudge_total_ranking_items_list,
             )
         )
@@ -227,7 +236,7 @@ if __name__ == "__main__":
     logger.info(f"Creating table {VjudgeRanking.__tablename__}")
     VjudgeRanking.metadata.create_all(engine)
 
-    vjudge_contest_crawler = VjudgeContestCrawler(contest_id=587010)
+    vjudge_contest_crawler = VjudgeContestCrawler(contest_id=587010, div="div1")
 
     def main():
         (
