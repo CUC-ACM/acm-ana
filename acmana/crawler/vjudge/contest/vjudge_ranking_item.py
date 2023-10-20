@@ -168,15 +168,18 @@ class VjudgeRankingItem:
         :return: 返回 tuple[总榜, 比赛榜]"""
         vjudge_ranking_items_dict: dict[int, VjudgeRankingItem] = {}
 
+        copied_submissions = [
+            submission for submission in vjudge_contest_crawler.submissions
+        ]
         if only_attendance:  # 只对参加了课程的人进行排名
-            vjudge_contest_crawler.submissions = list(
+            copied_submissions = list(
                 filter(
                     lambda x: x.account.student and x.account.student.in_course,
-                    vjudge_contest_crawler.submissions,
+                    copied_submissions,
                 )
             )
 
-        for submission in vjudge_contest_crawler.submissions:
+        for submission in copied_submissions:
             if (
                 submission.vaccount_id not in vjudge_ranking_items_dict
             ):  # 如果还未创建过这个人的 VjudgeRankingItem

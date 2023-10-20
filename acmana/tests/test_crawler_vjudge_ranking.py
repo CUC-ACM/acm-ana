@@ -16,38 +16,53 @@ class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
         contest_id = 587010
         vjudge_contest_crawler = VjudgeContestCrawler(contest_id=contest_id)
 
-        _, vjudge_ranking_items = VjudgeRankingItem.get_vjudge_ranking_items(
+        # total_competion_ranking_items = vjudge_contest_crawler.total_competion_ranking_items
+        _, total_competion_ranking_items = VjudgeRankingItem.get_vjudge_ranking_items(
             only_attendance=False,
             vjudge_contest_crawler=vjudge_contest_crawler,
+        )
+
+        # 测试确保 get_vjudge_ranking_items() 不对 vjudge_contest_crawler.attendance_until_now_ranking_items 产生影响
+        self.assertEqual(
+            len(total_competion_ranking_items),
+            len(vjudge_contest_crawler.total_competion_ranking_items),
         )
         logger.debug(f"测试排名前三名")
         # 测试 youngwind (22物联网黄屹)
         accurate_penalty = datetime.timedelta(hours=5, minutes=44, seconds=27)
-        self.assertEqual(vjudge_ranking_items[0].total_penalty, accurate_penalty)
+        self.assertEqual(
+            total_competion_ranking_items[0].total_penalty, accurate_penalty
+        )
 
         # 测试 fzhan (22电信车宜峰)
         accurate_penalty = datetime.timedelta(hours=10, minutes=6, seconds=43)
-        self.assertEqual(vjudge_ranking_items[1].total_penalty, accurate_penalty)
+        self.assertEqual(
+            total_competion_ranking_items[1].total_penalty, accurate_penalty
+        )
 
         logger.debug(f"测试 sjkw (黄采薇) 「带有重复提交已经通过的题」")
         # 测试 sjkw (黄采薇) 「带有重复提交已经通过的题」
         accurate_penalty = datetime.timedelta(hours=5, minutes=20, seconds=37)
-        self.assertEqual(vjudge_ranking_items[2].total_penalty, accurate_penalty)
+        self.assertEqual(
+            total_competion_ranking_items[2].total_penalty, accurate_penalty
+        )
 
         # No.14 ADITLINK (张博)
         logger.debug(f"测试 No.14 ADITLINK (张博)")
-        self.assertEqual(vjudge_ranking_items[13].account.username, "ADITLINK")
+        self.assertEqual(total_competion_ranking_items[13].account.username, "ADITLINK")
 
         logger.debug(f"测试过题数为 0 的同学的排名")
 
         def test_0_solve_cnt(rank: int, username: str):
             """测试过题数为 0 的同学"""
-            logger.debug(f"测试过题数为 0 的同学: {vjudge_ranking_items[rank]}")
-            self.assertEqual(vjudge_ranking_items[rank].account.username, username)
+            logger.debug(f"测试过题数为 0 的同学: {total_competion_ranking_items[rank]}")
             self.assertEqual(
-                vjudge_ranking_items[rank].total_penalty, datetime.timedelta()
+                total_competion_ranking_items[rank].account.username, username
             )
-            self.assertEqual(vjudge_ranking_items[rank].solved_cnt, 0)
+            self.assertEqual(
+                total_competion_ranking_items[rank].total_penalty, datetime.timedelta()
+            )
+            self.assertEqual(total_competion_ranking_items[rank].solved_cnt, 0)
 
         # ovovo (王玮泽)
         test_0_solve_cnt(rank=-6, username="ovovo")
@@ -68,14 +83,20 @@ class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
         vjudge_contest_crawler = VjudgeContestCrawler(contest_id=contest_id)
 
         (
-            vjudge_attendance_total_ranking_items,
+            attendance_until_now_ranking_items,
             _,
         ) = VjudgeRankingItem.get_vjudge_ranking_items(
             only_attendance=True,
             vjudge_contest_crawler=vjudge_contest_crawler,
         )
 
-        for item in vjudge_attendance_total_ranking_items:
+        # 测试确保 get_vjudge_ranking_items() 不对 vjudge_contest_crawler.attendance_until_now_ranking_items 产生影响
+        self.assertEqual(
+            len(attendance_until_now_ranking_items),
+            len(vjudge_contest_crawler.attendance_until_now_ranking_items),
+        )
+
+        for item in attendance_until_now_ranking_items:
             self.assertIsNotNone(
                 item.account.student, "在参加了课程的同学排名中的同学必须已经在 student 数据库中"
             )
@@ -83,7 +104,7 @@ class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
             self.assertLessEqual(item.score, 100, "得分不应该超过 100 分")
 
         item_dict: dict[int, VjudgeRankingItem] = {
-            item.vaccount_id: item for item in vjudge_attendance_total_ranking_items
+            item.vaccount_id: item for item in attendance_until_now_ranking_items
         }
 
         # 王戈(没有参加比赛，但是补了一道题)
