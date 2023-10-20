@@ -49,10 +49,16 @@ class VjudgeContestCrawler:
         self.submissions = [VjudgeSubmission.from_api_list(submission, self.participants, self) for submission in self._contest_api_metadata["submissions"]]  # type: ignore
         self.submissions.sort(key=lambda x: x.time)
         (
-            self.total_ranking_items,
-            self.competion_ranking_items,
+            self.total_until_now_ranking_items,
+            self.total_competion_ranking_items,
         ) = VjudgeRankingItem.get_vjudge_ranking_items(
             only_attendance=False, vjudge_contest_crawler=self
+        )
+        (
+            self.attendance_until_now_ranking_items,
+            self.attendance_competition_ranking_items,
+        ) = VjudgeRankingItem.get_vjudge_ranking_items(
+            only_attendance=True, vjudge_contest_crawler=self
         )
 
     def __repr__(self) -> str:
