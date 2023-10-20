@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+import os
 import time
 
 import fake_useragent
@@ -106,9 +107,10 @@ class VjudgeContestRetriever:
         headers = {
             "User-Agent": fake_useragent.UserAgent().random,
         }
-        if acmana.config["debug_cache"]:
-            logger.info("debug_cache is True, use cache")
-            with open("acmana/tmp/vjudge_retrive_contests.json", "r") as f:
+        if os.getenv("DEBUG_CACHE", "False").lower() in ("true", "1", "t"):
+            cache_path = "acmana/tmp/vjudge_retrive_contests.json"
+            logger.info(f"DEBUG_CACHE is True, use cache {cache_path}")
+            with open(cache_path, "r") as f:
                 data: list[list] = json.load(f)["data"]
         else:
             logger.info(

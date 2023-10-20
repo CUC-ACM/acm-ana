@@ -2,12 +2,12 @@ import asyncio
 import datetime
 import json
 import logging
+import os
 
 import aiofiles
 import aiohttp
 import fake_useragent
 
-import acmana
 from acmana.crawler.vjudge.contest_crawler import VjudgeContestCrawler
 from acmana.models.account.vjudge_account import VjudgeAccount
 from acmana.models.ranking.vjudge_ranking import VjudgeRanking
@@ -162,14 +162,15 @@ class VjudgeRankingItem:
         headers = {
             "User-Agent": fake_useragent.UserAgent().random,
         }
-        if acmana.config["debug_cache"]:
-            async with aiofiles.open(
-                "acmana/tmp/vjudge_rank_587010.json", mode="r"
-            ) as f:
+        if os.getenv("DEBUG_CACHE", "False").lower() in ("true", "1", "t"):
+            cache_path = f"acmana/tmp/vjudge_rank_{contest_id}.json"
+            logger.info(f"DEBUG_CACHE is True, use cache {cache_path}")
+            async with aiofiles.open(cache_path, mode="r") as f:
                 vjudge_contest_crawler = VjudgeContestCrawler(
                     json.loads(await f.read())
                 )
         else:
+            logger.info(f"Getting contests submissions from vjudge.net......")
             async with aiosession.get(
                 f"https://vjudge.net/contest/rank/single/{contest_id}",
                 headers=headers,
