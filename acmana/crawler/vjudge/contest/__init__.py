@@ -3,47 +3,12 @@ import datetime
 import fake_useragent
 import requests
 
-from acmana.models.contest.vjudge_contest import VjudgeContest
+from acmana.crawler.vjudge.contest.vj_submission import VjSubmission
 from acmana.models.account.vjudge_account import VjudgeAccount
+from acmana.models.contest.vjudge_contest import VjudgeContest
 
 
 class VjContest:
-    class VjSubmission:
-        def __init__(
-            self,
-            vaccount_id: int,
-            problem_id: int,
-            accepted: bool,
-            time: datetime.timedelta,
-            account: VjudgeAccount,
-            contest: "VjContest",
-        ) -> None:
-            self.vaccount_id: int = vaccount_id  # 注意，这里是 vjudge 自己的 vaccount_id
-            self.problem_id = problem_id
-            self.accepted: bool = accepted
-            self.time: datetime.timedelta = time
-            self.account: VjudgeAccount = account
-            self.contest: VjContest = contest
-
-        @classmethod
-        def from_api_list(
-            cls,
-            l: list,
-            participants_dict: dict[int, VjudgeAccount],
-            contest: "VjContest",
-        ) -> "VjContest.VjSubmission":
-            return cls(
-                vaccount_id=int(l[0]),
-                problem_id=int(l[1]),
-                accepted=bool(l[2]),
-                time=datetime.timedelta(seconds=int(l[3])),
-                account=participants_dict[int(l[0])],
-                contest=contest,
-            )
-
-        def __repr__(self) -> str:
-            return f"vaccount_id: {self.vaccount_id}, account: {self.account} promble_id: {self.problem_id}, accepted: {self.accepted}, time: {self.time}"
-
     def __init__(self, d: dict) -> None:
         self.id: int = int(d["id"])
         self.title: str = d["title"]
@@ -68,7 +33,7 @@ class VjContest:
                     username=username, nickname=nickname
                 )
 
-        self.submissions = [VjContest.VjSubmission.from_api_list(submission, self.participants, self) for submission in d["submissions"]]  # type: ignore
+        self.submissions = [VjSubmission.from_api_list(submission, self.participants, self) for submission in d["submissions"]]  # type: ignore
         self.submissions.sort(key=lambda x: x.time)
 
     def __repr__(self) -> str:

@@ -9,6 +9,7 @@ import aiohttp
 import fake_useragent
 
 from acmana.crawler.vjudge.contest import VjContest
+from acmana.crawler.vjudge.contest.vj_submission import VjSubmission
 from acmana.models.account.vjudge_account import VjudgeAccount
 from acmana.models.ranking.vjudge_ranking import VjudgeRanking
 
@@ -115,7 +116,7 @@ class VjudgeRankingItem:
 
         self.score = min(100, self.score)
 
-    def submit(self, submission: VjContest.VjSubmission):
+    def submit(self, submission: VjSubmission):
         """提交题目。注意！需要按照提交时间排序顺序提交！"""
 
         if self.first_submit_time is None:  # 第一次提交
