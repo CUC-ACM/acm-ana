@@ -69,9 +69,11 @@ class TestCrawlerVjudgeRanking(IsolatedAsyncioTestCase):
             )
 
         for item in vjudge_attendance_total_ranking_items:
-            self.assertTrue(item.account.is_in_course, "只测试参加了课程的同学")
+            self.assertIsNotNone(
+                item.account.student, "在参加了课程的同学排名中的同学必须已经在 student 数据库中"
+            )
+            self.assertTrue(item.account.student.in_course, "只测试参加了课程的同学")  # type: ignore
             self.assertLessEqual(item.score, 100, "得分不应该超过 100 分")
-            # print(item)
 
         item_dict: dict[int, VjudgeRankingItem] = {
             item.vaccount_id: item for item in vjudge_attendance_total_ranking_items
