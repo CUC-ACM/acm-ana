@@ -6,23 +6,24 @@ upsolve: # 补题
 
 vjudge: # vjudge config
   instances:
-    - # instance 1
-      enable: true # 是否启用此 instance
+    div1: # div1 类别
       title_prefix: "CUC-ACM-2023秋季学期新生" # 检索用的标题
-      div: "div1" # div1 or div2, 没有组别可以为 ""
       sheet_name_remover: "CUC-ACM-2023秋季学期" # 用于去除 sheet name 中的前缀
+      export_filename: "CUC-ACM-2023秋季学期新生_Vjudge_div1" # 导出的文件名前缀
 
-    # - # instance 2（用于：同时在 Vjudge 上进行 div1 和 div 2 训练的情况）
-    #   title: "CUC-ACM-2023秋季学期新生" # 检索用的标题
-    #   enable: true # 是否启用 vjudge
+    # div2: # div2 类别
+    #   title_prefix: "CUC-ACM-2023秋季学期新生" # 检索用的标题
+    #   sheet_name_remover: "CUC-ACM-2023秋季学期" # 用于去除 sheet name 中的前缀
 
 nowcoder: # 牛客 config
   instances:
-    - # instance 1
-      enable: true # 是否启用此 instance
-      title_prefix: ""
-      div: "div2" # div1 or div2, 没有组别可以为 ""
-    -  # instance 2
+    div1: # div1 类别
+      title_prefix: "CUC-ACM-2023秋季学期新生" # 检索用的标题
+      sheet_name_remover: "CUC-ACM-2023秋季学期" # 用于去除 sheet name 中的前缀
+
+    # div2: # div2 类别
+    #   title_prefix: "CUC-ACM-2023秋季学期新生" # 检索用的标题
+    #   sheet_name_remover: "CUC-ACM-2023秋季学期" # 用于去除 sheet name 中的前缀
 
 input:
   attendance_path: "acmana/resources/attendance.csv" # 选课人员名单 csv 文件路径
