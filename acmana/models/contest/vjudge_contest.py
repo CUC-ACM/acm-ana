@@ -1,8 +1,8 @@
-from typing import TYPE_CHECKING, Any, List
+from typing import TYPE_CHECKING, List, Optional
 
 from sqlalchemy.orm import Mapped, relationship
 
-from acmana.models import SQLBase
+from acmana.models import SQLBase, sqlsession
 from acmana.models.contest import ContestBase
 
 if TYPE_CHECKING:
@@ -37,3 +37,7 @@ class VjudgeContest(ContestBase, SQLBase):
                     )
                 )
             )
+
+    @classmethod
+    def query_from_id(cls, id: int) -> Optional["VjudgeContest"]:
+        return sqlsession.execute(cls._get_query_stmt(id)).scalar_one_or_none()
