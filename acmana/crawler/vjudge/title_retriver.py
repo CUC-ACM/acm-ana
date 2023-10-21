@@ -107,7 +107,7 @@ class VjudgeContestRetriever:
         headers = {
             "User-Agent": fake_useragent.UserAgent().random,
         }
-        cache_path = "acmana/tmp/vjudge_retrive_contests.json"
+        cache_path = "acmana/tmp/cache/vjudge_retrive_contests.json"
         if os.getenv("DEBUG_CACHE", "False").lower() in (
             "true",
             "1",

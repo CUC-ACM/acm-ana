@@ -17,7 +17,7 @@ class VjudgeContest(ContestBase, SQLBase):
         back_populates="contest", cascade="all, delete-orphan"
     )
 
-    def cal_competition_participants_num(self, only_attendance) -> int:
+    def get_competition_participants_num(self, only_attendance) -> int:
         """在比赛结束前参与的人数（当场比赛排名最大的数值）"""
         if not only_attendance:  # 所有在比赛期间参加比赛的人数
             return len(

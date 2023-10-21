@@ -1,3 +1,4 @@
+import bisect
 import datetime
 import json
 import logging
@@ -29,9 +30,9 @@ class VjudgeContestCrawler:
             int(self._contest_api_metadata["begin"] / 1000)
         )
         _end: datetime.datetime = _begin + _length
-        self.vjudge_contest: VjudgeContest = VjudgeContest.query_from_id(contest_id)  # type: ignore
-        if self.vjudge_contest is None:
-            self.vjudge_contest = VjudgeContest(
+        self.db_vjudge_contest: VjudgeContest = VjudgeContest.query_from_id(contest_id)  # type: ignore
+        if self.db_vjudge_contest is None:
+            self.db_vjudge_contest = VjudgeContest(
                 id=contest_id, title=_title, begin=_begin, end=_end, div=div
             )
 
@@ -56,25 +57,72 @@ class VjudgeContestCrawler:
                 self.participants_vjudge_account[vaccount_id].commit_to_db()  # type: ignore
 
         self.submissions = [VjudgeSubmission.from_api_list(submission, self.participants_vjudge_account, self) for submission in self._contest_api_metadata["submissions"]]  # type: ignore
-        self.submissions.sort(key=lambda x: x.time)
-        (
-            self.total_until_now_ranking_items,
-            self.total_competion_ranking_items,
-        ) = VjudgeRankingItem.get_vjudge_ranking_items(
-            only_attendance=False, vjudge_contest_crawler=self
+
+        self.submissions.sort(key=lambda x: x.time)  # 按照时间顺序模拟提交
+        self.simulate_contest()
+
+    def simulate_contest(self):
+        """模拟整场比赛"""
+        self.submissions.sort(key=lambda x: x.time)  # 按照时间顺序模拟提交
+        vjudge_ranking_items_dict: dict[int, VjudgeRankingItem] = {}
+
+        truncation = bisect.bisect_right(  # 找到第一个比赛结束的提交分割点
+            self.submissions, self.db_vjudge_contest.length, key=lambda x: x.time
         )
-        (
-            self.attendance_until_now_ranking_items,
-            self.attendance_competition_ranking_items,
-        ) = VjudgeRankingItem.get_vjudge_ranking_items(
-            only_attendance=True, vjudge_contest_crawler=self
-        )
+
+        # 比赛中的提交
+        for submission in self.submissions[:truncation]:  # 按照时间顺序模拟提交
+            if (
+                submission.account.id not in vjudge_ranking_items_dict
+            ):  # 如果还未创建过这个人的 VjudgeRankingItem
+                vjudge_ranking_items_dict[submission.account.id] = VjudgeRankingItem(
+                    account=submission.account,
+                    vjudge_contest_crawler=self,
+                )
+
+            vjudge_ranking_items_dict[submission.account.id].submit(
+                submission=submission
+            )
+
+        # 计算排名
+        for i, ranking_item in enumerate(
+            sorted(list(vjudge_ranking_items_dict.values())), start=1
+        ):
+            ranking_item.db_vjudge_ranking.competition_rank = i
+
+        # 比赛结束后的提交
+        for submission in self.submissions[truncation:]:
+            if submission.account.id not in vjudge_ranking_items_dict:
+                vjudge_ranking_items_dict[submission.account.id] = VjudgeRankingItem(
+                    account=submission.account,
+                    vjudge_contest_crawler=self,
+                )
+
+            vjudge_ranking_items_dict[submission.account.id].submit(
+                submission=submission
+            )
+            # print(vjudge_ranking_items_dict[submission.account.id].db_vjudge_ranking.penalty)
+
+        # vjudge_competition_ranking_items_list = list(
+        #     filter(
+        #         lambda item: item.first_submit_time is not None
+        #         and item.first_submit_time <= self.db_vjudge_contest.length,
+        #         list(vjudge_ranking_items_dict.values()),
+        #     )
+        # )
+        # vjudge_competition_ranking_items_list.sort()
+        # for ranking_num, item in enumerate(vjudge_competition_ranking_items_list, 1):
+        #     item.db_vjudge_ranking.competition_rank = ranking_num
+
+        # 将`所有的` db_vjudge_ranking 添加到 db_vjudge_contest
+        for item in vjudge_ranking_items_dict.values():
+            self.db_vjudge_contest.rankings.append(item.db_vjudge_ranking)
 
     def __repr__(self) -> str:
-        return f"VjudgeContestCrawler(vjudge_contest={self.vjudge_contest}, submissions={self.submissions}, participants={self.participants_vjudge_account})"
+        return f"VjudgeContestCrawler(vjudge_contest={self.db_vjudge_contest}, submissions={self.submissions}, participants={self.participants_vjudge_account})"
 
     def crawl_ranking_metadata_json(self) -> dict:
-        cache_path = f"acmana/tmp/vjudge_rank_{self._contest_id}.json"
+        cache_path = f"acmana/tmp/cache/vjudge_rank_{self._contest_id}.json"
         if os.getenv("DEBUG_CACHE", "False").lower() in (
             "true",
             "1",
@@ -95,14 +143,6 @@ class VjudgeContestCrawler:
             json.dump(response.json(), f, ensure_ascii=False)
         return response.json()
 
-    def commit_to_vjudge_contest_db(self):
-        """将当前的比赛的 `元信息` 及其所有的 VjudgeRankingItem 提交到数据库中"""
-
-        self.vjudge_contest.commit_to_db()
-
-        for ranking_item in self.total_until_now_ranking_items:
-            ranking_item.commit_to_db()
-
 
 if __name__ == "__main__":
     import json
@@ -114,4 +154,3 @@ if __name__ == "__main__":
     # print(vj_contest_crawler)
     for submission in vj_contest_crawler.submissions:
         print(submission)
-    vj_contest_crawler.commit_to_vjudge_contest_db()

@@ -28,6 +28,7 @@ class VjudgeRanking(RankingBase, SQLBase):
     ) -> Optional["VjudgeRanking"]:
         stmt: Select = (
             select(VjudgeRanking)
+            .with_hint(VjudgeRanking, "unique_vj_account_contest")
             .where(VjudgeRanking.contest_id == contest_id)
             .where(VjudgeRanking.account_id == account_id)
         )
@@ -62,17 +63,22 @@ class VjudgeRanking(RankingBase, SQLBase):
 
         raise ValueError("发生了逻辑错误")  # 这个分支不应该被执行到
 
-    def get_score(self, only_among_attendance: bool):
+    def get_score(self, only_among_attendance: bool) -> int:
         """计算得分
         :param: only_among_attendance: 是否只计算在课程中的同学的得分
         :return: 得分
         """
+        if only_among_attendance:
+            if self.account.student is None or self.account.student.in_course is False:
+                raise ValueError(
+                    f"账号 {self.account} 不是选课的同学或者不在 student 数据库中，不应该在 only_among_attendance=True 的情况下计算得分"
+                )
         ranking: int | None
-        total: int = self.contest.cal_competition_participants_num(
+        total: int = self.contest.get_competition_participants_num(
             only_attendance=only_among_attendance
         )
         score: float = 0
-        if only_among_attendance:
+        if only_among_attendance is True:
             ranking = self.get_attendance_ranking()
         else:
             ranking = self.competition_rank
@@ -80,17 +86,17 @@ class VjudgeRanking(RankingBase, SQLBase):
         if ranking is not None:
             percentage: float = ranking / total
             if percentage <= 0.2:
-                self.score += 100
+                score += 100
             elif percentage <= 0.4:
-                self.score += 90
+                score += 90
             elif percentage <= 0.6:
-                self.score += 80
+                score += 80
             elif percentage <= 0.8:
-                self.score += 70
+                score += 70
             else:
-                self.score += 60
+                score += 60
         # 2. 补题得分
-        self.score += self.upsolved_cnt * 6
+        score += self.upsolved_cnt * 6
         return min(100, score)
 
 

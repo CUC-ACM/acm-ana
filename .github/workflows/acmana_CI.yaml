@@ -24,7 +24,7 @@ jobs:
           VJUDGE_COOKIE: ${{ secrets.VJUDGE_COOKIE }}
         run:
           # 运行测试用例
-          coverage run -m unittest
+          coverage run --source=acmana -m unittest
       - name: Generate Report
         run:
           # 生成测试报告

@@ -8,7 +8,7 @@ with open("config.yaml", "r") as f:
 
 # logging.config.dictConfig(config["Logging"])
 
-os.mkdir("acmana/tmp") if not os.path.exists("acmana/tmp") else None
+os.makedirs("acmana/tmp/cache", exist_ok=True)
 
 coloredlogs.install(
     level=config["coloredlogs"]["level"],

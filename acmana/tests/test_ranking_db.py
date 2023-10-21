@@ -68,10 +68,9 @@ class TestRankingDB(unittest.TestCase):
             account_id=self.student1.vjudge_account.id,
             contest_id=self.contest1.id,
             competition_rank=1,
-            score=96,
             solved_cnt=3,
             upsolved_cnt=1,
-            penalty=datetime.timedelta(hours=1, minutes=30).total_seconds(),
+            penalty=datetime.timedelta(hours=1, minutes=30),
         )
         self.student1_vj_contest1_ranking.commit_to_db(self.testsqlsession)
 
@@ -89,10 +88,9 @@ class TestRankingDB(unittest.TestCase):
             account_id=self.student1.vjudge_account.id,  # type: ignore
             contest_id=self.contest1.id,
             competition_rank=2,  # 这里又排名为 2
-            score=90,
             solved_cnt=2,
             upsolved_cnt=1,
-            penalty=datetime.timedelta(hours=1, minutes=30).total_seconds(),
+            penalty=datetime.timedelta(hours=1, minutes=30),
         )
 
         self.assertRaises(
