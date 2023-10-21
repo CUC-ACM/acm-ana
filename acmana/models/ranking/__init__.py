@@ -1,6 +1,7 @@
+import datetime
 import logging
 
-from sqlalchemy import Float, Integer, Select, select
+from sqlalchemy import Integer, Interval, Select, select
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from acmana.models import sqlsession
@@ -13,10 +14,9 @@ class RankingBase:
 
     id: Mapped[int] = mapped_column(primary_key=True)
     competition_rank: Mapped[int | None] = mapped_column(Integer())
-    score: Mapped[float] = mapped_column(Float())
     solved_cnt: Mapped[int] = mapped_column(Integer())
     upsolved_cnt: Mapped[int] = mapped_column(Integer())  # 补题数
-    penalty: Mapped[int] = mapped_column(Integer())  # 罚时
+    penalty: Mapped[datetime.timedelta] = mapped_column(Interval())  # 罚时
 
     def commit_to_db(self, sqlsession: Session = sqlsession):
         logger.info(f"commiting {self} to db......")
