@@ -28,6 +28,7 @@ class VjudgeRanking(RankingBase, SQLBase):
     ) -> Optional["VjudgeRanking"]:
         stmt: Select = (
             select(VjudgeRanking)
+            .with_hint(VjudgeRanking, "unique_vj_account_contest")
             .where(VjudgeRanking.contest_id == contest_id)
             .where(VjudgeRanking.account_id == account_id)
         )
