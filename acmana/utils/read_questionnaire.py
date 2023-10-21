@@ -83,7 +83,7 @@ class Questionnaire:
             nowcoder_account.commit_to_db()
 
 
-async def async_read_questionnaire_update_db(df: pd.DataFrame, concurrency: int = 3):
+async def async_read_questionnaire_update_db(df: pd.DataFrame, concurrency: int = 8):
     tasks: list[asyncio.Task] = []
 
     async def update_questionnaire_nowcoder_nickname(
