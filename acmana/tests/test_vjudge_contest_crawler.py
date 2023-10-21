@@ -43,6 +43,14 @@ class TestVjudgeContestCrawler(unittest.TestCase):
         # No.14 ADITLINK (张博)
         sub_test("ADITLINK", 14, datetime.timedelta(hours=3, minutes=25, seconds=56))
 
+        logger.debug(f"测试确保没有所有得分在 100 分以下")
+        for vjudge_ranking in vjudge_contest_crawler.db_vjudge_contest.rankings:
+            self.assertLessEqual(
+                vjudge_ranking.get_score(only_among_attendance=False),
+                100,
+                "得分不应该超过 100 分",
+            )
+
         logger.debug(f"测试过题数为 0 的同学的排名")
 
         def test_0_solve_cnt(rank: int, username: str):
@@ -68,73 +76,70 @@ class TestVjudgeContestCrawler(unittest.TestCase):
         # sun_song
         test_0_solve_cnt(rank=22, username="sun_song")
 
-    # def test_vjudge_attentance_ranking_items(self):
-    #     """测试参加了课程的同学的得分"""
-    #     contest_id = 587010
-    #     vjudge_contest_crawler = VjudgeContestCrawler(contest_id=contest_id, div="div1")
+        def test_vjudge_attentance_ranking_items():
+            """只在「选课」的同学中计算排名得分"""
 
-    #     (
-    #         attendance_until_now_ranking_items,
-    #         _,
-    #     ) = VjudgeRankingItem.simulate_contest(
-    #         only_attendance=True,
-    #         vjudge_contest_crawler=vjudge_contest_crawler,
-    #     )
+            for vjudge_ranking in filter(
+                lambda x: x.account.student is not None and x.account.student.in_course,  # type: ignore
+                vjudge_contest_crawler.db_vjudge_contest.rankings,
+            ):
+                self.assertLessEqual(
+                    vjudge_ranking.get_score(only_among_attendance=True),
+                    100,
+                    "得分不应该超过 100 分",
+                )
+                vjudge_ranking.account.id
 
-    #     # 测试确保 get_vjudge_ranking_items() 不对 vjudge_contest_crawler.attendance_until_now_ranking_items 产生影响
-    #     self.assertEqual(
-    #         len(attendance_until_now_ranking_items),
-    #         len(vjudge_contest_crawler.attendance_until_now_ranking_items),
-    #     )
+            vjudge_ranking_dict: dict[int, VjudgeRanking] = {
+                ranking.account.id: ranking
+                for ranking in vjudge_contest_crawler.db_vjudge_contest.rankings
+            }
 
-    #     for item in attendance_until_now_ranking_items:
-    #         self.assertIsNotNone(
-    #             item.account.student, "在参加了课程的同学排名中的同学必须已经在 student 数据库中"
-    #         )
-    #         self.assertTrue(item.account.student.in_course, "只测试参加了课程的同学")  # type: ignore
-    #         self.assertLessEqual(item.score, 100, "得分不应该超过 100 分")
+            # 王戈(没有参加比赛，但是补了一道题) 已选课
+            crt_id = 834306
+            self.assertEqual(vjudge_ranking_dict[crt_id].solved_cnt, 0)
+            self.assertEqual(vjudge_ranking_dict[crt_id].penalty, datetime.timedelta())
+            self.assertEqual(vjudge_ranking_dict[crt_id].upsolved_cnt, 1)
+            self.assertEqual(
+                vjudge_ranking_dict[crt_id].get_score(only_among_attendance=True), 6
+            )
+            self.assertIsNone(
+                vjudge_ranking_dict[crt_id].get_attendance_ranking(), "全部排名与选课排名不同"
+            )
+            self.assertIsNone(
+                vjudge_ranking_dict[crt_id].competition_rank, "全部排名与选课排名不同"
+            )
+            
 
-    #     item_dict: dict[int, VjudgeRankingItem] = {
-    #         item.account.id: item for item in attendance_until_now_ranking_items
-    #     }
+            # 李思扬(参加了比赛，没有过题，没有补题)
+            crt_id = 835024
+            self.assertEqual(vjudge_ranking_dict[crt_id].solved_cnt, 0, "没有过题")
+            self.assertEqual(vjudge_ranking_dict[crt_id].penalty, datetime.timedelta())
+            self.assertEqual(vjudge_ranking_dict[crt_id].upsolved_cnt, 0, "没有补题")
+            self.assertEqual(
+                vjudge_ranking_dict[crt_id].get_score(only_among_attendance=True), 60
+            )
+            self.assertNotEqual(
+                vjudge_ranking_dict[crt_id].get_attendance_ranking(),
+                vjudge_ranking_dict[crt_id].competition_rank,
+                "全部排名与选课排名不同",
+            )
 
-    #     # 王戈(没有参加比赛，但是补了一道题)
-    #     crt_id = 834306
-    #     self.assertGreater(
-    #         item_dict[crt_id].first_submit_time,
-    #         item_dict[crt_id].vjudge_contest_crawler.db_vjudge_contest.length,  # type: ignore
-    #         "没有参加比赛",
-    #     )
-    #     self.assertEqual(item_dict[crt_id].solved_cnt, 0)
-    #     self.assertEqual(item_dict[crt_id].total_penalty, datetime.timedelta())
-    #     self.assertEqual(item_dict[crt_id].upsolved_cnt, 1)
-    #     self.assertEqual(item_dict[crt_id].score, 6)
+            # 车宜峰(参加了比赛，`课程中` 比赛第一名，没有补题)
+            crt_id = 834865
+            self.assertEqual(vjudge_ranking_dict[crt_id].solved_cnt, 3, "过了 3 题")
+            self.assertEqual(
+                vjudge_ranking_dict[crt_id].penalty,
+                datetime.timedelta(hours=10, minutes=6, seconds=43),
+            )
+            self.assertEqual(vjudge_ranking_dict[crt_id].upsolved_cnt, 0, "没有补题")
+            self.assertNotEqual(
+                vjudge_ranking_dict[crt_id].get_attendance_ranking(),
+                vjudge_ranking_dict[crt_id].competition_rank,
+                "全部排名与选课排名不同",
+            )
 
-    #     # 李思扬(参加了比赛，没有过题，没有补题)
-    #     crt_id = 835024
-    #     self.assertLessEqual(
-    #         item_dict[crt_id].first_submit_time,
-    #         item_dict[crt_id].vjudge_contest_crawler.db_vjudge_contest.length,  # type: ignore
-    #         "参加了比赛",
-    #     )
-    #     self.assertEqual(item_dict[crt_id].solved_cnt, 0, "没有过题")
-    #     self.assertEqual(item_dict[crt_id].total_penalty, datetime.timedelta())
-    #     self.assertEqual(item_dict[crt_id].upsolved_cnt, 0, "没有补题")
-    #     self.assertEqual(item_dict[crt_id].score, 60)
-
-    #     # 车宜峰(参加了比赛，`课程中` 比赛第一名，没有补题)
-    #     crt_id = 834865
-    #     self.assertLessEqual(
-    #         item_dict[crt_id].first_submit_time,
-    #         item_dict[crt_id].vjudge_contest_crawler.db_vjudge_contest.length,  # type: ignore
-    #         "参加了比赛",
-    #     )
-    #     self.assertEqual(item_dict[crt_id].solved_cnt, 3, "过了 3 题")
-    #     self.assertEqual(
-    #         item_dict[crt_id].total_penalty,
-    #         datetime.timedelta(hours=10, minutes=6, seconds=43),
-    #     )
-    #     self.assertEqual(item_dict[crt_id].upsolved_cnt, 0, "没有补题")
+        test_vjudge_attentance_ranking_items()
 
 
 if __name__ == "__main__":
