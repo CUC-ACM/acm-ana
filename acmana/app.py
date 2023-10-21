@@ -3,6 +3,8 @@ import logging
 import acmana
 from acmana.crawler.vjudge.contest import VjudgeContestCrawler
 from acmana.crawler.vjudge.title_retriver import VjudgeContestRetriever
+from acmana.export.vjudge.vjudge_ranking import ExcelBook
+from acmana.models.contest.vjudge_contest import VjudgeContest
 
 logger = logging.getLogger(__name__)
 
@@ -24,8 +26,15 @@ def retrive_vjudge_contests():
             vjudge_contest_crawler.db_vjudge_contest.commit_to_db()
 
 
+def export_vjudge_contests_to_excel():
+    """将 `数据库` 中的 VjudgeContest 导出到 Excel 文件中"""
+    excel_book = ExcelBook()
+    excel_book.write_book()
+
+
 def run():
     retrive_vjudge_contests()
+    export_vjudge_contests_to_excel()
 
 
 if __name__ == "__main__":

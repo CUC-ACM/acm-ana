@@ -1,3 +1,4 @@
+import datetime
 from typing import TYPE_CHECKING, List, Optional
 
 from sqlalchemy.orm import Mapped, relationship
@@ -38,6 +39,20 @@ class VjudgeContest(ContestBase, SQLBase):
                 )
             )
 
-    @classmethod
-    def query_from_id(cls, id: int) -> Optional["VjudgeContest"]:
-        return sqlsession.execute(cls._get_query_stmt(id)).scalar_one_or_none()
+    @staticmethod
+    def query_from_id(id: int) -> Optional["VjudgeContest"]:
+        return (
+            sqlsession.query(VjudgeContest).filter(VjudgeContest.id == id).one_or_none()
+        )
+
+    @staticmethod
+    def query_all() -> List["VjudgeContest"]:
+        return sqlsession.query(VjudgeContest).all()
+
+    @staticmethod
+    def query_finished_contests() -> List["VjudgeContest"]:
+        return (
+            sqlsession.query(VjudgeContest)
+            .filter(VjudgeContest.end <= datetime.datetime.utcnow())
+            .all()
+        )
