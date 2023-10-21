@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Any, List
 
 from sqlalchemy.orm import Mapped, relationship
 
@@ -16,6 +16,9 @@ class VjudgeContest(ContestBase, SQLBase):
     rankings: Mapped[List["VjudgeRanking"]] = relationship(
         back_populates="contest", cascade="all, delete-orphan"
     )
+
+    def __repr__(self) -> str:
+        return f"VjudgeContest({self.title}, id: {self.id}, div: {self.div}, {self.begin} ~ {self.end})"
 
     def get_competition_participants_num(self, only_attendance) -> int:
         """在比赛结束前参与的人数（当场比赛排名最大的数值）"""

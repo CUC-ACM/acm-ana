@@ -14,47 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 class VjudgeContestRetriever:
-    class Contest:
-        def __init__(
-            self,
-            vcontest_id: int,
-            title: str,
-            div: str,
-            begin: datetime.datetime,
-            end: datetime.datetime,
-        ) -> None:
-            self.vcontest_id: int = vcontest_id
-            self.title: str = title
-            self.div: str = div
-            self.begin: datetime.datetime = begin
-            self.end: datetime.datetime = end
-
-        def __repr__(self) -> str:
-            return f"(vcontest_id: {self.vcontest_id}, name: {self.title}, time({self.begin}, {self.end}))"
-
-        def commit_to_db(self):
-            logger.info(f"Committing contest {self} to database......")
-            vjudge_contest: VjudgeContest | None = VjudgeContest.query_from_id(
-                id=self.vcontest_id
-            )  # type: ignore
-
-            if vjudge_contest is None:  # 数据库中不存在
-                logger.info(f"Contest {self} not found in database, creating......")
-                VjudgeContest(
-                    id=self.vcontest_id,
-                    title=self.title,
-                    div=self.div,
-                    begin=self.begin,
-                    end=self.end,
-                ).commit_to_db()
-            else:  # 更新此比赛
-                logger.info(f"Contest {self} found in database, updating......")
-                vjudge_contest.title = self.title
-                vjudge_contest.div = self.div
-                vjudge_contest.begin = self.begin
-                vjudge_contest.end = self.end
-                vjudge_contest.commit_to_db()
-
     def __init__(
         self,
         title: str,
@@ -92,18 +51,27 @@ class VjudgeContestRetriever:
             "owner": self.owner,
             "_": self.unix_timestamp,
         }
-        self.retrieved_contests: list["VjudgeContestRetriever.Contest"] = []
+        self.retrieved_contests: list["VjudgeContest"] = []
 
-    def _to_contest(self, l: list) -> "VjudgeContestRetriever.Contest":
-        return VjudgeContestRetriever.Contest(
-            title=l[1],
-            vcontest_id=int(l[0]),
-            div=self.div,
-            begin=datetime.datetime.utcfromtimestamp(int(l[3]) / 1000),
-            end=datetime.datetime.utcfromtimestamp(int(l[4]) / 1000),
-        )
+    def _to_db_contest(self, l: list) -> "VjudgeContest":
+        vjudge_contest: VjudgeContest = VjudgeContest.query_from_id(int(l[0]))  # type: ignore
+        if vjudge_contest is None:  # 如果数据库中没有这个比赛——>新建
+            vjudge_contest = VjudgeContest(
+                title=l[1],
+                id=int(l[0]),
+                div=self.div,
+                begin=datetime.datetime.utcfromtimestamp(int(l[3]) / 1000),
+                end=datetime.datetime.utcfromtimestamp(int(l[4]) / 1000),
+            )
+        else:  # 如果数据库中有这个比赛——>更新
+            vjudge_contest.title = l[1]
+            vjudge_contest.div = self.div
+            vjudge_contest.begin = datetime.datetime.utcfromtimestamp(int(l[3]) / 1000)
+            vjudge_contest.end = datetime.datetime.utcfromtimestamp(int(l[4]) / 1000)
 
-    def get_contests(self):
+        return vjudge_contest
+
+    def get_contests_and_commit_to_db(self):
         headers = {
             "User-Agent": fake_useragent.UserAgent().random,
         }
@@ -125,9 +93,14 @@ class VjudgeContestRetriever:
                 headers=headers,
                 params=self.params,
             )
+            with open(cache_path, "w") as f:
+                json.dump(response.json(), f, ensure_ascii=False)
             data: list[list] = response.json()["data"]
 
-        self.retrieved_contests = list(map(self._to_contest, data))
+        self.retrieved_contests = list(map(self._to_db_contest, data))
+
+        for contest in self.retrieved_contests:
+            contest.commit_to_db()
 
         return self.retrieved_contests
 
@@ -137,9 +110,4 @@ if __name__ == "__main__":
         title=acmana.config["vjudge"]["instances"][0]["title_prefix"],
         div=acmana.config["vjudge"]["instances"][0]["div"],
     )
-
-    vjudge_contest_retriever.get_contests()
-
-    for contest in vjudge_contest_retriever.retrieved_contests:
-        logger.info(contest)
-        contest.commit_to_db()
+    vjudge_contest_retriever.get_contests_and_commit_to_db()
