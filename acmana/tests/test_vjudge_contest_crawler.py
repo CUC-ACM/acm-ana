@@ -16,13 +16,6 @@ class TestVjudgeContestCrawler(unittest.TestCase):
         vjudge_contest_crawler = VjudgeContestCrawler(contest_id=contest_id, div="div1")
 
         vjudge_contest_crawler.db_vjudge_contest.commit_to_db()
-        # total_competion_ranking_items = vjudge_contest_crawler.total_competion_ranking_items
-        # _, total_competion_ranking_items = VjudgeRankingItem.simulate_contest(
-        #     only_attendance=False,
-        #     vjudge_contest_crawler=vjudge_contest_crawler,
-        # )
-
-        # 测试确保 get_vjudge_ranking_items() 不对 vjudge_contest_crawler.attendance_until_now_ranking_items 产生影响
 
         def sub_test(username: str, competition_rank: int, penalty: datetime.timedelta):
             """测试排名前三名"""
@@ -40,36 +33,15 @@ class TestVjudgeContestCrawler(unittest.TestCase):
         # 测试 youngwind (22物联网黄屹)
         sub_test("youngwind", 1, datetime.timedelta(hours=5, minutes=44, seconds=27))
 
-        # account: VjudgeAccount = VjudgeAccount.query_from_username("youngwind")  # type: ignore
-        # self.assertIsNotNone(account)
-        # vjudge_ranking: VjudgeRanking = VjudgeRanking.index_query(
-        #     account_id=account.id, contest_id=contest_id  # type: ignore
-        # )
-        # self.assertIsNotNone(vjudge_ranking)
-        # accurate_penalty = datetime.timedelta(hours=5, minutes=44, seconds=27)
-        # self.assertEqual(vjudge_ranking.penalty, accurate_penalty)
-
         # 测试 fzhan (22电信车宜峰)
         sub_test("fzhan", 2, datetime.timedelta(hours=10, minutes=6, seconds=43))
-        # accurate_penalty = datetime.timedelta(hours=10, minutes=6, seconds=43)
-        # self.assertEqual(
-        #     total_competion_ranking_items[1].total_penalty, accurate_penalty
-        # )
 
         # 测试 sjkw (黄采薇) 「带有重复提交已经通过的题」
         logger.debug(f"测试 sjkw (黄采薇) 「带有重复提交已经通过的题」")
         sub_test("sjkw", 3, datetime.timedelta(hours=5, minutes=20, seconds=37))
 
-        # accurate_penalty = datetime.timedelta(hours=5, minutes=20, seconds=37)
-        # self.assertEqual(
-        #     total_competion_ranking_items[2].total_penalty, accurate_penalty
-        # )
-
         # No.14 ADITLINK (张博)
         sub_test("ADITLINK", 14, datetime.timedelta(hours=3, minutes=25, seconds=56))
-
-        # logger.debug(f"测试 No.14 ADITLINK (张博)")
-        # self.assertEqual(total_competion_ranking_items[13].account.username, "ADITLINK")
 
         logger.debug(f"测试过题数为 0 的同学的排名")
 
@@ -82,13 +54,6 @@ class TestVjudgeContestCrawler(unittest.TestCase):
             )
             self.assertIsNotNone(vjudge_ranking)
             self.assertEqual(vjudge_ranking.competition_rank, rank)
-            # self.assertEqual(
-            #     total_competion_ranking_items[rank].account.username, username
-            # )
-            # self.assertEqual(
-            #     total_competion_ranking_items[rank].total_penalty, datetime.timedelta()
-            # )
-            # self.assertEqual(total_competion_ranking_items[rank].solved_cnt, 0)
 
         # ovovo (王玮泽)
         test_0_solve_cnt(rank=17, username="ovovo")
@@ -104,7 +69,7 @@ class TestVjudgeContestCrawler(unittest.TestCase):
         test_0_solve_cnt(rank=22, username="sun_song")
 
     # def test_vjudge_attentance_ranking_items(self):
-    #     """测试 vjudge_attentance_ranking_items(参加了课程的同学的排名)"""
+    #     """测试参加了课程的同学的得分"""
     #     contest_id = 587010
     #     vjudge_contest_crawler = VjudgeContestCrawler(contest_id=contest_id, div="div1")
 
