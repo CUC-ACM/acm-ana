@@ -122,7 +122,7 @@ class VjudgeContestCrawler:
         return f"VjudgeContestCrawler(vjudge_contest={self.db_vjudge_contest}, submissions={self.submissions}, participants={self.participants_vjudge_account})"
 
     def crawl_ranking_metadata_json(self) -> dict:
-        cache_path = f"acmana/tmp/vjudge_rank_{self._contest_id}.json"
+        cache_path = f"acmana/tmp/cache/vjudge_rank_{self._contest_id}.json"
         if os.getenv("DEBUG_CACHE", "False").lower() in (
             "true",
             "1",
