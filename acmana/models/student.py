@@ -43,3 +43,9 @@ class Student(SQLBase):
         """根据学号查询"""
         stmt = sqlsession.query(Student).filter_by(id=student_id)
         return sqlsession.execute(stmt).scalar_one_or_none()
+
+    @staticmethod
+    def query_all() -> list["Student"]:
+        """查询所有学生"""
+        stmt = sqlsession.query(Student)
+        return sqlsession.execute(stmt).scalars().all()  # type: ignore
