@@ -12,7 +12,9 @@ logger = logging.getLogger(__name__)
 
 def retrive_vjudge_contests():
     for div, instance in dict(acmana.config["vjudge"]["instances"]).items():
-        logger.info(f"Retriving {div} contests from '{instance['title_prefix']}'......")
+        logger.info(
+            f"Retriving {div} contests from title_prefix '{instance['title_prefix']}'......"
+        )
         retriever = VjudgeContestRetriever(title=instance["title_prefix"], div=div)
         retriever.get_contests_and_commit_to_db()
         for contest in retriever.retrieved_contests:
@@ -24,10 +26,13 @@ def retrive_vjudge_contests():
 def export_vjudge_contests_to_excel():
     """将 `数据库` 中的 VjudgeContest 导出到 Excel 文件中"""
     for div, instance in dict(acmana.config["vjudge"]["instances"]).items():
-        logger.info(f"Exporting {div} contests from '{instance['title_prefix']}'......")
+        logger.info(
+            f"Exporting {div} contests from title_prefix '{instance['title_prefix']}'......"
+        )
         total_excel_file_path: str = os.path.join(
             "outputs", instance["export_filename"] + "(全部同学).xlsx"
         )
+        logger.warning(f"Exporting to {total_excel_file_path}")
         total_excel_book = ExcelBook(
             path=total_excel_file_path,
             div=div,
@@ -39,6 +44,7 @@ def export_vjudge_contests_to_excel():
         attendance_excel_file_path: str = os.path.join(
             "outputs", instance["export_filename"] + "(选课同学).xlsx"
         )
+        logger.warning(f"Exporting to {attendance_excel_file_path}")
         attendance_excel_book = ExcelBook(
             path=attendance_excel_file_path,
             div=div,
