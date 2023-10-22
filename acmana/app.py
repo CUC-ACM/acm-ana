@@ -6,6 +6,7 @@ from acmana.crawler.vjudge.contest import VjudgeContestCrawler
 from acmana.crawler.vjudge.title_retriver import VjudgeContestRetriever
 from acmana.export.vjudge.vjudge_ranking import ExcelBook
 from acmana.models.contest.vjudge_contest import VjudgeContest
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +20,12 @@ def retrive_vjudge_contests():
         retriever.get_contests_and_commit_to_db()
         for contest in retriever.retrieved_contests:
             logger.info(f"Retriving {contest} rank......")
-            vjudge_contest_crawler = VjudgeContestCrawler(contest.id, div=div)
-            vjudge_contest_crawler.db_vjudge_contest.commit_to_db()
+            try:
+                vjudge_contest_crawler = VjudgeContestCrawler(contest.id, div=div)
+                vjudge_contest_crawler.db_vjudge_contest.commit_to_db()
+            except requests.exceptions.JSONDecodeError:
+                logger.critical(f"JSONDecodeError: {contest}。这场比赛可能设置有密码，跳过......")
+                continue
 
 
 def export_vjudge_contests_to_excel():
