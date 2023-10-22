@@ -61,15 +61,15 @@ class VjudgeContest(ContestBase, SQLBase):
 
             return cnt
 
-    @staticmethod
-    def get_only_attendance_rankings() -> List["VjudgeRanking"]:
+    def get_only_attendance_rankings(self) -> List["VjudgeRanking"]:
         """获取所有参加了比赛的 VjudgeRanking"""
         return (
             sqlsession.query(VjudgeRanking)
             .join(VjudgeAccount)
             .join(Student)
-            .where(VjudgeRanking.contest_id == VjudgeContest.id)
+            .where(VjudgeRanking.contest_id == self.id)
             .where(Student.in_course == True)
+            .order_by(Student.id)
             # .where(VjudgeRanking.competition_rank != None)
             .all()
         )
