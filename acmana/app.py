@@ -60,4 +60,7 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    # run()
+    from acmana.models.account.vjudge_account import VjudgeAccount
+
+    print(VjudgeAccount.query_from_account_id(582048))

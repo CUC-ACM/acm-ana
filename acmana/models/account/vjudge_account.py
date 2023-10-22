@@ -25,6 +25,10 @@ class VjudgeAccount(OJAccountBase, SQLBase):
         return f"VjudgeAccount(id={self.id}, username={self.username}, nickname={self.nickname}, student={self.student})"
 
     @staticmethod
+    def query_all() -> List["VjudgeAccount"]:
+        return sqlsession.query(VjudgeAccount).all()
+
+    @staticmethod
     def query_from_username(username: str) -> Optional["VjudgeAccount"]:
         stmt = select(VjudgeAccount).where(VjudgeAccount.username == username)
 

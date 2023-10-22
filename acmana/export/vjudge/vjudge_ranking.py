@@ -1,7 +1,9 @@
 import pandas as pd
 from xlsxwriter import Workbook
 
+from acmana.models.account.vjudge_account import VjudgeAccount
 from acmana.models.contest.vjudge_contest import VjudgeContest
+from acmana.models.ranking.vjudge_ranking import VjudgeRanking
 
 
 class ExcelBook:
@@ -31,9 +33,13 @@ class ExcelBook:
         self.sheets: list["Sheet"] = []
 
     def write_book(self):
+        self.summary_sheet: SummarySheet = SummarySheet(self)
+        self.sheets.append(self.summary_sheet)
         for vjudge_contest in self.finished_vjudge_contests:
             self.sheets.append(Sheet(self, vjudge_contest))
-            self.sheets[-1].write_sheet()
+
+        for sheet in self.sheets:
+            sheet.write_sheet()
         self.writer.close()
 
 
@@ -55,10 +61,11 @@ class Sheet:
         self.df = pd.DataFrame()
 
         if self.excel_book.only_attendance:  # 只计算选课的同学的排名（排除未选课的同学）
-            rankings = filter(
-                lambda x: x.account.student is not None and x.account.student.in_course,
-                self.vjudge_contest.rankings,
-            )
+            # rankings = filter(
+            #     lambda x: x.account.student is not None and x.account.student.in_course,
+            #     self.vjudge_contest.rankings,
+            # )
+            rankings = self.vjudge_contest.get_only_attendance_rankings()
         else:  # 计算所有参加比赛的同学的排名
             rankings = self.vjudge_contest.rankings
 
@@ -174,6 +181,92 @@ class Sheet:
             }
         )
         worksheet.merge_range("A1:I1", self.sheet_title, title_format)
+
+
+class SummarySheet(Sheet):
+    def __init__(self, excel_book: "ExcelBook") -> None:
+        self.excel_book: ExcelBook = excel_book
+        self.sheet_name: str = "Summary"
+        self.sheet_title: str = self.sheet_name
+        self.df = pd.DataFrame()
+        self.vjudge_accounts: list[VjudgeAccount] = VjudgeAccount.query_all()
+
+        if excel_book.only_attendance:
+            self.sheet_title += "(选课同学)"
+        else:
+            self.sheet_title += "(所有同学)"
+        self.df = pd.DataFrame()
+        for vjudge_account in self.vjudge_accounts:
+            if self.excel_book.div:
+                vjudge_account.rankings = list(
+                    filter(
+                        lambda x: x.contest.div == self.excel_book.div,
+                        vjudge_account.rankings,
+                    )
+                )
+            if self.excel_book.only_attendance:
+                vjudge_account.rankings = list(
+                    filter(
+                        lambda x: x.account.student is not None
+                        and x.account.student.in_course,
+                        vjudge_account.rankings,
+                    )
+                )
+            self.df = pd.concat(
+                [
+                    self.df,
+                    pd.DataFrame(
+                        {
+                            "姓名": [
+                                vjudge_account.student.real_name
+                                if vjudge_account.student is not None
+                                else ""
+                            ],
+                            "学号": [
+                                vjudge_account.student.id
+                                if vjudge_account.student is not None
+                                else ""
+                            ],
+                            "Nickname": [vjudge_account.nickname],
+                            "Username": [vjudge_account.username],
+                            "Score": [
+                                sum(
+                                    map(
+                                        lambda x: x.get_score(
+                                            only_among_attendance=self.excel_book.only_attendance
+                                        ),
+                                        vjudge_account.rankings,
+                                    )
+                                )
+                            ],
+                            "Solved": [
+                                sum(
+                                    map(
+                                        lambda x: x.solved_cnt,
+                                        vjudge_account.rankings,
+                                    )
+                                )
+                            ],
+                            "Upsolved": [
+                                sum(
+                                    map(
+                                        lambda x: x.upsolved_cnt,
+                                        vjudge_account.rankings,
+                                    )
+                                )
+                            ],
+                            "Penalty": [
+                                sum(
+                                    map(  # type: ignore
+                                        lambda x: x.penalty.total_seconds(),
+                                        vjudge_account.rankings,
+                                    )
+                                )
+                            ],
+                        }
+                    ),
+                ]
+            )
 
 
 if __name__ == "__main__":

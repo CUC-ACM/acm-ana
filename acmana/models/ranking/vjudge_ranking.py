@@ -4,7 +4,9 @@ from sqlalchemy import ForeignKey, Index, Select, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from acmana.models import SQLBase, sqlsession
+from acmana.models.account.vjudge_account import VjudgeAccount
 from acmana.models.ranking import RankingBase
+from acmana.models.student import Student
 
 if TYPE_CHECKING:
     from acmana.models.account.vjudge_account import VjudgeAccount
@@ -20,6 +22,10 @@ class VjudgeRanking(RankingBase, SQLBase):
     account: Mapped["VjudgeAccount"] = relationship(back_populates="rankings")
     contest_id: Mapped[int] = mapped_column(ForeignKey("vjudge_contest.id"))
     contest: Mapped["VjudgeContest"] = relationship(back_populates="rankings")
+
+    @staticmethod
+    def query_all() -> list["VjudgeRanking"]:
+        return sqlsession.query(VjudgeRanking).all()
 
     @staticmethod
     def index_query(
@@ -44,20 +50,34 @@ class VjudgeRanking(RankingBase, SQLBase):
             return None
 
         # 只计算在课程中的同学的排名（排除未选课的同学）
-        attendance_competiton_rank = list(
-            filter(
-                lambda x: x.competition_rank is not None  # 有排名(参加了比赛)
-                and x.account.student  # 在 student 数据库中
-                and x.account.student.in_course,  # 参加了课程
-                self.contest.rankings,
-            )
-        )
+        # attendance_competiton_rank = list(
+        #     filter(
+        #         lambda x: x.competition_rank is not None  # 有排名(参加了比赛)
+        #         and x.account.student  # 在 student 数据库中
+        #         and x.account.student.in_course,  # 参加了课程
+        #         self.contest.rankings,
+        #     )
+        # )
+        sqlattendance_competiton_rank = (
+            sqlsession.query(VjudgeRanking)
+            .join(VjudgeAccount)
+            .join(Student)
+            .where(VjudgeRanking.contest_id == self.contest_id)
+            .where(VjudgeRanking.competition_rank != None)
+            .where(Student.in_course == True)
+            .order_by(VjudgeRanking.competition_rank)
+        ).all()
         # 从高到低排序
-        attendance_competiton_rank.sort(
-            key=lambda x: x.competition_rank  # type: ignore
-        )  # 选课的同学按照总排名从小到大排序
+        # attendance_competiton_rank.sort(
+        #     key=lambda x: x.competition_rank  # type: ignore
+        # )  # 选课的同学按照总排名从小到大排序
 
-        for i, ranking in enumerate(attendance_competiton_rank, 1):
+        # assert len(sqlattendance_competiton_rank)  == len(attendance_competiton_rank)
+        # for i, j in zip(sqlattendance_competiton_rank, attendance_competiton_rank):
+        #     assert i.account_id == j.account_id
+        #     assert i.competition_rank == j.competition_rank
+
+        for i, ranking in enumerate(sqlattendance_competiton_rank, 1):
             if ranking.account_id == self.account_id:
                 return i
 
