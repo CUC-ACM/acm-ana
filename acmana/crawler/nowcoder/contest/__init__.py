@@ -91,7 +91,7 @@ class NowcoderContestCrawler:
                 nowcoder_ranking_item.competition_rank = api_ranking["ranking"]
                 nowcoder_ranking_item.solved_cnt = api_ranking["acceptedCount"]
                 nowcoder_ranking_item.penalty = datetime.timedelta(
-                    milliseconds=api_ranking["penaltyTime"] / 1000
+                    milliseconds=api_ranking["penaltyTime"]
                 )
 
             self.db_nowcoder_contest.rankings.append(nowcoder_ranking_item)
