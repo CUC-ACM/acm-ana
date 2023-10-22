@@ -116,7 +116,8 @@ async def async_read_questionnaire_update_db(df: pd.DataFrame, concurrency: int 
             except ValueError:
                 logger.error(
                     f"Vjudge网昵称获取失败: {questionnaire.name}, username: {questionnaire.vjudge_username}: {questionnaire.vjudge_nickename}, "
-                    f"可能是由于 VJUDGE_COOKIE 环境变量设置错误或过期，或者爬取速度过快导致的，skipping update_vjudge_db......"
+                    f"可能是由于 VJUDGE_COOKIE 环境变量设置错误或过期或者爬取速度过快导致的，skipping update_vjudge_db......\n"
+                    "请更正后并 unset 环境变量 `DEBUG_CACHE`"
                 )
                 return
             logger.info(
