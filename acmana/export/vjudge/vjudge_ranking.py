@@ -147,7 +147,8 @@ class Sheet:
             {
                 "bold": True,
                 "text_wrap": True,
-                "valign": "top",
+                "align": "center",
+                "valign": "vcenter",
                 "fg_color": "#D7E4BC",
                 "border": 1,
             }
