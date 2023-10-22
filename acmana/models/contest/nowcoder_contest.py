@@ -1,8 +1,8 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 from sqlalchemy.orm import Mapped, relationship
 
-from acmana.models import SQLBase
+from acmana.models import SQLBase, sqlsession
 from acmana.models.contest import ContestBase
 
 if TYPE_CHECKING:
@@ -16,3 +16,11 @@ class NowcoderContest(ContestBase, SQLBase):
     rankings: Mapped[List["NowcoderRanking"]] = relationship(
         back_populates="contest", cascade="all, delete-orphan"
     )
+
+    @staticmethod
+    def query_from_id(id: int) -> Optional["NowcoderContest"]:
+        return (
+            sqlsession.query(NowcoderContest)
+            .where(NowcoderContest.id == id)
+            .one_or_none()
+        )
