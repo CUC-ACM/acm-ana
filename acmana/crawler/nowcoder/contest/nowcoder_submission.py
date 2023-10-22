@@ -52,7 +52,7 @@ async def get_submission_page(
         submission_jsons.append(await response.json())
 
 
-async def fetch_contest_submisions(contest_id: int):
+async def fetch_contest_submisions(contest_id: int) -> list[dict]:
     submission_jsons: list[dict] = []
     async with aiohttp.ClientSession() as client_session:
         await get_submission_page(contest_id, 1, client_session, submission_jsons)
