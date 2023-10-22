@@ -189,7 +189,12 @@ class SummarySheet(Sheet):
         self.sheet_name: str = "Summary"
         self.sheet_title: str = self.sheet_name
         self.df = pd.DataFrame()
-        self.vjudge_accounts: list[VjudgeAccount] = VjudgeAccount.query_all()
+        if self.excel_book.only_attendance:
+            self.vjudge_accounts: list[
+                VjudgeAccount
+            ] = VjudgeAccount.query_all_attendance()
+        else:
+            self.vjudge_accounts: list[VjudgeAccount] = VjudgeAccount.query_all()
 
         if excel_book.only_attendance:
             self.sheet_title += "(选课同学)"

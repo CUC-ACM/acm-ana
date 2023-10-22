@@ -5,6 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from acmana.models import SQLBase, sqlsession
 from acmana.models.account import OJAccountBase
+from acmana.models.student import Student
 
 if TYPE_CHECKING:
     from acmana.models.ranking.vjudge_ranking import VjudgeRanking
@@ -27,6 +28,17 @@ class VjudgeAccount(OJAccountBase, SQLBase):
     @staticmethod
     def query_all() -> List["VjudgeAccount"]:
         return sqlsession.query(VjudgeAccount).all()
+
+    @staticmethod
+    def query_all_attendance() -> List["VjudgeAccount"]:
+        """查询参加了 vjudge 比赛的账号"""
+        return (
+            sqlsession.query(VjudgeAccount)
+            .join(Student)
+            .where(Student.in_course == True)
+            .order_by(Student.id)
+            .all()
+        )
 
     @staticmethod
     def query_from_username(username: str) -> Optional["VjudgeAccount"]:
