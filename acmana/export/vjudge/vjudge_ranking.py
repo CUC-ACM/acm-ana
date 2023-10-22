@@ -104,6 +104,7 @@ class Sheet:
                             "Solved": [ranking.solved_cnt],
                             "Upsolved": [ranking.upsolved_cnt],
                             "Penalty": [str(ranking.penalty)],
+                            "选课": [crt_ranking_is_in_course],
                         }
                     ),
                 ]
@@ -197,7 +198,9 @@ class SummarySheet(Sheet):
                 VjudgeAccount
             ] = VjudgeAccount.query_all_attendance()
         else:
-            self.vjudge_accounts: list[VjudgeAccount] = VjudgeAccount.query_all_append_unregistered()
+            self.vjudge_accounts: list[
+                VjudgeAccount
+            ] = VjudgeAccount.query_all_append_unregistered()
 
         if excel_book.only_attendance:
             self.sheet_title += "(选课同学)"
@@ -271,6 +274,7 @@ class SummarySheet(Sheet):
                                     )
                                 )
                             ],
+                            "选课": [vjudge_account.student.in_course if vjudge_account.student else ""]
                         }
                     ),
                 ]
