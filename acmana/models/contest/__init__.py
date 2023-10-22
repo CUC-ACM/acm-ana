@@ -21,6 +21,9 @@ class ContestBase:
         String()
     )  # 比赛组别："div1", "div2", "div1 & div2"
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self.title}, id: {self.id}, div: {self.div}, {self.begin} ~ {self.end})"
+
     @property
     def length(self) -> datetime.timedelta:
         return self.end - self.begin
