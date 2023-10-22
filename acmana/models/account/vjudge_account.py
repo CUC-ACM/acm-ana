@@ -30,6 +30,22 @@ class VjudgeAccount(OJAccountBase, SQLBase):
         return sqlsession.query(VjudgeAccount).all()
 
     @staticmethod
+    def query_all_append_unregistered() -> List["VjudgeAccount"]:
+        """查询所有 vjudge 账号，包括未注册的"""
+        registered = (
+            sqlsession.query(VjudgeAccount)
+            .where(VjudgeAccount.student_id != None)
+            .order_by(VjudgeAccount.student_id)
+            .all()
+        )
+        unregistered = (
+            sqlsession.query(VjudgeAccount)
+            .where(VjudgeAccount.student_id == None)
+            .all()
+        )
+        return registered + unregistered
+
+    @staticmethod
     def query_all_attendance() -> List["VjudgeAccount"]:
         """查询参加了 vjudge 比赛的账号"""
         return (

@@ -67,7 +67,7 @@ class Sheet:
             # )
             rankings = self.vjudge_contest.get_only_attendance_rankings()
         else:  # 计算所有参加比赛的同学的排名
-            rankings = self.vjudge_contest.rankings
+            rankings = self.vjudge_contest.get_rankings_append_unregistered()
 
         for ranking in rankings:
             crt_ranking_is_in_course: bool = bool(
@@ -180,7 +180,10 @@ class Sheet:
                 "fg_color": "yellow",
             }
         )
-        worksheet.merge_range("A1:I1", self.sheet_title, title_format)
+        col_num = len(self.df.columns)
+        worksheet.merge_range(
+            f"A1:{chr(64 + col_num)}1", self.sheet_title, title_format
+        )
 
 
 class SummarySheet(Sheet):
@@ -194,7 +197,7 @@ class SummarySheet(Sheet):
                 VjudgeAccount
             ] = VjudgeAccount.query_all_attendance()
         else:
-            self.vjudge_accounts: list[VjudgeAccount] = VjudgeAccount.query_all()
+            self.vjudge_accounts: list[VjudgeAccount] = VjudgeAccount.query_all_append_unregistered()
 
         if excel_book.only_attendance:
             self.sheet_title += "(选课同学)"
