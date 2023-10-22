@@ -70,13 +70,13 @@ class Sheet:
         if datetime.datetime.utcnow() < self.deadline:
             beijing_tz = pytz.timezone("Asia/Shanghai")
             self.ddl_info = (
-                f"(upsolved 更新至 "
+                f"(Upsolved 更新至 "
                 + f"{pytz.utc.localize(datetime.datetime.utcnow(), is_dst=None).astimezone(beijing_tz).strftime('%m-%d %H:%M')}"
                 + "；截止日期 "
                 + f"{pytz.utc.localize(self.deadline, is_dst=None).astimezone(beijing_tz).strftime('%m-%d %H:%M')})"
             )
 
-            self.sheet_title = self.sheet_title + self.ddl_info
+            # self.sheet_title = self.sheet_title + self.ddl_info
         if self.excel_book.only_attendance:  # 只计算选课的同学的排名（排除未选课的同学）
             rankings = self.vjudge_contest.get_only_attendance_rankings()
         else:  # 计算所有参加比赛的同学的排名
@@ -147,14 +147,47 @@ class Sheet:
 
     def write_sheet(self):
         # writer = pd.ExcelWriter()
+        start_row = 2  # start writing at this row number(0-indexed)
+        if getattr(self, "ddl_info", None):
+            start_row += 1
+
         self.df.to_excel(
             self.excel_book.writer,
-            startrow=2,
+            startrow=start_row,
             sheet_name=self.sheet_name,
             index=False,
             header=False,
         )
+
         worksheet = self.excel_book.writer.sheets[self.sheet_name]
+
+        # Add a title row.
+        title_format = self.excel_book.workbook.add_format(  # type: ignore
+            {
+                "bold": 1,
+                "border": 1,
+                "align": "center",
+                "valign": "vcenter",
+                "fg_color": "yellow",
+            }
+        )
+        col_num = len(self.df.columns)
+        worksheet.merge_range(
+            f"A1:{chr(64 + col_num)}1", self.sheet_title, title_format
+        )
+
+        if getattr(self, "ddl_info", None):
+            ddl_format = self.excel_book.workbook.add_format(  # type: ignore
+                {
+                    "bold": 0,
+                    "border": 0,
+                    "align": "center",
+                    "valign": "vcenter",
+                    "fg_color": "#CCFFFF",
+                }
+            )
+            worksheet.merge_range(f"A2:{chr(64 + col_num)}2", self.ddl_info, ddl_format)
+
         # Write the column headers with the defined format.
         header_format = self.excel_book.workbook.add_format(  # type: ignore
             {
@@ -167,7 +200,7 @@ class Sheet:
             }
         )
         for col_num, value in enumerate(self.df.columns.values):
-            worksheet.write(1, col_num, value, header_format)
+            worksheet.write(start_row - 1, col_num, value, header_format)
 
         # Set the column width and format.
         for idx, col in enumerate(self.df):  # loop through all columns
@@ -184,21 +217,6 @@ class Sheet:
                 + 1
             )  # adding a little extra space
             worksheet.set_column(idx, idx, max_len)  # set column width
-
-        # Add a title row.
-        title_format = self.excel_book.workbook.add_format(  # type: ignore
-            {
-                "bold": 1,
-                "border": 1,
-                "align": "center",
-                "valign": "vcenter",
-                "fg_color": "yellow",
-            }
-        )
-        col_num = len(self.df.columns)
-        worksheet.merge_range(
-            f"A1:{chr(64 + col_num)}1", self.sheet_title, title_format
-        )
 
 
 class SummarySheet(Sheet):
