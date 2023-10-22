@@ -32,6 +32,7 @@ async def get_ranking_page(
 
 
 async def fetch_contest_ranking(contest_id: int) -> list[dict]:
+    """获取比赛终榜，其直接返回 `比赛终榜的全部排名列表` 而过滤掉其他的 api page 分页信息和一些关于比赛的元数据"""
     ranking_pages: list[dict] = []
     async with aiohttp.ClientSession() as client_session:
         await get_ranking_page(contest_id, 1, client_session, ranking_pages)
@@ -43,15 +44,16 @@ async def fetch_contest_ranking(contest_id: int) -> list[dict]:
             for page in range(2, total_page + 1)
         ]
         await asyncio.gather(*tasks)
-    return ranking_pages
+
+    rankings: list[dict] = []
+    for ranking_page in ranking_pages:
+        rankings.extend(ranking_page["data"]["rankData"])
+
+    return rankings
 
 
 if __name__ == "__main__":
     contest_id = 67345
+    rankings = asyncio.run(fetch_contest_ranking(67345))
     with open(f"acmana/tmp/nowcoder_rank_{contest_id}.json", "w") as f:
-        json.dump(
-            asyncio.run(fetch_contest_ranking(67345)),
-            f,
-            indent=4,
-            ensure_ascii=False,
-        )
+        rankings = json.dump(rankings, f, indent=4, ensure_ascii=False)
