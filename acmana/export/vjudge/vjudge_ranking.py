@@ -1,6 +1,10 @@
+import datetime
+
 import pandas as pd
+import pytz
 from xlsxwriter import Workbook
 
+import acmana
 from acmana.models.account.vjudge_account import VjudgeAccount
 from acmana.models.contest.vjudge_contest import VjudgeContest
 from acmana.models.ranking.vjudge_ranking import VjudgeRanking
@@ -49,6 +53,9 @@ class Sheet:
         self.vjudge_contest: VjudgeContest = vjudge_contest
         assert self.vjudge_contest is not None
         self.sheet_title: str = self.vjudge_contest.title
+        self.deadline: datetime.datetime = self.vjudge_contest.end + datetime.timedelta(
+            days=acmana.config["upsolve"]["expiration"]
+        )
         self.sheet_name: str = self.vjudge_contest.title
         if self.excel_book.sheet_name_remover:
             self.sheet_name = self.sheet_name.replace(
@@ -60,11 +67,17 @@ class Sheet:
             self.sheet_title += "(所有同学)"
         self.df = pd.DataFrame()
 
+        if datetime.datetime.utcnow() < self.deadline:
+            beijing_tz = pytz.timezone("Asia/Shanghai")
+            self.ddl_info = (
+                f"(upsolved 更新至 "
+                + f"{pytz.utc.localize(datetime.datetime.utcnow(), is_dst=None).astimezone(beijing_tz).strftime('%m-%d %H:%M')}"
+                + "；截止日期 "
+                + f"{pytz.utc.localize(self.deadline, is_dst=None).astimezone(beijing_tz).strftime('%m-%d %H:%M')})"
+            )
+
+            self.sheet_title = self.sheet_title + self.ddl_info
         if self.excel_book.only_attendance:  # 只计算选课的同学的排名（排除未选课的同学）
-            # rankings = filter(
-            #     lambda x: x.account.student is not None and x.account.student.in_course,
-            #     self.vjudge_contest.rankings,
-            # )
             rankings = self.vjudge_contest.get_only_attendance_rankings()
         else:  # 计算所有参加比赛的同学的排名
             rankings = self.vjudge_contest.get_rankings_append_unregistered()
@@ -275,7 +288,11 @@ class SummarySheet(Sheet):
                                     )
                                 )
                             ],
-                            "选课": [vjudge_account.student.in_course if vjudge_account.student else ""]
+                            "选课": [
+                                vjudge_account.student.in_course
+                                if vjudge_account.student
+                                else ""
+                            ],
                         }
                     ),
                 ]
