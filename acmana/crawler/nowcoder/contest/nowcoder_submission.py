@@ -18,10 +18,17 @@ class NowcoderSubmission:
         problem_id: int,
         accepted: bool,
         time: datetime.timedelta,
-        account: NowcoderAccount,
+        db_nowcoder_account: NowcoderAccount,
         contest_crawler: "NowcoderContestCrawler",
     ) -> None:
-        pass
+        self.problem_id = problem_id
+        self.accepted: bool = accepted
+        self.time: datetime.timedelta = time
+        self.db_nowcoder_account: NowcoderAccount = db_nowcoder_account
+        self.contest_crawler: NowcoderContestCrawler = contest_crawler
+
+    def __repr__(self) -> str:
+        return f"account: {self.db_nowcoder_account} promble_id: {self.problem_id}, accepted: {self.accepted}, time: {self.time}"
 
 
 async def get_submission_page(
