@@ -1,6 +1,6 @@
 import logging
 import os
-
+import json
 import acmana
 from acmana.crawler.vjudge.contest import VjudgeContestCrawler
 from acmana.crawler.vjudge.title_retriver import VjudgeContestRetriever
@@ -26,6 +26,11 @@ def retrive_vjudge_contests():
             except requests.exceptions.JSONDecodeError:
                 logger.critical(f"JSONDecodeError: {contest}。这场比赛可能设置有密码，跳过......")
                 continue
+            except json.decoder.JSONDecodeError:
+                logger.critical(
+                    f"JSONDecodeError: {contest}。在之前缓存这场比赛的 api json 时，这场比赛设置有密码。"
+                    f"请检查现在是否还设有密码并 unset 环境变量 `DEBUG_CACHE`"
+                )
 
 
 def export_vjudge_contests_to_excel():
