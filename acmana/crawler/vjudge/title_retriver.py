@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class VjudgeContestRetriever:
     def __init__(
         self,
-        title: str,
+        title_prefix: str,
         div: str,  # div: "", "div1", "div2"
         start: int = 0,
         length: int = 20,
@@ -36,7 +36,7 @@ class VjudgeContestRetriever:
         self.sortCol: int = sortCol  # sort by which column
         self.category: str = category  # all
         self.running: int = running  # 0
-        self.title: str = title
+        self.title_prefix: str = title_prefix
         self.owner: str = owner
         self.unix_timestamp: int = unix_timestamp
         self.params = {
@@ -47,7 +47,7 @@ class VjudgeContestRetriever:
             "sortCol": self.sortCol,
             "category": self.category,
             "running": self.running,
-            "title": self.title,
+            "title": self.title_prefix,
             "owner": self.owner,
             "_": self.unix_timestamp,
         }
@@ -75,7 +75,9 @@ class VjudgeContestRetriever:
         headers = {
             "User-Agent": fake_useragent.UserAgent().random,
         }
-        cache_path = f"acmana/tmp/cache/vjudge_retrive_contests_{self.title}.json"
+        cache_path = (
+            f"acmana/tmp/cache/vjudge_retrive_contests_{self.title_prefix}.json"
+        )
         if os.getenv("DEBUG_CACHE", "False").lower() in (
             "true",
             "1",
@@ -86,7 +88,7 @@ class VjudgeContestRetriever:
                 data: list[list] = json.load(f)["data"]
         else:
             logger.info(
-                f"Getting contests from vjudge.net with title '{self.title}'......"
+                f"Getting contests from vjudge.net with title '{self.title_prefix}'......"
             )
             response = requests.get(
                 f"https://vjudge.net/contest/data",
@@ -107,7 +109,7 @@ class VjudgeContestRetriever:
 
 if __name__ == "__main__":
     vjudge_contest_retriever = VjudgeContestRetriever(
-        title=acmana.config["vjudge"]["instances"][0]["title_prefix"],
+        title_prefix=acmana.config["vjudge"]["instances"][0]["title_prefix"],
         div=acmana.config["vjudge"]["instances"][0]["div"],
     )
     vjudge_contest_retriever.get_contests_and_commit_to_db()

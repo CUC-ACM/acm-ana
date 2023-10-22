@@ -19,7 +19,9 @@ def retrive_vjudge_contests():
         logger.info(
             f"Retriving {div} contests from title_prefix '{instance['title_prefix']}'......"
         )
-        retriever = VjudgeContestRetriever(title=instance["title_prefix"], div=div)
+        retriever = VjudgeContestRetriever(
+            title_prefix=instance["title_prefix"], div=div
+        )
         retriever.get_contests_and_commit_to_db()
         for contest in retriever.retrieved_contests:
             logger.info(f"Retriving {contest} rank......")
