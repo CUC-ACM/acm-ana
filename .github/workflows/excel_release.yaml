@@ -1,0 +1,35 @@
+name: Weekly Release
+
+on:
+  schedule:
+    - cron: "0 10 * * 3" # 北京时间 18 点
+    - cron: "0 10 * * 6"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+      - name: Install Dependencies
+        run:
+          # 安装所需要的依赖
+          pip3 install -r requirements.txt
+      - name: Run acmana
+        env:
+          VJUDGE_COOKIE: ${{ secrets.VJUDGE_COOKIE }}
+          NOWCODER_COOKIE: ${{ secrets.NOWCODER_COOKIE }}
+        run: python -m acmana
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        with:
+          # release_name: "更新"
+          # release_tag: "v${{ github.run_number }}"
+          files: outputs/**
