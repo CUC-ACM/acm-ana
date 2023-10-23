@@ -4,6 +4,7 @@ on:
   schedule:
     - cron: "0 10 * * 3" # 北京时间 18 点
     - cron: "0 10 * * 6"
+  workflow_dispatch:
 
 jobs:
   release:
