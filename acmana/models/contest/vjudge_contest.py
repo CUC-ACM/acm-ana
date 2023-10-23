@@ -105,6 +105,6 @@ class VjudgeContest(ContestBase, SQLBase):
     def query_finished_contests() -> List["VjudgeContest"]:
         return (
             sqlsession.query(VjudgeContest)
-            .filter(VjudgeContest.end <= datetime.datetime.utcnow())
+            .filter(VjudgeContest.end <= datetime.datetime.now(datetime.timezone.utc))
             .all()
         )

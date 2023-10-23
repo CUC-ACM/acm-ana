@@ -2,12 +2,43 @@ import datetime
 import logging
 from typing import Optional
 
+import pytz
+import sqlalchemy
 from sqlalchemy import DateTime, Select, String, select
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from acmana.models import sqlsession
 
+
 logger = logging.getLogger(__name__)
+
+
+class BeijingDatetime(sqlalchemy.types.TypeDecorator):
+    """参见 https://mike.depalatis.net/blog/sqlalchemy-timestamps.html
+
+    用于将 datetime.datetime 转换为 UTC 时间并存储在数据库中
+    """
+
+    cache_ok = False
+    impl = sqlalchemy.types.DateTime
+
+    LOCAL_TIMEZONE = pytz.timezone("Asia/Shanghai")
+
+    def process_bind_param(self, value: datetime.datetime, dialect):
+        if value.tzinfo is None:
+            # value = value.astimezone(self.BJ_TIMEZONE)
+            raise ValueError(
+                "datetime object must be timezone-aware!需要将 datetime 对象转换为时区感知对象！"
+            )
+
+        return value.astimezone(datetime.timezone.utc)  # 转换为 UTC 时间存储
+
+    def process_result_value(self, value: datetime.datetime, dialect):
+        if value.tzinfo is None:
+            # 数据库中存储的是 UTC 时间，所以需要将其转换为 aware 的 UTC 时间
+            return pytz.utc.localize(value, is_dst=None).astimezone(self.LOCAL_TIMEZONE)
+        else:
+            raise ValueError("SQLite 中的 datetime 对象必须是 unware 的！")
 
 
 class ContestBase:
@@ -15,8 +46,8 @@ class ContestBase:
 
     id: Mapped[int] = mapped_column(primary_key=True)  # 该平台 api 接口的的比赛 id
     title: Mapped[str] = mapped_column(String())  # 比赛名称
-    begin: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=False))
-    end: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=False))
+    begin: Mapped[datetime.datetime] = mapped_column(BeijingDatetime())
+    end: Mapped[datetime.datetime] = mapped_column(BeijingDatetime())
     div: Mapped[Optional[str]] = mapped_column(
         String()
     )  # 比赛组别："div1", "div2", "div1 & div2"

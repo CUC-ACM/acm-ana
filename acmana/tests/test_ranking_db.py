@@ -49,12 +49,14 @@ class TestRankingDB(unittest.TestCase):
                 day=1,
                 hour=5,
                 minute=30,
+                tzinfo=datetime.timezone.utc,
             ),
             end=datetime.datetime(
                 year=2023,
                 month=10,
                 day=1,
                 hour=9,
+                tzinfo=datetime.timezone.utc,
             ),
         )
         self.contest1.commit_to_db(self.testsqlsession)

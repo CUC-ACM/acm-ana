@@ -60,14 +60,18 @@ class VjudgeContestRetriever:
                 title=l[1],
                 id=int(l[0]),
                 div=self.div,
-                begin=datetime.datetime.utcfromtimestamp(int(l[3]) / 1000),
-                end=datetime.datetime.utcfromtimestamp(int(l[4]) / 1000),
+                begin=datetime.datetime.utcfromtimestamp(int(l[3]) / 1000).replace(
+                    tzinfo=datetime.timezone.utc
+                ),
+                end=datetime.datetime.utcfromtimestamp(int(l[4]) / 1000).replace(
+                    tzinfo=datetime.timezone.utc
+                ),
             )
         else:  # 如果数据库中有这个比赛——>更新
             vjudge_contest.title = l[1]
             vjudge_contest.div = self.div
-            vjudge_contest.begin = datetime.datetime.utcfromtimestamp(int(l[3]) / 1000)
-            vjudge_contest.end = datetime.datetime.utcfromtimestamp(int(l[4]) / 1000)
+            vjudge_contest.begin = datetime.datetime.utcfromtimestamp(int(l[3]) / 1000).replace(tzinfo=datetime.timezone.utc)
+            vjudge_contest.end = datetime.datetime.utcfromtimestamp(int(l[4]) / 1000).replace(tzinfo=datetime.timezone.utc)
 
         return vjudge_contest
 

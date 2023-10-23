@@ -25,7 +25,7 @@ def retrive_vjudge_contests():
         retriever.get_contests_and_commit_to_db()
         for contest in retriever.retrieved_contests:
             logger.info(f"Retriving {contest} rank......")
-            if contest.end > datetime.datetime.now():
+            if contest.end > datetime.datetime.now(tz=datetime.timezone.utc):
                 logger.warning(f"Contest {contest} has not ended yet, skip......")
                 continue
 

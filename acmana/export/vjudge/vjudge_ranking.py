@@ -67,13 +67,13 @@ class Sheet:
             self.sheet_title += "(所有同学)"
         self.df = pd.DataFrame()
 
-        if datetime.datetime.utcnow() < self.deadline:
+        if datetime.datetime.now(datetime.timezone.utc) < self.deadline:
             beijing_tz = pytz.timezone("Asia/Shanghai")
             self.ddl_info = (
                 f"(Upsolved 更新至 "
-                + f"{pytz.utc.localize(datetime.datetime.utcnow(), is_dst=None).astimezone(beijing_tz).strftime('%m-%d %H:%M')}"
+                + f"{datetime.datetime.now(datetime.timezone.utc).astimezone(beijing_tz).strftime('%m-%d %H:%M')}"
                 + "；截止日期 "
-                + f"{pytz.utc.localize(self.deadline, is_dst=None).astimezone(beijing_tz).strftime('%m-%d %H:%M')})"
+                + f"{self.deadline.astimezone(beijing_tz).strftime('%m-%d %H:%M')})"
             )
 
             # self.sheet_title = self.sheet_title + self.ddl_info

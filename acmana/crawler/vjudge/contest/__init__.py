@@ -28,7 +28,7 @@ class VjudgeContestCrawler:
         )
         _begin: datetime.datetime = datetime.datetime.utcfromtimestamp(
             int(self._contest_api_metadata["begin"] / 1000)
-        )
+        ).replace(tzinfo=datetime.timezone.utc)
         _end: datetime.datetime = _begin + _length
         self.db_vjudge_contest: VjudgeContest = VjudgeContest.query_from_id(contest_id)  # type: ignore
         if self.db_vjudge_contest is None:
