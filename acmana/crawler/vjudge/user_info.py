@@ -83,7 +83,7 @@ async def get_vjudge_user_id(username: str, session: aiohttp.ClientSession) -> i
             f.write(html)
 
     re_vjudge_account_id = re.compile(
-        r'<li class="list-group-item contact " data-contact-id="(.*)">([\w\W]*)<b>{}</b>([\w\W]*)</li>'.format(
+        r'<li class="list-group-item contact "([\s\S]*)data-contact-id="(.*)">([\w\W]*)<b>{}</b>([\w\W]*)</li>'.format(
             username
         ),
         re.M | re.I,
@@ -91,7 +91,7 @@ async def get_vjudge_user_id(username: str, session: aiohttp.ClientSession) -> i
     matchObj = re_vjudge_account_id.search(html)
 
     if matchObj:
-        uid = int(matchObj.group(1).strip())
+        uid = int(matchObj.group(2).strip())
         logger.info(f"vjudge username: {username}, user_id: {uid}")
         return uid
     else:
