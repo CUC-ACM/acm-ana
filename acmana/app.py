@@ -76,7 +76,7 @@ def export_vjudge_contests_to_excel():
             f"Exporting {div} contests from title_prefix '{instance['title_prefix']}'......"
         )
         total_excel_file_path: str = os.path.join(
-            "outputs", instance["export_filename"] + "(全部同学).xlsx"
+            "outputs", instance["export_filename"] + "_All_Contestant.xlsx"
         )
         logger.warning(f"Exporting to {total_excel_file_path}")
         total_excel_book = VjudgeExcelBook(
@@ -88,7 +88,7 @@ def export_vjudge_contests_to_excel():
         total_excel_book.write_book()
 
         attendance_excel_file_path: str = os.path.join(
-            "outputs", instance["export_filename"] + "(选课同学).xlsx"
+            "outputs", instance["export_filename"] + "_Attendance_Only.xlsx"
         )
         logger.warning(f"Exporting to {attendance_excel_file_path}")
         attendance_excel_book = VjudgeExcelBook(
@@ -107,7 +107,7 @@ def export_nowcoder_contests_to_excel():
             f"Exporting {div} contests from title_prefix '{instance['title_prefix']}'......"
         )
         total_excel_file_path: str = os.path.join(
-            "outputs", instance["export_filename"] + "(全部同学).xlsx"
+            "outputs", instance["export_filename"] + "_All_Contestant.xlsx"
         )
         logger.warning(f"Exporting to {total_excel_file_path}")
         total_excel_book = NowcoderExcelBook(
@@ -119,7 +119,7 @@ def export_nowcoder_contests_to_excel():
         total_excel_book.write_book()
 
         attendance_excel_file_path: str = os.path.join(
-            "outputs", instance["export_filename"] + "(选课同学).xlsx"
+            "outputs", instance["export_filename"] + "_Attendance_Only.xlsx"
         )
         logger.warning(f"Exporting to {attendance_excel_file_path}")
         attendance_excel_book = NowcoderExcelBook(

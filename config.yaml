@@ -9,7 +9,7 @@ vjudge: # vjudge config
     div1: # div1 类别
       title_prefix: "CUC-ACM-2023秋季学期新生" # 检索用的标题
       sheet_name_remover: "CUC-ACM-2023秋季学期" # 用于去除 sheet name 中的前缀
-      export_filename: "CUC-ACM-2023秋季学期新生_Vjudge_div1" # 导出的文件名前缀
+      export_filename: "CUC-ACM-2023-Autumn-Vjudge-div1" # 导出的文件名前缀
 
     # div2: # div2 类别
     #   title_prefix: "CUC-ACM-2023秋季学期新生" # 检索用的标题
@@ -20,7 +20,7 @@ nowcoder: # 牛客 config
     div2: # div1 类别
       title_prefix: "CUC2023秋季新生训练第" # 检索用的标题
       sheet_name_remover: "CUC2023秋季新生训练" # 用于去除 sheet name 中的前缀
-      export_filename: "CUC-ACM-2023秋季学期新生_Nowcoder_div2" # 导出的文件名前缀
+      export_filename: "CUC-ACM-2023-Autumn-Nowcoder-div2" # 导出的文件名前缀
 
     # div2: # div2 类别
     #   title_prefix: "CUC-ACM-2023秋季学期新生" # 检索用的标题
