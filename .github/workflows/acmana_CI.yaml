@@ -22,6 +22,7 @@ jobs:
       - name: Coverage && Unit Test
         env:
           VJUDGE_COOKIE: ${{ secrets.VJUDGE_COOKIE }}
+          NOWCODER_COOKIE: ${{ secrets.NOWCODER_COOKIE }}
         run:
           # 运行测试用例
           coverage run --source=acmana -m unittest
