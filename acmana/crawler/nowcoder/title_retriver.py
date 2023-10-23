@@ -64,10 +64,10 @@ class NowcoderContestRetriever:
             title: str = data_json["contestName"]
             begin: datetime.datetime = datetime.datetime.utcfromtimestamp(
                 data_json["contestStartTime"] / 1000
-            )
+            ).replace(tzinfo=datetime.timezone.utc)
             end: datetime.datetime = datetime.datetime.utcfromtimestamp(
                 data_json["contestEndTime"] / 1000
-            )
+            ).replace(tzinfo=datetime.timezone.utc)
             if end - begin < datetime.timedelta(minutes=20):
                 logger.warning(f"比赛 {title} 的时长小于 20 分钟，跳过")
                 continue

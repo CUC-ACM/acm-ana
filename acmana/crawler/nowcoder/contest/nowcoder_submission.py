@@ -1,13 +1,20 @@
 import asyncio
 import datetime
 import json
+import logging
 import os
+from typing import TYPE_CHECKING
 
 import aiohttp
 import fake_useragent
 
-from acmana.crawler.nowcoder.contest import NowcoderContestCrawler
+from acmana.crawler.nowcoder.contest.nowcoder_ranking_item import NowcoderRankingItem
 from acmana.models.account.nowcoder_account import NowcoderAccount
+
+if TYPE_CHECKING:
+    from acmana.crawler.nowcoder.contest import NowcoderContestCrawler
+
+logger = logging.getLogger(__name__)
 
 cookie = os.environ["NOWCODER_COOKIE"]
 
@@ -17,18 +24,60 @@ class NowcoderSubmission:
         self,
         problem_id: int,
         accepted: bool,
-        time: datetime.timedelta,
+        time_from_begin: datetime.timedelta,
         db_nowcoder_account: NowcoderAccount,
         contest_crawler: "NowcoderContestCrawler",
     ) -> None:
         self.problem_id = problem_id
         self.accepted: bool = accepted
-        self.time: datetime.timedelta = time
+        self.time_from_begin: datetime.timedelta = time_from_begin
         self.db_nowcoder_account: NowcoderAccount = db_nowcoder_account
-        self.contest_crawler: NowcoderContestCrawler = contest_crawler
+        self.contest_crawler: "NowcoderContestCrawler" = contest_crawler
+
+    @classmethod
+    def from_api_submission_dict(
+        cls,
+        api_submission_dict: dict,
+        contest_crawler: "NowcoderContestCrawler",
+    ):
+        problem_id: int = api_submission_dict["problemId"]
+        accepted: bool = (
+            True if api_submission_dict["statusMessage"] == "答案正确" else False
+        )
+        time_from_begin = (
+            datetime.datetime.fromtimestamp(
+                int(api_submission_dict["submitTime"] / 1000)
+            ).replace(tzinfo=datetime.timezone.utc)
+            - contest_crawler.db_nowcoder_contest.begin
+        )
+        nowcoder_account_id = api_submission_dict["userId"]
+        if nowcoder_account_id not in contest_crawler.nowcoder_ranking_items_dict:
+            logger.warning(
+                f"nowcoder account {nowcoder_account_id} not found, create a new one and commit to db......"
+            )
+            contest_crawler.nowcoder_ranking_items_dict[
+                nowcoder_account_id
+            ] = NowcoderRankingItem(
+                nowcoder_account_id=nowcoder_account_id,
+                nowcoder_account_nickename=api_submission_dict["userName"],
+                nowcoder_contest_crawler=contest_crawler,
+            )
+            contest_crawler.nowcoder_ranking_items_dict[
+                nowcoder_account_id
+            ].db_account.commit_to_db()
+
+        return cls(
+            problem_id=problem_id,
+            accepted=accepted,
+            time_from_begin=time_from_begin,
+            db_nowcoder_account=contest_crawler.nowcoder_ranking_items_dict[
+                nowcoder_account_id
+            ].db_account,
+            contest_crawler=contest_crawler,
+        )
 
     def __repr__(self) -> str:
-        return f"account: {self.db_nowcoder_account} promble_id: {self.problem_id}, accepted: {self.accepted}, time: {self.time}"
+        return f"account: {self.db_nowcoder_account} promble_id: {self.problem_id}, accepted: {self.accepted}, time: {self.time_from_begin}"
 
 
 async def get_submission_page(
@@ -60,6 +109,7 @@ async def get_submission_page(
 
 
 async def fetch_contest_submisions(contest_id: int) -> list[dict]:
+    """去除其他信息，只保留提交 `列表`"""
     submission_jsons: list[dict] = []
     async with aiohttp.ClientSession() as client_session:
         await get_submission_page(contest_id, 1, client_session, submission_jsons)
@@ -73,7 +123,16 @@ async def fetch_contest_submisions(contest_id: int) -> list[dict]:
         ]
         await asyncio.gather(*tasks)
     submission_jsons.sort(key=lambda x: x["data"]["basicInfo"]["pageCurrent"])
-    return submission_jsons
+    submission_list: list[dict] = []
+    for submission_json in submission_jsons:
+        submission_list.extend(submission_json["data"]["data"])
+    logger.info(
+        f"fetch {len(submission_list)} submissions from nowcoder contest {contest_id}"
+    )
+    assert submission_jsons[0]["data"]["basicInfo"]["statusCount"] == len(
+        submission_list
+    ), "len(submission_list) 与 submission_jsons 中元数据显示的的总提交数目不一致"
+    return submission_list
 
 
 if __name__ == "__main__":

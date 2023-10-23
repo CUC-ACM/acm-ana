@@ -12,6 +12,10 @@ from acmana.crawler.nowcoder.contest.nowcoder_competition_ranking import (
     fetch_contest_ranking,
 )
 from acmana.crawler.nowcoder.contest.nowcoder_ranking_item import NowcoderRankingItem
+from acmana.crawler.nowcoder.contest.nowcoder_submission import (
+    NowcoderSubmission,
+    fetch_contest_submisions,
+)
 from acmana.models.contest.nowcoder_contest import NowcoderContest
 from acmana.models.ranking.nowcoder_ranking import NowcoderRanking
 
@@ -28,11 +32,14 @@ class NowcoderContestCrawler:
         self._contest_metadata: dict = self.crawl_contest_metadata_json()
         self.db_nowcoder_contest.title = self._contest_metadata["name"]
         self.db_nowcoder_contest.begin = datetime.datetime.utcfromtimestamp(
-            self._contest_metadata["startTime"] / 1000
-        )
+            self._contest_metadata["startTime"] / 1000,
+        ).replace(tzinfo=datetime.timezone.utc)
         self.db_nowcoder_contest.end = datetime.datetime.utcfromtimestamp(
             self._contest_metadata["endTime"] / 1000
-        )
+        ).replace(tzinfo=datetime.timezone.utc)
+        self.nowcoder_ranking_items_dict: dict[
+            int, NowcoderRankingItem
+        ] = {}  # User ID -> NowcoderRankingItem
 
     def crawl_contest_metadata_json(self) -> dict:
         """获取比赛的基础信息"""
@@ -68,18 +75,18 @@ class NowcoderContestCrawler:
             raise RuntimeError(f"比赛 {self.db_nowcoder_contest} 信息获取失败")
 
     def get_competition_ranking(self):
-        """从 API 接口中获取比赛结束为止的排名信息（不包含补题）
+        """从 API 接口中获取比赛结束为止的排名信息和题目通过信息（不包含补题）
         这里不需管理员权限，因此不需要登录 cookies"""
         api_ranking_list = asyncio.run(
             fetch_contest_ranking(self.db_nowcoder_contest.id)
         )
         for api_ranking in api_ranking_list:
-            nowcoder_ranking_item = NowcoderRanking.index_query(
+            db_nowcoder_ranking_item = NowcoderRanking.index_query(
                 contest_id=self.db_nowcoder_contest.id,
                 account_id=api_ranking["uid"],
             )
-            if nowcoder_ranking_item is None:  # 数据库中没有这个排名信息——>新建
-                nowcoder_ranking_item = NowcoderRanking(
+            if db_nowcoder_ranking_item is None:  # 数据库中没有这个排名信息——>新建
+                db_nowcoder_ranking_item = NowcoderRanking(
                     account_id=api_ranking["uid"],
                     contest_id=self.db_nowcoder_contest.id,
                     competition_rank=api_ranking["ranking"],
@@ -88,19 +95,58 @@ class NowcoderContestCrawler:
                     penalty=datetime.timedelta(milliseconds=api_ranking["penaltyTime"]),
                 )
             else:  # 数据库中已经有这个排名信息——>更新
-                nowcoder_ranking_item.competition_rank = api_ranking["ranking"]
-                nowcoder_ranking_item.solved_cnt = api_ranking["acceptedCount"]
-                nowcoder_ranking_item.penalty = datetime.timedelta(
+                db_nowcoder_ranking_item.competition_rank = api_ranking["ranking"]
+                db_nowcoder_ranking_item.solved_cnt = api_ranking["acceptedCount"]
+                db_nowcoder_ranking_item.penalty = datetime.timedelta(
                     milliseconds=api_ranking["penaltyTime"]
                 )
 
-            self.db_nowcoder_contest.rankings.append(nowcoder_ranking_item)
+            self.db_nowcoder_contest.rankings.append(db_nowcoder_ranking_item)
 
-    def get_upsolve_info(self):
-        """获取补题信息。
+            self.nowcoder_ranking_items_dict[api_ranking["uid"]] = NowcoderRankingItem(
+                nowcoder_account_id=api_ranking["uid"],
+                nowcoder_account_nickename=api_ranking["userName"],
+                nowcoder_contest_crawler=self,
+            )
+            self.nowcoder_ranking_items_dict[
+                api_ranking["uid"]
+            ].update_problem_set_status_from_api_scoreList(api_ranking["scoreList"])
+
+    def simulate_contest(self):
+        """牛客虽然比赛期间不用模拟，但是需要模拟提交后的补题以避免重复 AC 计数"""
+        self.get_competition_ranking()  # 先获取比赛期间的排名信息
+        # 模拟比赛结束后的补题
+        for api_submission_dict in self.get_upsolve_info():
+            nowcoder_submission = NowcoderSubmission.from_api_submission_dict(
+                api_submission_dict=api_submission_dict,
+                contest_crawler=self,
+            )
+            self.nowcoder_ranking_items_dict[
+                api_submission_dict["userId"]
+            ].submit_after_competiton(
+                nowcoder_submission
+            )  # 模拟补题
+
+    def get_upsolve_info(self) -> list[dict]:
+        """获取补题提交的 api 信息并按照 `提交顺序` 排序后返回
 
         注意：这里需要管理员权限才能爬取所有提交，因此需要具有管理员权限的 cookies"""
-        pass
+        all_submissions = asyncio.run(fetch_contest_submisions(self._contest_id))
+
+        upsovle_submissions: list[dict] = list(
+            filter(
+                lambda x: x["submitTime"]
+                > self.db_nowcoder_contest.end.timestamp() * 1000,
+                all_submissions,
+            )
+        )
+
+        upsovle_submissions.sort(key=lambda x: x["submitTime"])
+
+        logger.info(
+            f"fetch {len(upsovle_submissions)} upsolved submissions from nowcoder contest {self.db_nowcoder_contest.title}"
+        )
+        return upsovle_submissions
 
 
 if __name__ == "__main__":
@@ -108,3 +154,4 @@ if __name__ == "__main__":
     print(nowcoder_contest_crawler.db_nowcoder_contest)
     nowcoder_contest_crawler.get_competition_ranking()
     nowcoder_contest_crawler.db_nowcoder_contest.commit_to_db()
+    nowcoder_contest_crawler.simulate_contest()
