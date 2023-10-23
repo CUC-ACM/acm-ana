@@ -60,7 +60,7 @@ class NowcoderRankingItem:
     def __repr__(self) -> str:
         return f"NowcoderRankingItem(db_account={self.db_account}, db_nowcoder_ranking={self.db_nowcoder_ranking})"
 
-    def submit_after_competiton(self, submission: NowcoderSubmission) -> None:
+    def submit_after_competiton(self, submission: "NowcoderSubmission") -> None:
         """在比赛结束后提交补题。
 
         由于没有模拟正常比赛，只是计算补题的数据
