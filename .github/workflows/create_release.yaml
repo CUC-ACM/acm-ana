@@ -36,5 +36,8 @@ jobs:
       - uses: ncipollo/release-action@v1
         with:
           artifacts: "outputs/*"
+          # allowUpdates: true
+          # tag: "v1.0.0"
+          commit: true
           #   bodyFile: "body.md"
           # token: ${{ secrets.YOUR_GITHUB_TOKEN }}
