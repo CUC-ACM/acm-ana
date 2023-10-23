@@ -4,6 +4,7 @@ from sqlalchemy.orm import Mapped, relationship
 
 from acmana.models import SQLBase, sqlsession
 from acmana.models.account import OJAccountBase
+from acmana.models.student import Student
 
 if TYPE_CHECKING:
     from acmana.models.ranking.nowcoder_ranking import NowcoderRanking
@@ -29,3 +30,30 @@ class NowcoderAccount(OJAccountBase, SQLBase):
         """根据学号查询"""
         stmt = sqlsession.query(NowcoderAccount).filter_by(student_id=student_id)
         return sqlsession.execute(stmt).scalar_one_or_none()
+
+    @staticmethod
+    def query_all_attendance() -> List["NowcoderAccount"]:
+        """查询参加了 nowcoder 比赛的账号"""
+        return (
+            sqlsession.query(NowcoderAccount)
+            .join(Student)
+            .where(Student.in_course == True)
+            .order_by(Student.id)
+            .all()
+        )
+
+    @staticmethod
+    def query_all_append_unregistered() -> List["NowcoderAccount"]:
+        """查询所有 vjudge 账号，包括未注册的"""
+        registered = (
+            sqlsession.query(NowcoderAccount)
+            .where(NowcoderAccount.student_id != None)
+            .order_by(NowcoderAccount.student_id)
+            .all()
+        )
+        unregistered = (
+            sqlsession.query(NowcoderAccount)
+            .where(NowcoderAccount.student_id == None)
+            .all()
+        )
+        return registered + unregistered
