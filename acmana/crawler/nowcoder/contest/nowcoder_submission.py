@@ -52,8 +52,8 @@ class NowcoderSubmission:
         )
         nowcoder_account_id = api_submission_dict["userId"]
         if nowcoder_account_id not in contest_crawler.nowcoder_ranking_items_dict:
-            logger.warning(
-                f"nowcoder account {nowcoder_account_id} not found, create a new one and commit to db......"
+            logger.info(
+                f"First Submission! Nowcoder Ranking Item {nowcoder_account_id}, contest_id: {contest_crawler._contest_id} not found, create a new 「NowcoderRankingItem」......"
             )
             contest_crawler.nowcoder_ranking_items_dict[
                 nowcoder_account_id

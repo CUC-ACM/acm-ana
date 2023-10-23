@@ -9,7 +9,7 @@ from acmana.models.contest.nowcoder_contest import NowcoderContest
 from acmana.models.ranking.nowcoder_ranking import NowcoderRanking
 
 
-class ExcelBook:
+class NowcoderExcelBook:
     def __init__(
         self,
         path: str,
@@ -47,8 +47,8 @@ class ExcelBook:
 
 
 class Sheet:
-    def __init__(self, excel_book: "ExcelBook", nowcoder_contest: NowcoderContest) -> None:
-        self.excel_book: ExcelBook = excel_book
+    def __init__(self, excel_book: "NowcoderExcelBook", nowcoder_contest: NowcoderContest) -> None:
+        self.excel_book: NowcoderExcelBook = excel_book
         self.nowcoder_contest: NowcoderContest = nowcoder_contest
         assert self.nowcoder_contest is not None
         self.sheet_title: str = self.nowcoder_contest.title
@@ -218,8 +218,8 @@ class Sheet:
 
 
 class SummarySheet(Sheet):
-    def __init__(self, excel_book: "ExcelBook") -> None:
-        self.excel_book: ExcelBook = excel_book
+    def __init__(self, excel_book: "NowcoderExcelBook") -> None:
+        self.excel_book: NowcoderExcelBook = excel_book
         self.sheet_name: str = "Summary"
         self.sheet_title: str = self.sheet_name
         self.df = pd.DataFrame()
@@ -315,14 +315,14 @@ class SummarySheet(Sheet):
 
 
 if __name__ == "__main__":
-    excel_book = ExcelBook(
+    excel_book = NowcoderExcelBook(
         path="acmana/tmp/nowcoder_div2(选课同学).xlsx",
         div="div2",
         only_attendance=True,
         sheet_name_remover="CUC-ACM-2023秋季学期",
     )
     excel_book.write_book()
-    excel_book = ExcelBook(
+    excel_book = NowcoderExcelBook(
         path="acmana/tmp/nowcoder_div2(全部同学).xlsx",
         div="div2",
         only_attendance=True,

@@ -120,13 +120,13 @@ class NowcoderRankingItem:
         ):  # 7 天内补题
             if submission.accepted:
                 if self.problem_set[submission.problem_id].accepted:  # 过题后重复提交
-                    logger.info(f"补题重复提交已经通过的题目并通过，跳过: {submission}")
+                    logger.debug(f"补题重复提交已经通过的题目并通过，跳过: {submission}")
                 else:
                     self.db_nowcoder_ranking.upsolved_cnt += 1
                     self.problem_set[submission.problem_id].accepted = True
             else:  # 补题没有通过不计算罚时
                 pass
         else:
-            logger.info(
+            logger.debug(
                 f"补题超过 {acmana.config['upsolve']['expiration']} 天，跳过: {submission}"
             )

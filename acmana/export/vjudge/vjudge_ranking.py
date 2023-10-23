@@ -10,7 +10,7 @@ from acmana.models.contest.vjudge_contest import VjudgeContest
 from acmana.models.ranking.vjudge_ranking import VjudgeRanking
 
 
-class ExcelBook:
+class VjudgeExcelBook:
     def __init__(
         self,
         path: str,
@@ -48,8 +48,8 @@ class ExcelBook:
 
 
 class Sheet:
-    def __init__(self, excel_book: "ExcelBook", vjudge_contest: VjudgeContest) -> None:
-        self.excel_book: ExcelBook = excel_book
+    def __init__(self, excel_book: "VjudgeExcelBook", vjudge_contest: VjudgeContest) -> None:
+        self.excel_book: VjudgeExcelBook = excel_book
         self.vjudge_contest: VjudgeContest = vjudge_contest
         assert self.vjudge_contest is not None
         self.sheet_title: str = self.vjudge_contest.title
@@ -220,8 +220,8 @@ class Sheet:
 
 
 class SummarySheet(Sheet):
-    def __init__(self, excel_book: "ExcelBook") -> None:
-        self.excel_book: ExcelBook = excel_book
+    def __init__(self, excel_book: "VjudgeExcelBook") -> None:
+        self.excel_book: VjudgeExcelBook = excel_book
         self.sheet_name: str = "Summary"
         self.sheet_title: str = self.sheet_name
         self.df = pd.DataFrame()
@@ -318,14 +318,14 @@ class SummarySheet(Sheet):
 
 
 if __name__ == "__main__":
-    excel_book = ExcelBook(
+    excel_book = VjudgeExcelBook(
         path="acmana/tmp/vjudge_div1(选课同学).xlsx",
         div="div1",
         only_attendance=True,
         sheet_name_remover="CUC-ACM-2023秋季学期",
     )
     excel_book.write_book()
-    excel_book = ExcelBook(
+    excel_book = VjudgeExcelBook(
         path="acmana/tmp/vjudge_div1(全部同学).xlsx",
         div="div1",
         only_attendance=True,

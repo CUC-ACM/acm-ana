@@ -20,7 +20,7 @@ class OJAccountBase:
     student_id: Mapped[Optional[str]] = mapped_column(ForeignKey("student.id"))
 
     def commit_to_db(self, sqlsession: Session = sqlsession):
-        logger.info(f"commiting {self} to db......")
+        logger.debug(f"commiting {self} to db......")
         sqlsession.add(self)
         sqlsession.commit()
 
