@@ -43,6 +43,8 @@ class VjudgeExcelBook:
             self.sheets.append(Sheet(self, vjudge_contest))
 
         for sheet in self.sheets:
+            if acmana.config["common"]["upsolve"]["sort_by_score"]:
+                sheet.df.sort_values(by=["Score"], ascending=False, inplace=True)
             sheet.write_sheet()
         self.writer.close()
 
@@ -56,7 +58,7 @@ class Sheet:
         assert self.vjudge_contest is not None
         self.sheet_title: str = self.vjudge_contest.title
         self.deadline: datetime.datetime = self.vjudge_contest.end + datetime.timedelta(
-            days=acmana.config["upsolve"]["expiration"]
+            days=acmana.config["common"]["upsolve"]["expiration"]
         )
         self.sheet_name: str = self.vjudge_contest.title
         if self.excel_book.sheet_name_remover:

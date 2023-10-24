@@ -116,7 +116,7 @@ class VjudgeRankingItem:
         elif (
             submission.time
             <= self.vjudge_contest_crawler.db_vjudge_contest.length
-            + datetime.timedelta(days=acmana.config["upsolve"]["expiration"])
+            + datetime.timedelta(days=acmana.config["common"]["upsolve"]["expiration"])
         ):  # 7 天内补题
             if submission.accepted:
                 if self.problem_set[submission.problem_id].accepted:  # 过题后重复提交
@@ -128,7 +128,7 @@ class VjudgeRankingItem:
                 pass
         else:
             logger.debug(
-                f"补题超过 {acmana.config['upsolve']['expiration']} 天，跳过: {submission}"
+                f"补题超过 {acmana.config['common']['upsolve']['expiration']} 天，跳过: {submission}"
             )
 
 

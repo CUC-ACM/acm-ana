@@ -42,6 +42,8 @@ class NowcoderExcelBook:
             self.sheets.append(Sheet(self, nowcoder_contest))
 
         for sheet in self.sheets:
+            if acmana.config["common"]["upsolve"]["sort_by_score"]:
+                sheet.df.sort_values(by=["Score"], ascending=False, inplace=True)
             sheet.write_sheet()
         self.writer.close()
 
@@ -56,7 +58,7 @@ class Sheet:
         self.sheet_title: str = self.nowcoder_contest.title
         self.deadline: datetime.datetime = (
             self.nowcoder_contest.end
-            + datetime.timedelta(days=acmana.config["upsolve"]["expiration"])
+            + datetime.timedelta(days=acmana.config["common"]["upsolve"]["expiration"])
         )
         self.sheet_name: str = self.nowcoder_contest.title
         if self.excel_book.sheet_name_remover:
