@@ -22,6 +22,9 @@ class NowcoderRanking(RankingBase, SQLBase):
     contest_id: Mapped[int] = mapped_column(ForeignKey("nowcoder_contest.id"))
     contest: Mapped["NowcoderContest"] = relationship(back_populates="rankings")
 
+    def __repr__(self) -> str:
+        return f"(NowcoderRanking account_id={self.account_id}, contest_id={self.contest_id} competition_rank={self.competition_rank}, solved_cnt={self.solved_cnt}, penalty={self.penalty}, upsolved_cnt={self.upsolved_cnt})"
+
     @staticmethod
     def index_query(
         contest_id: int,

@@ -81,33 +81,41 @@ class NowcoderContestCrawler:
             fetch_contest_ranking(self.db_nowcoder_contest.id)
         )
         for api_ranking in api_ranking_list:
-            db_nowcoder_ranking_item = NowcoderRanking.index_query(
-                contest_id=self.db_nowcoder_contest.id,
-                account_id=api_ranking["uid"],
-            )
-            if db_nowcoder_ranking_item is None:  # 数据库中没有这个排名信息——>新建
-                db_nowcoder_ranking_item = NowcoderRanking(
-                    account_id=api_ranking["uid"],
-                    contest_id=self.db_nowcoder_contest.id,
-                    competition_rank=api_ranking["ranking"],
-                    solved_cnt=api_ranking["acceptedCount"],
-                    upsolved_cnt=0,  # 需要后续根据所有的提交信息来计算
-                    penalty=datetime.timedelta(milliseconds=api_ranking["penaltyTime"]),
-                )
-            else:  # 数据库中已经有这个排名信息——>更新
-                db_nowcoder_ranking_item.competition_rank = api_ranking["ranking"]
-                db_nowcoder_ranking_item.solved_cnt = api_ranking["acceptedCount"]
-                db_nowcoder_ranking_item.penalty = datetime.timedelta(
-                    milliseconds=api_ranking["penaltyTime"]
-                )
-
-            self.db_nowcoder_contest.rankings.append(db_nowcoder_ranking_item)
-
             self.nowcoder_ranking_items_dict[api_ranking["uid"]] = NowcoderRankingItem(
                 nowcoder_account_id=api_ranking["uid"],
                 nowcoder_account_nickename=api_ranking["userName"],
                 nowcoder_contest_crawler=self,
             )
+
+            # db_nowcoder_ranking_item = NowcoderRanking.index_query(
+            #     contest_id=self.db_nowcoder_contest.id,
+            #     account_id=api_ranking["uid"],
+            # )
+            # if db_nowcoder_ranking_item is None:  # 数据库中没有这个排名信息——>新建
+            #     db_nowcoder_ranking_item = NowcoderRanking(
+            #         account_id=api_ranking["uid"],
+            #         contest_id=self.db_nowcoder_contest.id,
+            #         competition_rank=api_ranking["ranking"],
+            #         solved_cnt=api_ranking["acceptedCount"],
+            #         upsolved_cnt=0,  # 需要后续根据所有的提交信息来计算
+            #         penalty=datetime.timedelta(milliseconds=api_ranking["penaltyTime"]),
+            #     )
+            # else:  # 数据库中已经有这个排名信息——>更新
+
+            self.nowcoder_ranking_items_dict[
+                api_ranking["uid"]
+            ].db_nowcoder_ranking.competition_rank = api_ranking["ranking"]
+            self.nowcoder_ranking_items_dict[
+                api_ranking["uid"]
+            ].db_nowcoder_ranking.solved_cnt = api_ranking["acceptedCount"]
+            self.nowcoder_ranking_items_dict[
+                api_ranking["uid"]
+            ].db_nowcoder_ranking.penalty = datetime.timedelta(
+                milliseconds=api_ranking["penaltyTime"]
+            )
+
+            # self.db_nowcoder_contest.rankings.append(db_nowcoder_ranking_item)
+
             self.nowcoder_ranking_items_dict[
                 api_ranking["uid"]
             ].update_problem_set_status_from_api_scoreList(api_ranking["scoreList"])

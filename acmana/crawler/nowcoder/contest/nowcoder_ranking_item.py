@@ -42,6 +42,7 @@ class NowcoderRankingItem:
         nowcoder_account_nickename: str,
         nowcoder_contest_crawler: "NowcoderContestCrawler",
     ) -> None:
+        """新建一个 NowcoderRankingItem，将之前数据库中的 NowcoderRankingItem 初始化"""
         self.db_account: NowcoderAccount = NowcoderAccount.query_from_account_id(  # type: ignore
             nowcoder_account_id
         )
@@ -62,15 +63,26 @@ class NowcoderRankingItem:
             contest_id=self.nowcoder_contest_crawler.db_nowcoder_contest.id,
             account_id=self.db_account.id,
         )
-        if self.db_nowcoder_ranking is None:  # 没有参加比赛且第一次提交题目
+        if self.db_nowcoder_ranking is None:
             self.db_nowcoder_ranking = NowcoderRanking(
                 account_id=self.db_account.id,
                 contest_id=self.nowcoder_contest_crawler.db_nowcoder_contest.id,
-                competition_rank=None,  # 由于没有参加比赛
-                solved_cnt=0,  # 由于没有参加比赛
+                competition_rank=None,
+                solved_cnt=0,
                 upsolved_cnt=0,
-                penalty=0,  # 由于没有参加比赛
+                penalty=0,
             )
+
+        # 清空之前的数据库
+        self.db_nowcoder_ranking.competition_rank = None
+        self.db_nowcoder_ranking.solved_cnt = 0
+        self.db_nowcoder_ranking.upsolved_cnt = 0
+        self.db_nowcoder_ranking.penalty = datetime.timedelta()
+
+        self.nowcoder_contest_crawler.db_nowcoder_contest.rankings.append(  # commit to database with `db_nowcoder_contest`
+            self.db_nowcoder_ranking
+        )
+
         self.problem_set: NowcoderProblemSet = NowcoderProblemSet()
 
     def __repr__(self) -> str:
