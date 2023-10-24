@@ -48,7 +48,9 @@ class VjudgeExcelBook:
 
 
 class Sheet:
-    def __init__(self, excel_book: "VjudgeExcelBook", vjudge_contest: VjudgeContest) -> None:
+    def __init__(
+        self, excel_book: "VjudgeExcelBook", vjudge_contest: VjudgeContest
+    ) -> None:
         self.excel_book: VjudgeExcelBook = excel_book
         self.vjudge_contest: VjudgeContest = vjudge_contest
         assert self.vjudge_contest is not None
@@ -106,7 +108,8 @@ class Sheet:
                             "Username": [ranking.account.username],
                             "Ranking": [
                                 ranking.get_attendance_ranking()
-                                if crt_ranking_is_in_course
+                                if self.excel_book.only_attendance
+                                and crt_ranking_is_in_course
                                 else ranking.competition_rank
                             ],
                             "Score": [

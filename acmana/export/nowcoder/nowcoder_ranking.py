@@ -47,13 +47,16 @@ class NowcoderExcelBook:
 
 
 class Sheet:
-    def __init__(self, excel_book: "NowcoderExcelBook", nowcoder_contest: NowcoderContest) -> None:
+    def __init__(
+        self, excel_book: "NowcoderExcelBook", nowcoder_contest: NowcoderContest
+    ) -> None:
         self.excel_book: NowcoderExcelBook = excel_book
         self.nowcoder_contest: NowcoderContest = nowcoder_contest
         assert self.nowcoder_contest is not None
         self.sheet_title: str = self.nowcoder_contest.title
-        self.deadline: datetime.datetime = self.nowcoder_contest.end + datetime.timedelta(
-            days=acmana.config["upsolve"]["expiration"]
+        self.deadline: datetime.datetime = (
+            self.nowcoder_contest.end
+            + datetime.timedelta(days=acmana.config["upsolve"]["expiration"])
         )
         self.sheet_name: str = self.nowcoder_contest.title
         if self.excel_book.sheet_name_remover:
@@ -104,7 +107,8 @@ class Sheet:
                             "Nickname": [ranking.account.nickname],
                             "Ranking": [
                                 ranking.get_attendance_ranking()
-                                if crt_ranking_is_in_course
+                                if self.excel_book.only_attendance
+                                and crt_ranking_is_in_course
                                 else ranking.competition_rank
                             ],
                             "Score": [
