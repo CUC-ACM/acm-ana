@@ -47,7 +47,7 @@ $$
 > 例如比赛结束时间为 `18:00` ，则补题分截止时间为 `18:00 + 7天`
 
 $$
-比赛后补题分 = 补题数\times 6
+比赛后补题分 = `补题数`\times 6，所以在所有情况下
 $$
 
 ## 后期维护人员须知
@@ -58,3 +58,17 @@ $$
 
 - 调用 `acmana/crawler/vjudge/user_info.py` 中爬取 `Vjudge 用户 ID`
 - `Github Actions` 中的 `CICD` `unittest`（需在 `Github` 中设置 `Secrets`）
+
+### `NOWCODER_COOKIE` 环境变量
+
+> 由于牛客对于 `非管理员用户` 只能看到比赛的前 10 页提交，无法查看到所有提交来统计 `补题数`，所以在所有情况下都需要设置 `NOWCODER_COOKIE` 环境变量
+
+#### 设置方法
+
+> 首先需要将 `爬虫使用的账户` 加入到 `牛客比赛` 的 `管理员` 中
+>
+> 加入方法详情见 https://docs.qq.com/doc/DTHlmT1FDSWRJcmVo
+>
+> 省流：使用 `比赛创建者的账号` 点击 https://ac.nowcoder.com/acm/admin/self/rejudge?contestId=67703
+>
+> 将上述链接中的 `contestId` 改为对应比赛的 `contestId` 即可
