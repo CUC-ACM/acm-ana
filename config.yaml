@@ -8,21 +8,24 @@ common:
 
 vjudge: # vjudge config
   instances:
-    div1: # div1 类别
+    # div1: # div1 类别
+    #   title_prefix: "CUC-ACM-2023秋季学期新生" # 检索用的标题
+    #   sheet_name_remover: "CUC-ACM-2023秋季学期" # 用于去除 sheet name 中的前缀
+    #   export_filename: "CUC-ACM-2023-Autumn-Vjudge-div1" # 导出的文件名前缀
+    prophase: # 前期训练
       title_prefix: "CUC-ACM-2023秋季学期新生" # 检索用的标题
       sheet_name_remover: "CUC-ACM-2023秋季学期" # 用于去除 sheet name 中的前缀
-      export_filename: "CUC-ACM-2023-Autumn-Vjudge-div1" # 导出的文件名前缀
-
+      export_filename: "CUC-ACM-2023-Autumn-Vjudge-prophase" # 导出的文件名前缀
     # div2: # div2 类别
     #   title_prefix: "CUC-ACM-2023秋季学期新生" # 检索用的标题
     #   sheet_name_remover: "CUC-ACM-2023秋季学期" # 用于去除 sheet name 中的前缀
 
 nowcoder: # 牛客 config
   instances:
-    div2: # div1 类别
-      title_prefix: "CUC2023秋季新生训练第" # 检索用的标题
-      sheet_name_remover: "CUC2023秋季新生训练" # 用于去除 sheet name 中的前缀
-      export_filename: "CUC-ACM-2023-Autumn-Nowcoder-div2" # 导出的文件名前缀
+    prophase: # div1 类别
+      title_prefix: "CUC2023秋季新生" # 检索用的标题
+      sheet_name_remover: "CUC2023秋季新生" # 用于去除 sheet name 中的前缀
+      export_filename: "CUC-ACM-2023-Autumn-Nowcoder-prophase" # 导出的文件名前缀
 
     # div2: # div2 类别
     #   title_prefix: "CUC-ACM-2023秋季学期新生" # 检索用的标题
