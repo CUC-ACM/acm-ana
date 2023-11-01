@@ -1,5 +1,16 @@
 # CUC-ACM Score-Analysis
 
+## Release
+
+> 在 [https://github.com/CUC-ACM/acm-ana/releases/tag/v0.0.9](https://github.com/CUC-ACM/acm-ana/releases/tag/v0.0.9) 中下载输出的 `Excel` 表格
+
+|  关键字  |  对应   |   比赛平台    |
+| :------: | :-----: | :-----------: |
+| prophase | 1~5 周  | 牛客 & Vjudge |
+|  Basic   | 6~8 周  |    Vjudge     |
+|   div1   | 9~16 周 |    Vjudge     |
+|   div2   | 9~16 周 |    Vjudge     |
+
 ## 比赛出题人须知
 
 ### Vjudge
