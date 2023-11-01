@@ -45,7 +45,7 @@ class NowcoderSubmission:
             True if api_submission_dict["statusMessage"] == "答案正确" else False
         )
         time_from_begin = (
-            datetime.datetime.fromtimestamp(
+            datetime.datetime.utcfromtimestamp(
                 int(api_submission_dict["submitTime"] / 1000)
             ).replace(tzinfo=datetime.timezone.utc)
             - contest_crawler.db_nowcoder_contest.begin
@@ -144,6 +144,6 @@ async def fetch_contest_submisions(contest_id: int) -> list[dict]:
 
 
 if __name__ == "__main__":
-    submission_jsons = asyncio.run(fetch_contest_submisions(67345))
+    submission_jsons = asyncio.run(fetch_contest_submisions(67976))
     with open("acmana/tmp/nowcoder_submissions_aio.json", "w") as f:
         json.dump(submission_jsons, f, indent=4, ensure_ascii=False)
