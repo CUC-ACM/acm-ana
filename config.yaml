@@ -8,33 +8,33 @@ common:
 
 vjudge: # vjudge config
   instances:
-    # prophase: # 前期训练
-    #   title_prefix: "CUC-ACM-2023秋季学期新生练习" # 检索用的标题
+    prophase: # 前期训练
+      title_prefix: "CUC-ACM-2023秋季学期新生练习" # 检索用的标题
+      sheet_name_remover: "CUC-ACM-2023秋季学期" # 用于去除 sheet name 中的前缀
+      export_filename: "CUC-ACM-2023-Autumn-Vjudge-prophase" # 导出的文件名前缀
+
+    # basic: # 基础训练
+    #   title_prefix: "CUC-ACM-2023秋季学期新生基础练习" # 检索用的标题
+    #   sheet_name_remover: "CUC-ACM-2023秋季学期新生" # 用于去除 sheet name 中的前缀
+    #   export_filename: "CUC-ACM-2023-Autumn-Vjudge-Basic" # 导出的文件名前缀
+
+    # div1: # 9~16 周的 div1 类别
+    #   title_prefix: "CUC-ACM-2023秋季学期新生div1" # 检索用的标题
     #   sheet_name_remover: "CUC-ACM-2023秋季学期" # 用于去除 sheet name 中的前缀
-    #   export_filename: "CUC-ACM-2023-Autumn-Vjudge-prophase" # 导出的文件名前缀
+    #   export_filename: "CUC-ACM-2023-Autumn-Vjudge-div1" # 导出的文件名前缀
 
-    basic: # 基础训练
-      title_prefix: "CUC-ACM-2023秋季学期新生基础练习" # 检索用的标题
-      sheet_name_remover: "CUC-ACM-2023秋季学期新生" # 用于去除 sheet name 中的前缀
-      export_filename: "CUC-ACM-2023-Autumn-Vjudge-Basic" # 导出的文件名前缀
-
-    div1: # 9~16 周的 div1 类别
-      title_prefix: "CUC-ACM-2023秋季学期新生div1" # 检索用的标题
-      sheet_name_remover: "CUC-ACM-2023秋季学期" # 用于去除 sheet name 中的前缀
-      export_filename: "CUC-ACM-2023-Autumn-Vjudge-div1" # 导出的文件名前缀
-
-    div2: # 9~16 周 div2 类别
-      title_prefix: "CUC-ACM-2023秋季学期新生div2" # 检索用的标题
-      sheet_name_remover: "CUC-ACM-2023秋季学期" # 用于去除 sheet name 中的前缀
-      export_filename: "CUC-ACM-2023-Autumn-Vjudge-div2" # 用于去除 sheet name 中的前缀
+    # div2: # 9~16 周 div2 类别
+    #   title_prefix: "CUC-ACM-2023秋季学期新生div2" # 检索用的标题
+    #   sheet_name_remover: "CUC-ACM-2023秋季学期" # 用于去除 sheet name 中的前缀
+    #   export_filename: "CUC-ACM-2023-Autumn-Vjudge-div2" # 用于去除 sheet name 中的前缀
 
 nowcoder: # 牛客 config
   instances:
-    []
-    # prophase: # 前期训练
-    #   title_prefix: "CUC2023秋季新生训练第" # 检索用的标题
-    #   sheet_name_remover: "CUC2023秋季新生" # 用于去除 sheet name 中的前缀
-    #   export_filename: "CUC-ACM-2023-Autumn-Nowcoder-prophase" # 导出的文件名前缀
+    # []
+    prophase: # 前期训练
+      title_prefix: "CUC2023秋季新生训练第" # 检索用的标题
+      sheet_name_remover: "CUC2023秋季新生" # 用于去除 sheet name 中的前缀
+      export_filename: "CUC-ACM-2023-Autumn-Nowcoder-prophase" # 导出的文件名前缀
 
 input:
   attendance_path: "acmana/resources/attendance.csv" # 选课人员名单 csv 文件路径

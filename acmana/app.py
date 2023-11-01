@@ -55,6 +55,23 @@ def retrive_nowcoder_contests():
             title_prefix=instance["title_prefix"], div=div
         )
         # retriever.get_contests_and_commit_to_db()
+
+        from acmana.models.contest.nowcoder_contest import NowcoderContest
+        import datetime
+        import pytz
+
+        bj_tz = pytz.timezone("Asia/Shanghai")
+
+        nowcoder_contest_retriever.retrieved_contests.append(
+            NowcoderContest(
+                id=67976,
+                div="prophase",
+                title="CUC2023秋季新生训练第五场",
+                begin=datetime.datetime(2023, 10, 25, 13, 30, 0, tzinfo=bj_tz),
+                end=datetime.datetime(2023, 10, 25, 16, 50, 0, tzinfo=bj_tz),
+            )
+        )
+
         for contest in nowcoder_contest_retriever.retrieved_contests:
             contest.commit_to_db()
 

@@ -122,6 +122,14 @@ async def fetch_contest_submisions(contest_id: int) -> list[dict]:
             for page in range(2, total_page + 1)
         ]
         await asyncio.gather(*tasks)
+
+    if submission_jsons[0]["data"]["basicInfo"]["statusCount"] == 200:
+        raise ValueError(
+            f"比赛 {contest_id} 只爬取到 200 条提交，这多半是因为 NOWCODER_COOKIE 过期导致的"
+            "（当然也不排除这次比赛的提交次数刚好等于 200 次数导致的）"
+            "请更新 NOWCODER_COOKIE 环境变量！"
+        )
+
     submission_jsons.sort(key=lambda x: x["data"]["basicInfo"]["pageCurrent"])
     submission_list: list[dict] = []
     for submission_json in submission_jsons:
