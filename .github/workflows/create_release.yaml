@@ -39,7 +39,7 @@ jobs:
           allowUpdates: true
           tag: "v0.0.9"
           body: |
-            #### 类别
+            ## Release 附件说明
             |  关键字  |  对应   |   比赛平台    |
             | :------: | :-----: | :-----------: |
             | prophase | 1~5 周  | 牛客 & Vjudge |
