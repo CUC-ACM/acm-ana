@@ -127,8 +127,8 @@ class VjudgeRankingItem:
             else:  # 补题没有通过不计算罚时
                 pass
         else:
-            logger.debug(
-                f"补题超过 {acmana.config['common']['upsolve']['expiration']} 天，跳过: {submission}"
+            logger.warning(
+                f"Vjudge Submission: {submission} 补题时间超过 {acmana.config['common']['upsolve']['expiration']} 天，跳过: {submission}"
             )
 
 
