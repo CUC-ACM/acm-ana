@@ -6,10 +6,10 @@
 
 |  关键字  |  对应   |   比赛平台    |
 | :------: | :-----: | :-----------: |
-| prophase | 1~5 周  | 牛客 & Vjudge |
-|  Basic   | 6~8 周  |    Vjudge     |
-|   div1   | 9~16 周 |    Vjudge     |
-|   div2   | 9~16 周 |    Vjudge     |
+| prophase | 1~5 场  | 牛客 & Vjudge |
+|  Basic   | 6~8 场  |    Vjudge     |
+|   div1   | 9~16 场 |    Vjudge     |
+|   div2   | 9~16 场 |    Vjudge     |
 
 ## 比赛出题人须知
 
