@@ -40,8 +40,8 @@ CUC-ACM-2023秋季学期新生基础练习xx.xx
 此时分为 `div1` 和 `div2` 两个比赛，所以需要分别命名
 
 ```
-CUC-ACM-2023秋季学期新生div1练习xx.xx
-CUC-ACM-2023秋季学期新生div2练习xx.xx
+CUC-ACM-2023秋季学期新生练习-div1-xx.xx
+CUC-ACM-2023秋季学期新生练习-div2-xx.xx
 ```
 
 ### 牛客
