@@ -70,12 +70,13 @@ class NowcoderContest(ContestBase, SQLBase):
         )
 
     @staticmethod
-    def query_finished_contests() -> List["NowcoderContest"]:
-        return (
-            sqlsession.query(NowcoderContest)
-            .filter(NowcoderContest.end <= datetime.datetime.now(datetime.timezone.utc))
-            .all()
+    def query_finished_contests(div: str | None = None) -> List["NowcoderContest"]:
+        query = sqlsession.query(NowcoderContest).filter(
+            NowcoderContest.end <= datetime.datetime.now(datetime.timezone.utc)
         )
+        if div:
+            query = query.filter(NowcoderContest.div == div)
+        return query.all()
 
     def get_rankings_append_unregistered(self) -> List["NowcoderRanking"]:
         """获取所有参加了比赛的 NowcoderRanking。将没有登记纳入 student & nowcoder_account 数据库的同学 append 到最后"""

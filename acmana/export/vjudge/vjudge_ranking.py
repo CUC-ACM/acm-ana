@@ -28,12 +28,9 @@ class VjudgeExcelBook:
         self.sheet_name_remover: str | None = sheet_name_remover
         self.finished_vjudge_contests: list[
             VjudgeContest
-        ] = VjudgeContest.query_finished_contests()
-        if div:
-            self.finished_vjudge_contests = list(
-                filter(lambda x: x.div == div, self.finished_vjudge_contests)
-            )
-        self.finished_vjudge_contests.sort(key=lambda x: x.begin)
+        ] = VjudgeContest.query_finished_contests(div=div)
+
+        self.finished_vjudge_contests.sort(key=lambda x: x.end)
         self.sheets: list["Sheet"] = []
 
     def write_book(self):

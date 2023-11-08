@@ -27,12 +27,9 @@ class NowcoderExcelBook:
         self.sheet_name_remover: str | None = sheet_name_remover
         self.finished_nowcoder_contests: list[
             NowcoderContest
-        ] = NowcoderContest.query_finished_contests()
-        if div:
-            self.finished_nowcoder_contests = list(
-                filter(lambda x: x.div == div, self.finished_nowcoder_contests)
-            )
-        self.finished_nowcoder_contests.sort(key=lambda x: x.begin)
+        ] = NowcoderContest.query_finished_contests(div=div)
+
+        self.finished_nowcoder_contests.sort(key=lambda x: x.end)
         self.sheets: list["Sheet"] = []
 
     def write_book(self):

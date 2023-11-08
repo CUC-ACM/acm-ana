@@ -102,9 +102,13 @@ class VjudgeContest(ContestBase, SQLBase):
         return sqlsession.query(VjudgeContest).all()
 
     @staticmethod
-    def query_finished_contests() -> List["VjudgeContest"]:
-        return (
-            sqlsession.query(VjudgeContest)
-            .filter(VjudgeContest.end <= datetime.datetime.now(datetime.timezone.utc))
-            .all()
+    def query_finished_contests(div: str | None = None) -> List["VjudgeContest"]:
+        """查询已经结束的比赛"""
+
+        query = sqlsession.query(VjudgeContest).filter(
+            VjudgeContest.end <= datetime.datetime.now(datetime.timezone.utc)
         )
+        if div:
+            query = query.filter(VjudgeContest.div == div)
+
+        return query.all()
