@@ -1,3 +1,5 @@
+"""获取 vjudge 用户的 nickname, user_id 等信息"""
+
 import asyncio
 import logging
 import os
@@ -14,6 +16,7 @@ logger = logging.getLogger(__name__)
 async def get_vjudge_nickname(
     username: str, session: aiohttp.ClientSession
 ) -> str | None:
+    """直接通过 vjudge 用户页面获取 nickname，不需要设置 cookie"""
     cache_path = f"acmana/tmp/cache/vjudge_user_{username}.html"
     if os.getenv("DEBUG_CACHE", "False").lower() in (
         "true",
