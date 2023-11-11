@@ -34,7 +34,7 @@ async def get_ranking_page(
 async def fetch_contest_ranking(contest_id: int) -> list[dict]:
     """获取比赛终榜，其直接返回 `比赛终榜的全部排名列表` 而过滤掉其他的 api page 分页信息和一些关于比赛的元数据"""
     ranking_pages: list[dict] = []
-    async with aiohttp.ClientSession() as client_session:
+    async with aiohttp.ClientSession(trust_env=True) as client_session:
         await get_ranking_page(contest_id, 1, client_session, ranking_pages)
         total_page = ranking_pages[0]["data"]["basicInfo"]["pageCount"]
         tasks = [

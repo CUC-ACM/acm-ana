@@ -126,7 +126,7 @@ async def async_read_questionnaire_update_db(df: pd.DataFrame, concurrency: int 
             questionnaire.update_vjudge_db()
 
     semaphore = asyncio.Semaphore(concurrency)
-    async with aiohttp.ClientSession() as clientsession:
+    async with aiohttp.ClientSession(trust_env=True) as clientsession:
         for index, row in df.iterrows():
             crt_questionnaire = Questionnaire(
                 name=row["姓名（必填）"],

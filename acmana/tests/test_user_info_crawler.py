@@ -13,7 +13,7 @@ class TestUserInfoCrawler(IsolatedAsyncioTestCase):
     vjudge_username = "youngwind"
 
     async def test_nowcoder_user_info_crawler(self):
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(trust_env=True) as session:
             nick_name = await get_nowcoder_nickname(
                 TestUserInfoCrawler.nowcoder_id, session
             )
@@ -27,7 +27,7 @@ class TestUserInfoCrawler(IsolatedAsyncioTestCase):
             self.assertEqual(user_profile, "23数科闻学兵")
 
     async def test_vjudge_user_info_crawler(self):
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(trust_env=True) as session:
 
             async def test_nick_name_youngwind():
                 nick_name_youngwind = await get_vjudge_nickname(

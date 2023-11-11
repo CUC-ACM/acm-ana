@@ -101,7 +101,7 @@ async def get_vjudge_user_id(username: str, session: aiohttp.ClientSession) -> i
 if __name__ == "__main__":
 
     async def main():
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(trust_env=True) as session:
             nick_name = await get_vjudge_nickname("youngwind", session)
             print(nick_name)
             assert nick_name == "22物联网黄屹"

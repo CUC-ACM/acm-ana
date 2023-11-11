@@ -44,7 +44,7 @@ async def get_nowcoder_nickname(
 if __name__ == "__main__":
 
     async def main():
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(trust_env=True) as session:
             nick_name = await get_nowcoder_nickname(767116230, session)
             assert nick_name == "lim_Nobody"
             now_coder_id = 804688108  # 非 contest profile

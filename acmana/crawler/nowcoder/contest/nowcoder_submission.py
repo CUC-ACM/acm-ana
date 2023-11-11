@@ -111,7 +111,7 @@ async def get_submission_page(
 async def fetch_contest_submisions(contest_id: int) -> list[dict]:
     """去除其他信息，只保留提交 `列表`"""
     submission_jsons: list[dict] = []
-    async with aiohttp.ClientSession() as client_session:
+    async with aiohttp.ClientSession(trust_env=True) as client_session:
         await get_submission_page(contest_id, 1, client_session, submission_jsons)
         total_page = submission_jsons[0]["data"]["basicInfo"]["pageCount"]
 
