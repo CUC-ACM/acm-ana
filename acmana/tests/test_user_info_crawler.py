@@ -1,11 +1,15 @@
 import asyncio
+import logging
 import unittest
 from unittest import IsolatedAsyncioTestCase
 
 import aiohttp
 
 from acmana.crawler.nowcoder.user_info import get_nowcoder_nickname
+from acmana.crawler.vjudge import VjudgeCookieExpiredError
 from acmana.crawler.vjudge.user_info import get_vjudge_nickname, get_vjudge_user_id
+
+logger = logging.getLogger(__name__)
 
 
 class TestUserInfoCrawler(IsolatedAsyncioTestCase):
@@ -42,13 +46,26 @@ class TestUserInfoCrawler(IsolatedAsyncioTestCase):
                 self.assertEqual(nick_name_LUZHOU72, None)
 
             async def test_vjudge_user_id():
-                user_id = await get_vjudge_user_id("LUZHOU72", session)
-                self.assertEqual(user_id, 834670)
+                try:
+                    user_id = await get_vjudge_user_id("LUZHOU72", session)
+                except VjudgeCookieExpiredError:
+                    logger.critical(
+                        "Vjudge Cookie Expired, skip test_vjudge_user_id()......"
+                    )
+                else:
+                    self.assertEqual(user_id, 834670)
 
             async def test_vjudge_user_id_exception():
-                with self.assertRaises(ValueError):
-                    user_id = await get_vjudge_user_id("x5u4iiuqfdadfe892w", session)
-                    print(user_id)
+                try:
+                    with self.assertRaises(ValueError):
+                        user_id = await get_vjudge_user_id(
+                            "x5u4iiuqfdadfe892w", session
+                        )
+                        print(user_id)
+                except VjudgeCookieExpiredError:
+                    logger.critical(
+                        "Vjudge Cookie Expired, skip test_vjudge_user_id()......"
+                    )
 
             await asyncio.gather(
                 test_nick_name_youngwind(),

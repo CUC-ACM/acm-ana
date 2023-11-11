@@ -10,6 +10,8 @@ import aiohttp
 import fake_useragent
 from lxml import etree
 
+from acmana.crawler.vjudge import VjudgeCookieExpiredError
+
 logger = logging.getLogger(__name__)
 
 
@@ -79,10 +81,17 @@ async def get_vjudge_user_id(username: str, session: aiohttp.ClientSession) -> i
             "user-agent": fake_useragent.UserAgent().random,
         }
         async with session.get(
-            "https://vjudge.net/message", headers=headers, params=params
+            "https://vjudge.net/message",
+            headers=headers,
+            params=params,
+            allow_redirects=False,
         ) as response:
             html = await response.text()
-        with open(cache_path, "w") as f:
+            if response.status == 303:
+                raise VjudgeCookieExpiredError(
+                    "Vjudge Cookie 已过期，请重新设置 VJUDGE_COOKIE 环境变量"
+                )
+        with open(cache_path, "w", encoding="UTF-8") as f:
             f.write(html)
 
     re_vjudge_account_id = re.compile(
