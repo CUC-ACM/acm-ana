@@ -67,10 +67,10 @@ class NowcoderContestCrawler:
 
         re_contest_info = re.compile(r"window.pageInfo = ([\w\W]*);\s+window.gioInfo")
 
-        matchObj = re_contest_info.search(html)
+        match_obj = re_contest_info.search(html)
 
-        if matchObj is not None:
-            return json.loads(matchObj.group(1).strip())
+        if match_obj is not None:
+            return json.loads(match_obj.group(1).strip())
         else:
             raise RuntimeError(f"比赛 {self.db_nowcoder_contest} 信息获取失败")
 

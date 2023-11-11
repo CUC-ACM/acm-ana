@@ -88,10 +88,10 @@ async def get_vjudge_user_id(username: str, session: aiohttp.ClientSession) -> i
         ),
         re.M | re.I,
     )
-    matchObj = re_vjudge_account_id.search(html)
+    match_obj = re_vjudge_account_id.search(html)
 
-    if matchObj:
-        uid = int(matchObj.group(2).strip())
+    if match_obj:
+        uid = int(match_obj.group(2).strip())
         logger.info(f"vjudge username: {username}, user_id: {uid}")
         return uid
     else:
@@ -109,7 +109,6 @@ if __name__ == "__main__":
             nick_name = await get_vjudge_nickname("CUC_2023", session)
             print(nick_name)
             assert nick_name == "侯理想"
-            id = 835096
 
             user_id = await get_vjudge_user_id("Chen_Lang", session)
             print(user_id)

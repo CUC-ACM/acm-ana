@@ -33,10 +33,10 @@ async def get_nowcoder_nickname(
 
     re_nickname = re.compile(r'data-title="(.*)"', re.M | re.I)
 
-    matchObj = re_nickname.search(html)
+    match_obj = re_nickname.search(html)
 
-    if matchObj is not None:
-        return matchObj.group(1).strip()
+    if match_obj is not None:
+        return match_obj.group(1).strip()
     else:
         return None
 
