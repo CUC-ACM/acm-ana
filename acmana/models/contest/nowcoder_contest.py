@@ -78,22 +78,12 @@ class NowcoderContest(ContestBase, SQLBase):
             query = query.filter(NowcoderContest.div == div)
         return query.all()
 
-    def get_rankings_append_unregistered(self) -> List["NowcoderRanking"]:
-        """获取所有参加了比赛的 NowcoderRanking。将没有登记纳入 student & nowcoder_account 数据库的同学 append 到最后"""
-        registered = (
+    def get_all_rankings(self) -> List["NowcoderRanking"]:
+        """获取所有参加了比赛的 NowcoderRanking"""
+        all_rankings = (
             sqlsession.query(NowcoderRanking)
-            .join(NowcoderAccount)
-            .join(Student)
             .where(NowcoderRanking.contest_id == self.id)
-            .order_by(Student.id)
-            # .where(NowcoderRanking.competition_rank != None)
             .all()
         )
-        unregistered = (
-            sqlsession.query(NowcoderRanking)
-            .join(NowcoderAccount)
-            .where(NowcoderRanking.contest_id == self.id)
-            .where(NowcoderAccount.student_id == None)
-            .all()
-        )
-        return registered + unregistered
+
+        return all_rankings

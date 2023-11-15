@@ -81,7 +81,7 @@ class Sheet:
         if self.excel_book.only_attendance:  # 只计算选课的同学的排名（排除未选课的同学）
             rankings = self.nowcoder_contest.get_only_attendance_rankings()
         else:  # 计算所有参加比赛的同学的排名
-            rankings = self.nowcoder_contest.get_rankings_append_unregistered()
+            rankings = self.nowcoder_contest.get_all_rankings()
 
         for ranking in rankings:
             crt_ranking_is_in_course: bool = bool(

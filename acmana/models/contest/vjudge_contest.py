@@ -71,25 +71,14 @@ class VjudgeContest(ContestBase, SQLBase):
             .all()
         )
 
-    def get_rankings_append_unregistered(self) -> List["VjudgeRanking"]:
-        """获取所有参加了比赛的 VjudgeRanking。将没有登记纳入 student & vjudge_account 数据库的同学 append 到最后"""
-        registered = (
+    def get_all_rankings(self) -> List["VjudgeRanking"]:
+        """获取所有参加了比赛的 VjudgeRanking"""
+        all_rankings = (
             sqlsession.query(VjudgeRanking)
-            .join(VjudgeAccount)
-            .join(Student)
             .where(VjudgeRanking.contest_id == self.id)
-            .order_by(Student.id)
-            # .where(VjudgeRanking.competition_rank != None)
             .all()
         )
-        unregistered = (
-            sqlsession.query(VjudgeRanking)
-            .join(VjudgeAccount)
-            .where(VjudgeRanking.contest_id == self.id)
-            .where(VjudgeAccount.student_id == None)
-            .all()
-        )
-        return registered + unregistered
+        return all_rankings
 
     @staticmethod
     def query_from_id(id: int) -> Optional["VjudgeContest"]:
