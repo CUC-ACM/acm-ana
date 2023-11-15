@@ -60,6 +60,7 @@ class VjudgeContest(ContestBase, SQLBase):
 
     def get_only_attendance_rankings(self) -> List["VjudgeRanking"]:
         """获取所有参加了比赛的 VjudgeRanking"""
+        sqlsession.close()
         return (
             sqlsession.query(VjudgeRanking)
             .join(VjudgeAccount)
@@ -73,6 +74,7 @@ class VjudgeContest(ContestBase, SQLBase):
 
     def get_all_rankings(self) -> List["VjudgeRanking"]:
         """获取所有参加了比赛的 VjudgeRanking"""
+        sqlsession.close()
         all_rankings = (
             sqlsession.query(VjudgeRanking)
             .where(VjudgeRanking.contest_id == self.id)
