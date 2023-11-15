@@ -98,6 +98,10 @@ def export_vjudge_contests_to_excel():
             sheet_name_remover=instance["sheet_name_remover"],
         )
         attendance_excel_book.write_book()
+        from acmana.models import sqlsession, SessionMaker
+
+        sqlsession.close()
+        sqlsession = SessionMaker()
 
 
 def export_nowcoder_contests_to_excel():
