@@ -13,20 +13,24 @@ vjudge: # vjudge config
     #   sheet_name_remover: "CUC-ACM-2023秋季学期" # 用于去除 sheet name 中的前缀
     #   export_filename: "CUC-ACM-2023-Autumn-Vjudge-prophase" # 导出的文件名前缀
 
-    basic: # 基础训练
-      title_prefix: "CUC-ACM-2023秋季学期新生基础练习" # 检索用的标题
-      sheet_name_remover: "CUC-ACM-2023秋季学期新生" # 用于去除 sheet name 中的前缀
-      export_filename: "CUC-ACM-2023-Autumn-Vjudge-Basic" # 导出的文件名前缀
+    # basic: # 基础训练
+    #   title_prefix: "CUC-ACM-2023秋季学期新生基础练习" # 检索用的标题
+    #   sheet_name_remover: "CUC-ACM-2023秋季学期新生" # 用于去除 sheet name 中的前缀
+    #   export_filename: "CUC-ACM-2023-Autumn-Vjudge-Basic" # 导出的文件名前缀
 
-    div1: # 9~16 周的 div1 类别
-      title_prefix: "CUC-ACM-2023秋季学期新生练习-div1" # 检索用的标题
-      sheet_name_remover: "CUC-ACM-2023秋季学期" # 用于去除 sheet name 中的前缀
-      export_filename: "CUC-ACM-2023-Autumn-Vjudge-div1" # 导出的文件名前缀
+    # div1: # 9~16 周的 div1 类别
+    #   title_prefix: "CUC-ACM-2023秋季学期新生练习-div1" # 检索用的标题
+    #   sheet_name_remover: "CUC-ACM-2023秋季学期" # 用于去除 sheet name 中的前缀
+    #   export_filename: "CUC-ACM-2023-Autumn-Vjudge-div1" # 导出的文件名前缀
 
-    div2: # 9~16 周 div2 类别
-      title_prefix: "CUC-ACM-2023秋季学期新生练习-div2" # 检索用的标题
-      sheet_name_remover: "CUC-ACM-2023秋季学期" # 用于去除 sheet name 中的前缀
-      export_filename: "CUC-ACM-2023-Autumn-Vjudge-div2" # 用于去除 sheet name 中的前缀
+    # div2: # 9~16 周 div2 类别
+    #   title_prefix: "CUC-ACM-2023秋季学期新生练习-div2" # 检索用的标题
+    #   sheet_name_remover: "CUC-ACM-2023秋季学期" # 用于去除 sheet name 中的前缀
+    #   export_filename: "CUC-ACM-2023-Autumn-Vjudge-div2" # 用于去除 sheet name 中的前缀
+    Winter-Training:
+      title_prefix: "CUC-ACM-2024-Winter-Training" # 检索用的标题
+      sheet_name_remover: "CUC-ACM-2024-Winter-Training Round " # 用于去除 sheet name 中的前缀
+      export_filename: "CUC-ACM-2023-Autumn-Vjudge-Winter-Training" # 用于去除 sheet name 中的前缀
 
 nowcoder: # 牛客 config
   instances:
