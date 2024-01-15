@@ -38,16 +38,8 @@ jobs:
         with:
           artifacts: "outputs/*"
           allowUpdates: true
-          tag: "v0.0.9"
-          body: |
-            ## Release 附件说明
-            |  关键字  |  对应   |   比赛平台    |
-            | :------: | :-----: | :-----------: |
-            | prophase | 1~5 场  | 牛客 & Vjudge |
-            |  Basic   | 6~8 场  |    Vjudge     |
-            |   div1   | 9~16 场 |    Vjudge     |
-            |   div2   | 9~16 场 |    Vjudge     |
-
+          tag: "v0.0.10"
+          body: "## CUC 寒假训练积分"
           # commit: true
           #   bodyFile: "body.md"
           # token: ${{ secrets.YOUR_GITHUB_TOKEN }}
