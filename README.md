@@ -113,3 +113,17 @@ $$
 ### `NOWCODER_COOKIE` 环境变量
 
 > 由于牛客对于 `非管理员用户` 只能看到比赛的前 10 页提交，无法查看到所有提交来统计 `补题数`，所以在所有情况下都需要设置 `NOWCODER_COOKIE` 环境变量
+
+### 运行方法
+
+#### 本地运行
+
+```bash
+python -m acmana
+```
+
+#### Github Actions
+
+建议将每一个学期新建一个不同的分支，然后将 [config.yaml](./config.yaml) `push` 到对应的分支中。
+
+记得将 [https://github.com/CUC-ACM/acm-ana/actions/workflows/create_release.yaml](https://github.com/CUC-ACM/acm-ana/actions/workflows/create_release.yaml) `Enable Workflow` 开启
