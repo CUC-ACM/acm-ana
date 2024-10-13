@@ -37,7 +37,7 @@ def read_course_registration_excel(
         year_list.append(year)
         major_list.append(major)
 
-    with open(student_id_file_path, "r") as f:
+    with open(student_id_file_path, "r", encoding="utf-8") as f:
         for line in f:
             if line.strip() == "":
                 continue

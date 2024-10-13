@@ -145,5 +145,5 @@ async def fetch_contest_submisions(contest_id: int) -> list[dict]:
 
 if __name__ == "__main__":
     submission_jsons = asyncio.run(fetch_contest_submisions(67976))
-    with open("acmana/tmp/nowcoder_submissions_aio.json", "w") as f:
+    with open("acmana/tmp/nowcoder_submissions_aio.json", "w", encoding="utf-8") as f:
         json.dump(submission_jsons, f, indent=4, ensure_ascii=False)

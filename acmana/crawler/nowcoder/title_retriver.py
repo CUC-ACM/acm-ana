@@ -32,7 +32,7 @@ class NowcoderContestRetriever:
             "t",
         ) and os.path.exists(cache_path):
             logger.info(f"DEBUG_CACHE is True, use cache {cache_path}")
-            with open(cache_path, "r") as f:
+            with open(cache_path, "r", encoding="utf-8") as f:
                 html: str = f.read()
         else:
             logger.info(
@@ -52,7 +52,7 @@ class NowcoderContestRetriever:
                 headers=headers,
             )
             html = response.text
-            with open(cache_path, "w") as f:
+            with open(cache_path, "w", encoding="utf-8") as f:
                 f.write(html)
 
         self.retrieved_contests: list["NowcoderContest"] = []

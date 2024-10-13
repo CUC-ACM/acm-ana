@@ -128,7 +128,7 @@ class VjudgeContestCrawler:
             "1",
             "t",
         ) and os.path.exists(cache_path):
-            with open(cache_path) as f:
+            with open(cache_path, encoding="utf-8") as f:
                 _contest_api_metadata = json.load(f)
             return _contest_api_metadata
 
@@ -139,7 +139,7 @@ class VjudgeContestCrawler:
             f"https://vjudge.net/contest/rank/single/{self._contest_id}",
             headers=headers,
         )
-        with open(cache_path, "w") as f:  # 保存 cache 到本地
+        with open(cache_path, "w", encoding="utf-8") as f:  # 保存 cache 到本地
             json.dump(response.json(), f, ensure_ascii=False)
         return response.json()
 

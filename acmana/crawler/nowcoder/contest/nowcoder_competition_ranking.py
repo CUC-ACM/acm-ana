@@ -55,5 +55,7 @@ async def fetch_contest_ranking(contest_id: int) -> list[dict]:
 if __name__ == "__main__":
     contest_id = 67345
     rankings = asyncio.run(fetch_contest_ranking(67345))
-    with open(f"acmana/tmp/nowcoder_rank_{contest_id}.json", "w") as f:
-        rankings = json.dump(rankings, f, indent=4, ensure_ascii=False)
+    with open(
+        f"acmana/tmp/nowcoder_rank_{contest_id}.json", "w", encoding="utf-8"
+    ) as f:
+        json.dump(rankings, f, indent=4, ensure_ascii=False)

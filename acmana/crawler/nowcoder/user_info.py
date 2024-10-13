@@ -28,7 +28,7 @@ async def get_nowcoder_nickname(
             headers=headers,
         ) as response:
             html = await response.text()
-        with open(cache_path, "w") as f:
+        with open(cache_path, "w", encoding="utf-8") as f:
             f.write(html)
 
     re_nickname = re.compile(r'data-title="(.*)"', re.M | re.I)

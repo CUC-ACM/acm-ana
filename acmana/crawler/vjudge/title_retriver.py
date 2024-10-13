@@ -88,7 +88,7 @@ class VjudgeContestRetriever:
             "t",
         ) and os.path.exists(cache_path):
             logger.info(f"DEBUG_CACHE is True, use cache {cache_path}")
-            with open(cache_path, "r") as f:
+            with open(cache_path, "r", encoding="utf-8") as f:
                 data: list[list] = json.load(f)["data"]
         else:
             logger.info(
@@ -99,7 +99,7 @@ class VjudgeContestRetriever:
                 headers=headers,
                 params=self.params,
             )
-            with open(cache_path, "w") as f:
+            with open(cache_path, "w", encoding="utf-8") as f:
                 json.dump(response.json(), f, ensure_ascii=False)
             data: list[list] = response.json()["data"]
 

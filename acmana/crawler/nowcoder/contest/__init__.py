@@ -49,7 +49,7 @@ class NowcoderContestCrawler:
             "1",
             "t",
         ) and os.path.exists(cache_path):
-            with open(cache_path, "r") as f:
+            with open(cache_path, "r", encoding="utf-8") as f:
                 html = f.read()
         else:
             headers = {
@@ -62,7 +62,7 @@ class NowcoderContestCrawler:
                 headers=headers,
             )
             html = response.text
-            with open(cache_path, "w") as f:
+            with open(cache_path, "w", encoding="utf-8") as f:
                 f.write(html)
 
         re_contest_info = re.compile(r"window.pageInfo = ([\w\W]*);\s+window.gioInfo")

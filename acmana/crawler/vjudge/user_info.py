@@ -35,7 +35,7 @@ async def get_vjudge_nickname(
             f"https://vjudge.net/user/{username}", headers=headers
         ) as response:
             html = await response.text()
-        with open(cache_path, "w") as f:
+        with open(cache_path, "w", encoding="utf-8") as f:
             f.write(html)
 
     xpath = "/html/body/div[1]/div[2]/div[2]/span"
