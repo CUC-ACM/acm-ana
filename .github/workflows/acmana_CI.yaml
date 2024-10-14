@@ -8,7 +8,7 @@ jobs:
   # build相当于<job_id>,可以自定义
   "Unit_Test":
     # 指定该job_id下的运行环境
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     # 制定运行步骤
     steps:
