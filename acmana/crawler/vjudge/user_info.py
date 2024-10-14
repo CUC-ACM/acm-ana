@@ -8,11 +8,29 @@ import re
 import aiofiles
 import aiohttp
 import fake_useragent
+import requests
 from lxml import etree
 
 from acmana.crawler.vjudge import VjudgeCookieExpiredError
 
 logger = logging.getLogger(__name__)
+
+headers = {
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6,ja;q=0.5",
+    "cache-control": "max-age=0",
+    "cookie": os.environ["VJUDGE_COOKIE"],
+    "priority": "u=0, i",
+    "sec-ch-ua": '"Microsoft Edge";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": '"Linux"',
+    "sec-fetch-dest": "document",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "none",
+    "sec-fetch-user": "?1",
+    "upgrade-insecure-requests": "1",
+    "user-agent": fake_useragent.UserAgent().random,
+}
 
 
 async def get_vjudge_nickname(
@@ -28,13 +46,10 @@ async def get_vjudge_nickname(
         async with aiofiles.open(cache_path, mode="r") as f:
             html = await f.read()
     else:
-        headers = {
-            "User-Agent": fake_useragent.UserAgent().random,
-        }
-        async with session.get(
-            f"https://vjudge.net/user/{username}", headers=headers
-        ) as response:
-            html = await response.text()
+        html = requests.get(
+            f"https://vjudge.net/user/{username}", headers=headers, timeout=10
+        ).text
+
         with open(cache_path, "w", encoding="utf-8") as f:
             f.write(html)
 
@@ -63,34 +78,14 @@ async def get_vjudge_user_id(username: str, session: aiohttp.ClientSession) -> i
         params = {
             "to": username,
         }
-        headers = {
-            "authority": "vjudge.net",
-            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-            "cache-control": "max-age=0",
-            "cookie": os.environ["VJUDGE_COOKIE"],
-            "referer": "https://vjudge.net/",
-            "sec-ch-ua": '"Chromium";v="118", "Microsoft Edge";v="118", "Not=A?Brand";v="99"',
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": '"Linux"',
-            "sec-fetch-dest": "document",
-            "sec-fetch-mode": "navigate",
-            "sec-fetch-site": "same-origin",
-            "sec-fetch-user": "?1",
-            "upgrade-insecure-requests": "1",
-            "user-agent": fake_useragent.UserAgent().random,
-        }
-        async with session.get(
+        html = requests.get(
             "https://vjudge.net/message",
             headers=headers,
             params=params,
             allow_redirects=False,
-        ) as response:
-            html = await response.text()
-            if response.status == 303:
-                raise VjudgeCookieExpiredError(
-                    "Vjudge Cookie 已过期，请重新设置 VJUDGE_COOKIE 环境变量"
-                )
+            timeout=10,
+        ).text
+
         with open(cache_path, "w", encoding="UTF-8") as f:
             f.write(html)
 
@@ -107,7 +102,9 @@ async def get_vjudge_user_id(username: str, session: aiohttp.ClientSession) -> i
         logger.info(f"vjudge username: {username}, user_id: {uid}")
         return uid
     else:
-        raise ValueError(f"vjudge username: {username} 不存在或者 VJUDGE_COOKIE 环境变量设置错误或过期")
+        raise ValueError(
+            f"vjudge username: {username} 不存在或者 VJUDGE_COOKIE 环境变量设置错误或过期"
+        )
 
 
 if __name__ == "__main__":
